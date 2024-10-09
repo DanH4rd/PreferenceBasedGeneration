@@ -1,0 +1,6 @@
+__pycache__/
+/UTs/
+/GenerativeModelsData/
+
+/.venv
+/testing.ipynb
