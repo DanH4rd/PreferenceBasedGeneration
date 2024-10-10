@@ -34,7 +34,7 @@ class ActionRewardLoss(AbsLoss):
             self.rewardModel.model.SetToEvaluaionMode()
             returnToTrainMode = True
 
-        loss = self.rewardModel(data.actions) 
+        loss = self.rewardModel(data) 
         
         if returnToTrainMode:
             self.rewardModel.model.SetToTrainMode()

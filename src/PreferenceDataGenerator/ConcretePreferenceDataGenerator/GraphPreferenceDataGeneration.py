@@ -188,13 +188,14 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
             action1 = actions_tensor[a].unsqueeze(0)
             action2 = actions_tensor[b].unsqueeze(0)
 
-            action_pair_tensor_list.append(torch.stack([action1, action2], dim=1))
 
             if m['label'] == 'equal1':
+                action_pair_tensor_list.append(torch.stack([action1, action2], dim=1))
                 preference_pair_tensor_list.append(torch.tensor([.5, .5]))
             elif m['label'] == 'equal2':
                 pass
             elif m['label'] == 'preferable':
+                action_pair_tensor_list.append(torch.stack([action1, action2], dim=1))
                 preference_pair_tensor_list.append(torch.tensor([0., 1.]))
             else:
                 raise Exception(f'Unknown label: {m['label']}')
@@ -212,6 +213,7 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
                 pass
             else:
                 raise Exception(f'Unknown label: {m['label']}')
+            
 
         action_pairs_data = ActionPairsData(actions_pairs=torch.concat(action_pair_tensor_list, dim=0))
         pref_pairs_data = PairPreferenceData(y=torch.stack(preference_pair_tensor_list, dim=0))

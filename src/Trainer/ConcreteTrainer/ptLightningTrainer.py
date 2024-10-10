@@ -61,6 +61,11 @@ class ptLightningModelWrapper(L.LightningModule, ptlLightningWrapper):
     
 
 class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
+    '''
+        ptl wrapper for actiondata object to optimise its actions relative
+        to the provided reward model. The optimised actions are placed
+        into the passed action data object at the end of each epoch
+    '''
     def __init__(self, 
                  action: ActionData,
                  reward_model:AbsRewardModel,
@@ -68,7 +73,9 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
         super().__init__()
 
         self.rewardModel = reward_model
-        self.action = action.actions
+        self.action_data_object = action
+        self.action_data_object_device = action.actions.device
+        self.action = torch.nn.parameter.Parameter(action.actions)
 
         self.loss_func_obj = loss_func_obj
 
@@ -79,10 +86,11 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
         t_pairs, t_prefs = batch
 
         data = ActionData(
-            actions=self.action
+            actions=self.action.to(self.device)
         )
 
         loss = self.loss_func_obj.CalculateLoss(data)
+
         
         return loss
     
@@ -94,6 +102,8 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
     @override
     def on_train_epoch_end(self):
         self.rewardModel.model.Unfreeze()
+
+        self.action_data_object.actions = self.action.data.detach().to(self.action_data_object_device)
         pass
 
     

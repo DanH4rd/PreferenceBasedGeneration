@@ -34,6 +34,9 @@ class BestActionTracker(AbsPreferenceDataGenerator):
                 add an option to ensure in generating additional data stage  
                 that generated preferences and action pairs are not already present in originally
                 generated data 
+
+                (ACT-LOSS) (ctr f to find line) the operation to get a list of used actions sometimes
+                loses some actions while converting from action pairs
         """
 
         action_pairs_data, preference_data = self.prefDataGen.GeneratePreferenceData(data=data, limit = limit)
@@ -98,7 +101,8 @@ class BestActionTracker(AbsPreferenceDataGenerator):
 
         # generate new preference data
 
-        all_actions = torch.flatten(action_tensor, start_dim=0, end_dim=1).unique(dim=0)
+        all_actions = torch.flatten(action_tensor, start_dim=0, end_dim=1).unique(dim=0) # (ACT-LOSS) sometimes loses some actions
+
         all_actions_without_best_idx_table = ~((all_actions - self.best_action) < 1e-10).all(dim=1)
         all_actions = all_actions[all_actions_without_best_idx_table]
 
