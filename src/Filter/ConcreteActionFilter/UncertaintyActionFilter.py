@@ -1,23 +1,28 @@
-from Filter.AbsActionFilter import AbsActionFilter
-from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
-from RewardModel.AbsRewardModel import AbsRewardModel
-import torch
 import math
+
+import torch
+
+from Filter.AbsActionFilter import AbsActionFilter
+from RewardModel.AbsRewardModel import AbsRewardModel
+from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
+
 
 class UncertaintyActionFilter(AbsActionFilter):
     """
-        Filter that returns set amount of action based on their uncertainty. RewardModel
-        must have a NetworkExtension that hold implementation for uncertainty calculation
+    Filter that returns set amount of action based on their uncertainty. RewardModel
+    must have a NetworkExtension that hold implementation for uncertainty calculation
 
-        !!! Returns actions sorted in an ascending way based on their uncertainty score !!!
+    !!! Returns actions sorted in an ascending way based on their uncertainty score !!!
     """
 
-    def __init__(self, mode:str, rewardModel:AbsRewardModel, limit:int|float|None):
+    def __init__(
+        self, mode: str, rewardModel: AbsRewardModel, limit: int | float | None
+    ):
         """
-            Params:
-                rewardModel - reward model to use as estimator 
-                limit - max number of actions to return
-                mode - determines is filter returns based on min values or max values
+        Params:
+            rewardModel - reward model to use as estimator
+            limit - max number of actions to return
+            mode - determines is filter returns based on min values or max values
         """
 
         self.rewardModel = rewardModel
@@ -27,27 +32,30 @@ class UncertaintyActionFilter(AbsActionFilter):
         if self.limit is not None:
             if isinstance(self.limit, int):
                 if self.limit < 1:
-                    raise Exception(f'Invalid limit int value: {self.limit}')
+                    raise Exception(f"Invalid limit int value: {self.limit}")
             elif isinstance(self.limit, float):
                 if self.limit > 1 or self.limit < 0:
-                    raise Exception(f'Invalid limit float value: {self.limit}')
+                    raise Exception(f"Invalid limit float value: {self.limit}")
             else:
-                raise Exception(f'Wrong limit value type: {self.limit} - {type(self.limit)}')
+                raise Exception(
+                    f"Wrong limit value type: {self.limit} - {type(self.limit)}"
+                )
 
-
-    def Filter(self, data:ActionData) -> ActionData:
+    def Filter(self, data: ActionData) -> ActionData:
         """
-            Calculates uncertainty score for actions provided and returns
-            limit of actions with the biggest uncertainty scores
+        Calculates uncertainty score for actions provided and returns
+        limit of actions with the biggest uncertainty scores
 
-            Check the abstract base class for more info.
+        Check the abstract base class for more info.
         """
 
         modelExtension = self.rewardModel.GetExtension()
 
-        uncertainty_scores = modelExtension.CallExtensionMethod('CalculateUncertainty',[data.actions])
+        uncertainty_scores = modelExtension.CallExtensionMethod(
+            "CalculateUncertainty", [data.actions]
+        )
 
-        sorted_values = torch.argsort(uncertainty_scores, dim = 0).squeeze()
+        sorted_values = torch.argsort(uncertainty_scores, dim=0).squeeze()
 
         actions = data.actions[sorted_values]
 
@@ -59,13 +67,12 @@ class UncertaintyActionFilter(AbsActionFilter):
             else:
                 int_limit = math.ceil(len(actions) * self.limit)
 
-            if self.mode == 'max':
+            if self.mode == "max":
                 actions = actions[-int_limit:]
-            elif self.mode == 'min':
+            elif self.mode == "min":
                 actions = actions[:int_limit]
             else:
-                raise Exception(f'Invalid filter mode for ({str(self)}): {self.mode}')
-
+                raise Exception(f"Invalid filter mode for ({str(self)}): {self.mode}")
 
         return ActionData(actions=actions)
 

@@ -1,20 +1,24 @@
 import abc
-import torch
-from src.DataStructures.ConcreteDataStructures.ActionPairsData import ActionPairsData
-from src.DataStructures.ConcreteDataStructures.PairPreferenceData import PairPreferenceData
-from src.DataStructures.AbsData import AbsData
 from random import randint
+
+import torch
+
+from src.DataStructures.ConcreteDataStructures.ActionPairsData import ActionPairsData
+from src.DataStructures.ConcreteDataStructures.PairPreferenceData import (
+    PairPreferenceData,
+)
+
 
 class RandomFeedbackSource(object, metaclass=abc.ABCMeta):
     """
-        Generates random feedback 
+    Generates random feedback
     """
 
-    possible_values = [[1.,0.], [0., 1.], [.5,.5], [0.,0.]]
+    possible_values = [[1.0, 0.0], [0.0, 1.0], [0.5, 0.5], [0.0, 0.0]]
 
-    def GenerateFeedback(self, data:ActionPairsData) -> PairPreferenceData:
+    def GenerateFeedback(self, data: ActionPairsData) -> PairPreferenceData:
         """
-            Returns feedback for provided data
+        Returns feedback for provided data
         """
 
         action_pairs_num = data.actions_pairs.shape[0]
@@ -29,4 +33,4 @@ class RandomFeedbackSource(object, metaclass=abc.ABCMeta):
         return preference_data
 
     def __str__(self) -> str:
-        return 'Random feedback'
+        return "Random feedback"

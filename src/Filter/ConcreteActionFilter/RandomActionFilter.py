@@ -1,18 +1,21 @@
-from src.Filter.AbsActionFilter import AbsActionFilter
-from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
-from torch import randperm
 import math
+
+from torch import randperm
+
+from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
+from src.Filter.AbsActionFilter import AbsActionFilter
+
 
 class RandomActionFilter(AbsActionFilter):
     """
-        Filter that returns set amount of action picked randomly
+    Filter that returns set amount of action picked randomly
     """
 
-    def __init__(self, limit:int|float|None):
+    def __init__(self, limit: int | float | None):
         """
-            Params:
-                rewardModel - reward model to use as estimator 
-                limit - max number of actions to return
+        Params:
+            rewardModel - reward model to use as estimator
+            limit - max number of actions to return
         """
 
         self.limit = limit
@@ -20,20 +23,20 @@ class RandomActionFilter(AbsActionFilter):
         if self.limit is not None:
             if isinstance(self.limit, int):
                 if self.limit < 1:
-                    raise Exception(f'Invalid limit int value: {self.limit}')
+                    raise Exception(f"Invalid limit int value: {self.limit}")
             elif isinstance(self.limit, float):
                 if self.limit > 1 or self.limit < 0:
-                    raise Exception(f'Invalid limit float value: {self.limit}')
+                    raise Exception(f"Invalid limit float value: {self.limit}")
             else:
-                raise Exception(f'Wrong limit value type: {self.limit} - {type(self.limit)}')
+                raise Exception(
+                    f"Wrong limit value type: {self.limit} - {type(self.limit)}"
+                )
 
-
-
-    def Filter(self, data:ActionData) -> ActionData:
+    def Filter(self, data: ActionData) -> ActionData:
         """
-            Pickes limit of random actions and returns them
+        Pickes limit of random actions and returns them
 
-            Check the abstract base class for more info.
+        Check the abstract base class for more info.
         """
 
         sorted_values = randperm(data.actions.shape[0])
