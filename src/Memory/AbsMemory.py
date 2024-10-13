@@ -1,6 +1,5 @@
 import abc
 
-
 from src.DataStructures.AbsData import AbsData
 
 
@@ -10,7 +9,7 @@ class AbsLoss(object, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def AddData(self, data: AbsData) -> None:
+    def add_data(self, data: AbsData) -> None:
         """
 
         Add new data to the memory
@@ -20,7 +19,7 @@ class AbsLoss(object, metaclass=abc.ABCMeta):
         raise NotImplementedError("users must define AddData to use this base class")
 
     @abc.abstractmethod
-    def GetMemoryData(self) -> AbsData:
+    def get_data_from_memory(self) -> AbsData:
         """
         Returns data, contained in memory
 

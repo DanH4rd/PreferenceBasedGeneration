@@ -1,4 +1,5 @@
 from itertools import combinations, product
+from typing import override
 
 import networkx as nx
 import numpy as np
@@ -6,8 +7,8 @@ import torch
 
 from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
 from src.DataStructures.ConcreteDataStructures.ActionPairsData import ActionPairsData
-from src.DataStructures.ConcreteDataStructures.PairPreferenceData import (
-    PairPreferenceData,
+from src.DataStructures.ConcreteDataStructures.PreferencePairsData import (
+    PreferencePairsData,
 )
 from src.FeedbackSource.AbsFeedbackSource import AbsFeedbackSource
 from src.PreferenceDataGenerator.AbsPreferenceDataGenerator import (
@@ -17,7 +18,7 @@ from src.PreferenceDataGenerator.AbsPreferenceDataGenerator import (
 
 class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
     """
-    Base class incupsulating the required logic for generating pairs
+    Base class incupsulating the required logic for generating preference data
     based on constructed graphs of preference relationships between
     actions
     """
@@ -39,20 +40,20 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
 
         self.deduceAdditionalLinks = deduceAdditionalLinks
 
-    def AddPreferenceToGraphs(
+    def add_preference_relationship_to_graphs(
         self,
         prefG: nx.DiGraph,
         genG: nx.Graph,
         node1: int,
         node2: int,
-        preference: PairPreferenceData,
+        preference: PreferencePairsData,
     ):
         """
         Holds logic for creating new edges in preference and general graphs based on preferences.
         """
         # from unprefered to prefered
 
-        pref_tensor = preference.y.cpu().detach()
+        pref_tensor = preference.preference_pairs.cpu().detach()
 
         if pref_tensor.shape[0] != 1:
             raise Exception(
@@ -77,7 +78,7 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
         else:
             raise Exception(f"Unexpected preference data: {preference}")
 
-    def FindEdgeToAsk(
+    def find_edge_to_ask(
         self,
         actions_tensor: torch.tensor,
         edge_list: list,
@@ -97,12 +98,14 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
                 action2 = actions_tensor[node2].unsqueeze(0)
 
                 action_pair_data = ActionPairsData(
-                    actions_pairs=torch.stack([action1, action2], dim=1)
+                    action_pairs=torch.stack([action1, action2], dim=1)
                 )
 
-                preference_data = self.feedbackSource.GenerateFeedback(action_pair_data)
+                preference_data = self.feedbackSource.generate_feedback(
+                    action_pair_data
+                )
 
-                self.AddPreferenceToGraphs(
+                self.add_preference_relationship_to_graphs(
                     prefG=prefGraph,
                     genG=genGraph,
                     node1=node1,
@@ -114,9 +117,10 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
 
         return False
 
-    def GeneratePreferenceData(
+    @override
+    def generate_preference_data(
         self, data: ActionData, limit: int
-    ) -> tuple[ActionPairsData, PairPreferenceData]:
+    ) -> tuple[ActionPairsData, PreferencePairsData]:
         """
         Constructs a directed graph of preferences. First it tries to connect all the
         components together (preferences [0,0] are ignored). If there is already one
@@ -168,7 +172,7 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
                     comp1 = components[comp1_id]
                     comp2 = components[comp2_id]
 
-                    gained_feedback = self.FindEdgeToAsk(
+                    gained_feedback = self.find_edge_to_ask(
                         actions_tensor=actions_tensor,
                         edge_list=product(comp1, comp2),
                         prefGraph=preference_graph,
@@ -190,7 +194,7 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
 
                 nodes_combinations = combinations(nodes, 2)
 
-                gained_feedback = self.FindEdgeToAsk(
+                gained_feedback = self.find_edge_to_ask(
                     actions_tensor=actions_tensor,
                     edge_list=nodes_combinations,
                     prefGraph=preference_graph,
@@ -253,10 +257,10 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
                 raise Exception(f"Unknown label: {m['label']}")
 
         action_pairs_data = ActionPairsData(
-            actions_pairs=torch.concat(action_pair_tensor_list, dim=0)
+            action_pairs=torch.concat(action_pair_tensor_list, dim=0)
         )
-        pref_pairs_data = PairPreferenceData(
-            y=torch.stack(preference_pair_tensor_list, dim=0)
+        pref_pairs_data = PreferencePairsData(
+            preference_pairs=torch.stack(preference_pair_tensor_list, dim=0)
         )
 
         return action_pairs_data, pref_pairs_data

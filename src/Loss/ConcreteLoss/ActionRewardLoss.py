@@ -18,7 +18,7 @@ class ActionRewardLoss(AbsLoss):
 
         self.rewardModel = rewardModel
 
-    def CalculateLoss(self, data: ActionData) -> torch.tensor:
+    def calculate_loss(self, data: ActionData) -> torch.tensor:
         """
         Calculates the action reward loss for the given actions.
 
@@ -31,14 +31,14 @@ class ActionRewardLoss(AbsLoss):
 
         returnToTrainMode = False
 
-        if self.rewardModel.model.IsTrainMode():
-            self.rewardModel.model.SetToEvaluaionMode()
+        if self.rewardModel.model.is_train_mode():
+            self.rewardModel.model.set_to_evaluaion_mode()
             returnToTrainMode = True
 
         loss = self.rewardModel(data)
 
         if returnToTrainMode:
-            self.rewardModel.model.SetToTrainMode()
+            self.rewardModel.model.set_to_train_mode()
 
         loss = -loss.mean()
 

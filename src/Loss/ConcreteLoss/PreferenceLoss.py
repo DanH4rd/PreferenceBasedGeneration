@@ -1,4 +1,3 @@
-
 import torch
 
 from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
@@ -44,7 +43,7 @@ class PreferenceLoss(AbsLoss):
         answer = torch.exp(r1) / (torch.exp(r1) + torch.exp(r2))
         return answer
 
-    def CalculateLoss(self, data: ActionPairsPrefPairsContainer) -> torch.tensor:
+    def calculate_loss(self, data: ActionPairsPrefPairsContainer) -> torch.tensor:
         """
         Calculates Cross Entropy loss on preference data
 
@@ -56,12 +55,12 @@ class PreferenceLoss(AbsLoss):
 
         """
 
-        action_pairs_tensor = data.action_pairs_data.actions_pairs
-        pref_pairs_tensor = data.pref_pairs_data.y
+        action_pairs_tensor = data.action_pairs_data.action_pairs
+        pref_pairs_tensor = data.pref_pairs_data.preference_pairs
 
         returnToTrainMode = False
-        if self.rewardModel.IsTrainMode():
-            self.rewardModel.SetToEvaluaionMode()
+        if self.rewardModel.is_train_mode():
+            self.rewardModel.set_to_evaluaion_mode()
             returnToTrainMode = True
 
         rewards_left_column = self.rewardModel(
@@ -72,7 +71,7 @@ class PreferenceLoss(AbsLoss):
         ).squeeze(1)
 
         if returnToTrainMode:
-            self.rewardModel.SetToTrainMode()
+            self.rewardModel.set_to_train_mode()
 
         preferences_left_column = self.ConvertRewards2Preferences(
             rewards_left_column, rewards_right_column

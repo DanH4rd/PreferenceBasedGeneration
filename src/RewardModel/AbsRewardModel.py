@@ -13,7 +13,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def GetRewards(self, data: AbsData) -> torch.Tensor:
+    def get_rewards(self, data: AbsData) -> torch.Tensor:
         """
         Returns rewards for given actions in the current model mode (eval or train)
 
@@ -26,7 +26,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
         raise NotImplementedError("users must define GetRewards to use this base class")
 
     @abc.abstractmethod
-    def GetStableRewards(self, data: AbsData) -> torch.Tensor:
+    def get_stable_rewards(self, data: AbsData) -> torch.Tensor:
         """
         Returns rewards for given actions using evaluation mode of the network
 
@@ -41,7 +41,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
         )
 
     @abc.abstractmethod
-    def SetToEvaluaionMode(self) -> None:
+    def set_to_evaluaion_mode(self) -> None:
         """
         Sets the model to eval mode
 
@@ -51,7 +51,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
         )
 
     @abc.abstractmethod
-    def SetToTrainMode(self) -> None:
+    def set_to_train_mode(self) -> None:
         """
         Sets the model to train mode
 
@@ -61,7 +61,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
         )
 
     @abc.abstractmethod
-    def IsTrainMode(self) -> None:
+    def is_train_mode(self) -> None:
         """
         Returns if the model is in train mode
 
@@ -71,7 +71,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
         )
 
     @abc.abstractmethod
-    def SetDevice(self, device) -> None:
+    def set_device(self, device) -> None:
         """
         Sets the used device object for the network
 
@@ -82,7 +82,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
         raise NotImplementedError("users must define SetDevice to use this base class")
 
     @abc.abstractmethod
-    def GetTrainer(self) -> AbsTrainer:
+    def get_trainer(self) -> AbsTrainer:
         """
         Returns the trainer object compatible with the given network
 
@@ -93,7 +93,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
         raise NotImplementedError("users must define GetTrainer to use this base class")
 
     @abc.abstractmethod
-    def GetExtension(self) -> AbsNetworkExtension:
+    def get_extension(self) -> AbsNetworkExtension:
         """
         Returns object realising specific methods for the calling network
 
@@ -104,7 +104,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
         raise NotImplementedError("users must define SetDevice to use this base class")
 
     @abc.abstractmethod
-    def Freeze(self) -> None:
+    def freeze(self) -> None:
         """
         Freezes weights
 
@@ -112,7 +112,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
         raise NotImplementedError("users must define Freeze to use this base class")
 
     @abc.abstractmethod
-    def Unfreeze(self, flag: bool) -> None:
+    def unfreeze(self, flag: bool) -> None:
         """
         Unfreezes the weights
 
@@ -120,7 +120,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
         raise NotImplementedError("users must define Unfreeze to use this base class")
 
     @abc.abstractmethod
-    def IsFrozen(self) -> None:
+    def is_frozen(self) -> None:
         """
         Returns if the model weights are frozen
 

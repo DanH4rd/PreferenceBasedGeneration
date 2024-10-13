@@ -11,7 +11,7 @@ class AbsLoss(object, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def CalculateLoss(self, data: AbsData) -> torch.tensor:
+    def calculate_loss(self, data: AbsData) -> torch.tensor:
         """
 
         Calculate loss for the given data

@@ -1,8 +1,8 @@
 import torch
 
 from src.DataStructures.AbsData import AbsData
-from src.Logger.AbsLogger import AbsLogger
 from src.Loss.AbsLoss import AbsLoss
+from src.MetricsLogger.AbsMetricsLogger import AbsMetricsLogger
 
 
 class LogLossDecorator(AbsLoss):
@@ -11,7 +11,7 @@ class LogLossDecorator(AbsLoss):
     value using a provided logger
     """
 
-    def __init__(self, lossObject: AbsLoss, logger: AbsLogger):
+    def __init__(self, lossObject: AbsLoss, logger: AbsMetricsLogger):
         """
         Params:
             genModel - generator model object
@@ -21,7 +21,7 @@ class LogLossDecorator(AbsLoss):
         self.lossObject = lossObject
         self.logger = logger
 
-    def CalculateLoss(self, data: AbsData) -> torch.tensor:
+    def calculate_loss(self, data: AbsData) -> torch.tensor:
         """
         Calculates the loss and logs its value.
 
@@ -32,9 +32,9 @@ class LogLossDecorator(AbsLoss):
         Check the abstract base class for more info.
         """
 
-        loss = self.lossObject.CalculateLoss(data=data)
+        loss = self.lossObject.calculate_loss(data=data)
 
-        self.logger.Log(loss)
+        self.logger.log(loss)
 
         return loss
 

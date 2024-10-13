@@ -17,7 +17,7 @@ class CompositeActionFilter(AbsActionFilter):
         self.filters = filters
         self.limit = None
 
-    def AddFilter(self, filter: AbsActionFilter | list[AbsActionFilter]) -> None:
+    def add_filter(self, filter: AbsActionFilter | list[AbsActionFilter]) -> None:
         """
         Adds a filter to the composite elements list. Can accept a list
         of filters as a parametre, in this case it will concat
@@ -32,7 +32,7 @@ class CompositeActionFilter(AbsActionFilter):
         else:
             self.filter.append(filter)
 
-    def Filter(self, data: ActionData) -> ActionData:
+    def filter(self, action_data: ActionData) -> ActionData:
         """
         Performs the Filter function of all composite elements.
         Filtering is performed one by one - the output of the 1st
@@ -40,7 +40,7 @@ class CompositeActionFilter(AbsActionFilter):
 
         Check the abstract base class for more info.
         """
-        actions = data.actions
+        actions = action_data.actions
         for filter in self.filters:
             actions = filter.Filter(actions)
 

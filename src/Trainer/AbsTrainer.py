@@ -1,7 +1,6 @@
 import abc
 
 
-
 class AbsTrainer(object, metaclass=abc.ABCMeta):
     """
     Base class incupsulating the required training logic
@@ -15,7 +14,7 @@ class AbsTrainer(object, metaclass=abc.ABCMeta):
     #     raise NotImplementedError('users must define SetLogger to use this base class')
 
     @abc.abstractmethod
-    def RunTraining(self, epochs: int) -> None:
+    def run_training(self, epochs: int) -> None:
         """
         Run training for the given number of epochs
 

@@ -10,7 +10,7 @@ class AbsActionDistribution(object, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def Sample(self, N: int) -> ActionData:
+    def sample(self, N: int) -> ActionData:
         """
         Sample N actions from the distribution
 
@@ -20,7 +20,7 @@ class AbsActionDistribution(object, metaclass=abc.ABCMeta):
         raise NotImplementedError("users must define Sample to use this base class")
 
     @abc.abstractmethod
-    def Update(self, data: AbsData) -> None:
+    def update(self, data: AbsData) -> None:
         """
         Updates the distribution based on input data
 

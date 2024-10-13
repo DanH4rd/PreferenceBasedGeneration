@@ -13,7 +13,7 @@ class AbsGenModel(object, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def Generate(self, data: AbsData) -> ImageData:
+    def generate(self, data: AbsData) -> ImageData:
         """
         Generates values based on provided data
 
@@ -21,28 +21,28 @@ class AbsGenModel(object, metaclass=abc.ABCMeta):
         raise NotImplementedError("users must define Generate to use this base class")
 
     @abc.abstractmethod
-    def GetNoise(self, N: int) -> AbsData:
+    def sample_random_actions(self, N: int) -> AbsData:
         """
         Returns N samples of noise used for generation
         """
         raise NotImplementedError("users must define GetNoise to use this base class")
 
     @abc.abstractmethod
-    def GetDistribution(self) -> Distribution:
+    def get_input_noise_distribution(self) -> Distribution:
         """
         Returns the distribution over which generator operates
         """
         raise NotImplementedError("users must define GetNoise to use this base class")
 
     @abc.abstractmethod
-    def GetMediaLogger(self) -> AbsLogger:
+    def get_media_logger(self) -> AbsLogger:
         """
         Returns a logger capable of logging the generated objects
         """
         raise NotImplementedError("users must define GetNoise to use this base class")
 
     @abc.abstractmethod
-    def SetDevice(self, device) -> None:
+    def set_device(self, device) -> None:
         """
         Sets the used device object for the model
 

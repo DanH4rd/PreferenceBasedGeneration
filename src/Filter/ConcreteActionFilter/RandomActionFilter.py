@@ -32,16 +32,16 @@ class RandomActionFilter(AbsActionFilter):
                     f"Wrong limit value type: {self.limit} - {type(self.limit)}"
                 )
 
-    def Filter(self, data: ActionData) -> ActionData:
+    def filter(self, action_data: ActionData) -> ActionData:
         """
         Pickes limit of random actions and returns them
 
         Check the abstract base class for more info.
         """
 
-        sorted_values = randperm(data.actions.shape[0])
+        sorted_values = randperm(action_data.actions.shape[0])
 
-        actions = data.actions[sorted_values]
+        actions = action_data.actions[sorted_values]
 
         int_limit = None
 
@@ -56,4 +56,4 @@ class RandomActionFilter(AbsActionFilter):
         return ActionData(actions=actions)
 
     def __str__(self) -> str:
-        return f"Random Action Filter. Limit: {len(self.limit)}"
+        return f"Random Action Filter. Limit: {self.limit}"

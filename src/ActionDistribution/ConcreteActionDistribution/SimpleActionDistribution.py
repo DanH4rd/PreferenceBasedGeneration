@@ -1,4 +1,3 @@
-
 import torch
 from torch.distributions.distribution import Distribution
 
@@ -16,7 +15,7 @@ class SimpleActionDistribution(AbsActionDistribution):
     def __init__(self, dist: Distribution):
         self.dist = dist
 
-    def Sample(self, N: int) -> ActionData:
+    def sample(self, N: int) -> ActionData:
         """
         Sample N actions from the distribution
 
@@ -34,7 +33,7 @@ class SimpleActionDistribution(AbsActionDistribution):
 
         return ActionData(actions=torch.stack(actions, dim=0))
 
-    def Update(self, data: AbsData) -> None:
+    def update(self, data: AbsData) -> None:
         pass
 
     def __str__(self) -> str:

@@ -2,8 +2,8 @@ import torch
 
 from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
 from src.DataStructures.ConcreteDataStructures.ActionPairsData import ActionPairsData
-from src.DataStructures.ConcreteDataStructures.PairPreferenceData import (
-    PairPreferenceData,
+from src.DataStructures.ConcreteDataStructures.PreferencePairsData import (
+    PreferencePairsData,
 )
 from src.PreferenceDataGenerator.AbsPreferenceDataGenerator import (
     AbsPreferenceDataGenerator,
@@ -27,9 +27,9 @@ class BestActionTracker(AbsPreferenceDataGenerator):
 
         self.best_action = torch.tensor([])
 
-    def GeneratePreferenceData(
+    def generate_preference_data(
         self, data: ActionData, limit: int
-    ) -> tuple[ActionPairsData, PairPreferenceData]:
+    ) -> tuple[ActionPairsData, PreferencePairsData]:
         """
         Generates preference data with given preference data generator and
         asks for additional preference data to determine the best action.
@@ -46,12 +46,12 @@ class BestActionTracker(AbsPreferenceDataGenerator):
             loses some actions while converting from action pairs
         """
 
-        action_pairs_data, preference_data = self.prefDataGen.GeneratePreferenceData(
+        action_pairs_data, preference_data = self.prefDataGen.generate_preference_data(
             data=data, limit=limit
         )
 
-        pref_tensor = preference_data.y
-        action_tensor = action_pairs_data.actions_pairs
+        pref_tensor = preference_data.preference_pairs
+        action_tensor = action_pairs_data.action_pairs
 
         best_action_impossible_candidates = []
 
@@ -101,12 +101,12 @@ class BestActionTracker(AbsPreferenceDataGenerator):
             action_pair_tensor = torch.stack(
                 [self.best_action, candidate], dim=0
             ).unsqueeze(0)
-            action_pair_data = ActionPairsData(actions_pairs=action_pair_tensor)
+            action_pair_data = ActionPairsData(action_pairs=action_pair_tensor)
 
-            pref_pair_data = self.prefDataGen.feedbackSource.GenerateFeedback(
+            pref_pair_data = self.prefDataGen.feedbackSource.generate_feedback(
                 action_pair_data
             )
-            preference = pref_pair_data.y[0]
+            preference = pref_pair_data.preference_pairs[0]
             # print(preference)
 
             if (preference == torch.tensor([0.0, 1.0])).all():
@@ -137,14 +137,14 @@ class BestActionTracker(AbsPreferenceDataGenerator):
         additional_action_pairs = torch.stack(additional_action_pairs)
         additional_pref_pairs = torch.stack(additional_pref_pairs)
         action_pairs_tensor = torch.concat(
-            [action_pairs_data.actions_pairs, additional_action_pairs], dim=0
+            [action_pairs_data.action_pairs, additional_action_pairs], dim=0
         )
         action_prefs_tensor = torch.concat(
-            [preference_data.y, additional_pref_pairs], dim=0
+            [preference_data.preference_pairs, additional_pref_pairs], dim=0
         )
 
-        action_pairs_data = ActionPairsData(actions_pairs=action_pairs_tensor)
-        preference_data = PairPreferenceData(y=action_prefs_tensor)
+        action_pairs_data = ActionPairsData(action_pairs=action_pairs_tensor)
+        preference_data = PreferencePairsData(preference_pairs=action_prefs_tensor)
 
         return action_pairs_data, preference_data
 

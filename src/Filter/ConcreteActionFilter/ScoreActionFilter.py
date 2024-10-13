@@ -43,7 +43,7 @@ class ScoreActionFilter(AbsActionFilter):
                     f"Wrong limit value type: {self.limit} - {type(self.limit)}"
                 )
 
-    def Filter(self, data: ActionData) -> ActionData:
+    def filter(self, action_data: ActionData) -> ActionData:
         """
         Calculates scores for actions provided and returns
         limit of actions with the biggest score
@@ -51,11 +51,11 @@ class ScoreActionFilter(AbsActionFilter):
         Check the abstract base class for more info.
         """
 
-        scores = self.key(data)
+        scores = self.key(action_data)
 
         sorted_values = torch.argsort(scores, dim=0).squeeze()
 
-        actions = data.actions[sorted_values]
+        actions = action_data.actions[sorted_values]
 
         int_limit = None
 
@@ -75,4 +75,4 @@ class ScoreActionFilter(AbsActionFilter):
         return ActionData(actions=actions)
 
     def __str__(self) -> str:
-        return f"Reward Action Filter. Mode: {self.mode}. Limit: {len(self.limit)}"
+        return f"Score Action Filter. Mode: {self.mode}. Limit: {self.limit}"

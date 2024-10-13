@@ -1,9 +1,8 @@
 import abc
 
-
 from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
-from src.DataStructures.ConcreteDataStructures.PairPreferenceData import (
-    PairPreferenceData,
+from src.DataStructures.ConcreteDataStructures.PreferencePairsData import (
+    PreferencePairsData,
 )
 
 
@@ -14,11 +13,11 @@ class AbsPreferenceDataGenerator(object, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def GeneratePreferenceData(
+    def generate_preference_data(
         self, data: ActionData, limit: int
-    ) -> PairPreferenceData:
+    ) -> PreferencePairsData:
         """
-        Generates preference data for the provided actions
+        Generates preference data for the provided action data
         """
         raise NotImplementedError("users must define Filter to use this base class")
 

@@ -44,11 +44,11 @@ class StackGanDiscModel(object, metaclass=abc.ABCMeta):
         )
         self.model.eval()
 
-    def Discriminate(self, data: ImageData) -> torch.tensor:
+    def discriminate(self, data: ImageData) -> torch.tensor:
         """
         Generates values based on provided action data
         """
         return self.model(data.images)[0]
 
     def __str__(self) -> str:
-        return f"StackGan model. \nConfig: {self.config_file}\nCheckpoint: {self.checkpoint_file}"
+        return f"StackGan discriminator. \nConfig: {self.config_file}\nCheckpoint: {self.checkpoint_file}"

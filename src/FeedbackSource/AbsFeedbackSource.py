@@ -1,6 +1,5 @@
 import abc
 
-
 from src.DataStructures.AbsData import AbsData
 
 
@@ -10,7 +9,7 @@ class AbsFeedbackSource(object, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def GenerateFeedback(self, data: AbsData) -> AbsData:
+    def generate_feedback(self, data: AbsData) -> AbsData:
         """
         Returns feedback for provided data
         """

@@ -4,8 +4,8 @@ import torch
 
 from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
 from src.DataStructures.ConcreteDataStructures.ActionPairsData import ActionPairsData
-from src.DataStructures.ConcreteDataStructures.PairPreferenceData import (
-    PairPreferenceData,
+from src.DataStructures.ConcreteDataStructures.PreferencePairsData import (
+    PreferencePairsData,
 )
 from src.FeedbackSource.AbsFeedbackSource import AbsFeedbackSource
 from src.PreferenceDataGenerator.AbsPreferenceDataGenerator import (
@@ -27,9 +27,9 @@ class RandomPreferenceDataGenerator(AbsPreferenceDataGenerator):
 
         self.feedbackSource = feedbackSource
 
-    def GeneratePreferenceData(
+    def generate_preference_data(
         self, data: ActionData, limit: int
-    ) -> tuple[ActionPairsData, PairPreferenceData]:
+    ) -> tuple[ActionPairsData, PreferencePairsData]:
         """
         Creates all possible combinations out of provided actioms and randomly shuffles them.
         Then asks for feebback for the first limit pairs.
@@ -50,9 +50,9 @@ class RandomPreferenceDataGenerator(AbsPreferenceDataGenerator):
             dim=1,
         )
 
-        action_pairs_data = ActionPairsData(actions_pairs=action_pair_tensor)
+        action_pairs_data = ActionPairsData(action_pairs=action_pair_tensor)
 
-        preference_data = self.feedbackSource.GenerateFeedback(action_pairs_data)
+        preference_data = self.feedbackSource.generate_feedback(action_pairs_data)
 
         return action_pairs_data, preference_data
 

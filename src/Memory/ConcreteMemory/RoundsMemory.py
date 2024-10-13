@@ -7,8 +7,8 @@ from src.DataStructures.ConcreteDataStructures.ActionPairsData import ActionPair
 from src.DataStructures.ConcreteDataStructures.ActionPairsPrefPairsContainer import (
     ActionPairsPrefPairsContainer,
 )
-from src.DataStructures.ConcreteDataStructures.PairPreferenceData import (
-    PairPreferenceData,
+from src.DataStructures.ConcreteDataStructures.PreferencePairsData import (
+    PreferencePairsData,
 )
 
 
@@ -45,7 +45,7 @@ class RoundsMemory(object, metaclass=abc.ABCMeta):
         pass
 
     @override
-    def AddData(self, data: ActionPairsPrefPairsContainer) -> None:
+    def add_data(self, data: ActionPairsPrefPairsContainer) -> None:
         """
         Add new preference and action data to the memory
         Params:
@@ -56,7 +56,7 @@ class RoundsMemory(object, metaclass=abc.ABCMeta):
         self.memory_list = self.memory_list[-self.limit :]
 
     @override
-    def GetMemoryData(self) -> ActionPairsPrefPairsContainer:
+    def get_data_from_memory(self) -> ActionPairsPrefPairsContainer:
         """
         Returns data, contained in memory
 
@@ -70,8 +70,8 @@ class RoundsMemory(object, metaclass=abc.ABCMeta):
         memory_length = len(self.memory_list)
 
         for i, data in enumerate(self.memory_list):
-            action_pairs_list.append(data.action_pairs_data.actions_pairs)
-            pref_tensor_entry = data.pref_pairs_data.y
+            action_pairs_list.append(data.action_pairs_data.action_pairs)
+            pref_tensor_entry = data.pref_pairs_data.preference_pairs
 
             if self.discount_factor is not None:
                 pref_tensor_entry *= self.discount_factor ^ (memory_length - i)
@@ -81,8 +81,8 @@ class RoundsMemory(object, metaclass=abc.ABCMeta):
         action_pairs_tensor = torch.concat(action_pairs_list, dim=0)
         pref_pairs_tensor = torch.concat(pref_pairs_list, dim=0)
 
-        action_pairs_data = ActionPairsData(actions_pairs=action_pairs_tensor)
-        pref_pairs_data = PairPreferenceData(y=pref_pairs_tensor)
+        action_pairs_data = ActionPairsData(action_pairs=action_pairs_tensor)
+        pref_pairs_data = PreferencePairsData(preference_pairs=pref_pairs_tensor)
 
         pref_action_container = ActionPairsPrefPairsContainer(
             action_pairs_data=action_pairs_data, pref_pairs_data=pref_pairs_data

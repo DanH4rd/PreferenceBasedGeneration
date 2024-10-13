@@ -12,8 +12,8 @@ from src.DataStructures.ConcreteDataStructures.ActionPairsData import ActionPair
 from src.DataStructures.ConcreteDataStructures.ActionPairsPrefPairsContainer import (
     ActionPairsPrefPairsContainer,
 )
-from src.DataStructures.ConcreteDataStructures.PairPreferenceData import (
-    PairPreferenceData,
+from src.DataStructures.ConcreteDataStructures.PreferencePairsData import (
+    PreferencePairsData,
 )
 from src.Loss.AbsLoss import AbsLoss
 from src.Loss.ConcreteLoss.LogLossDecorator import LogLossDecorator
@@ -32,9 +32,11 @@ class ptLightningModelWrapper(L.LightningModule, ptlLightningWrapper):
         self.model = model
         self.loss_func_obj = loss_func_obj
 
+    @override
     def forward(self, x):
         return self.model(x)
 
+    @override
     def training_step(self, batch, batch_idx):
         t_pairs, t_prefs = batch
 
@@ -45,14 +47,15 @@ class ptLightningModelWrapper(L.LightningModule, ptlLightningWrapper):
         y_b = t_prefs
 
         data = ActionPairsPrefPairsContainer(
-            action_pairs_data=ActionPairsData(actions_pairs=x_b),
-            pref_pairs_data=PairPreferenceData(y=y_b),
+            action_pairs_data=ActionPairsData(action_pairs=x_b),
+            pref_pairs_data=PreferencePairsData(preference_pairs=y_b),
         )
 
-        loss = self.loss_func_obj.CalculateLoss(data)
+        loss = self.loss_func_obj.calculate_loss(data)
 
         return loss
 
+    @override
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=0.001)
         return optimizer
@@ -77,32 +80,35 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
 
         self.loss_func_obj = loss_func_obj
 
+    @override
     def forward(self, x):
         return self.model(x)
 
+    @override
     def training_step(self, batch, batch_idx):
         t_pairs, t_prefs = batch
 
         data = ActionData(actions=self.action.to(self.device))
 
-        loss = self.loss_func_obj.CalculateLoss(data)
+        loss = self.loss_func_obj.calculate_loss(data)
 
         return loss
 
     @override
     def on_train_epoch_start(self):
-        self.rewardModel.model.Freeze()
+        self.rewardModel.model.freeze()
         pass
 
     @override
     def on_train_epoch_end(self):
-        self.rewardModel.model.Unfreeze()
+        self.rewardModel.model.unfreeze()
 
         self.action_data_object.actions = self.action.data.detach().to(
             self.action_data_object_device
         )
         pass
 
+    @override
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=0.001)
         return optimizer
@@ -143,15 +149,15 @@ class ptLightningTrainer(AbsTrainer):
 
         self.ptl_model = model
 
-    def RunTraining(
+    def run_training(
         self,
         action_data: ActionPairsData,
-        preference_data: PairPreferenceData,
+        preference_data: PreferencePairsData,
         epochs: int,
     ) -> None:
 
-        action_pair_tensor = action_data.actions_pairs
-        preference_pair_tensor = preference_data.y
+        action_pair_tensor = action_data.action_pairs
+        preference_pair_tensor = preference_data.preference_pairs
 
         if action_pair_tensor.shape[0] != preference_pair_tensor.shape[0]:
             raise Exception(
@@ -165,8 +171,8 @@ class ptLightningTrainer(AbsTrainer):
             train_ds, batch_size=self.batch_size, shuffle=True
         )
 
-        self.controller_callback.setEpochInterval(epochs)
-        self.controller_callback.resetEpochCounter()
+        self.controller_callback.set_epoch_interval(epochs)
+        self.controller_callback.reset_epoch_counter()
         self.ptl_trainer.should_stop = False
 
         self.ptl_trainer.fit(self.ptl_model, train_dataloaders=train_dl)
@@ -237,16 +243,18 @@ class EarlyStopAtEpochInterval(Callback):
         self.epoch_interval = interval_length
         self.epoch_counter = 0
 
-    def setEpochInterval(self, epoch_interval):
+    def set_epoch_interval(self, epoch_interval):
         self.epoch_interval = epoch_interval
 
-    def resetEpochCounter(self):
+    def reset_epoch_counter(self):
         self.epoch_counter = 0
 
+    @override
     def on_validation_end(self, trainer, pl_module):
         # override this to disable early stopping at the end of val loop
         pass
 
+    @override
     def on_train_epoch_end(self, trainer, pl_module):
         # trainer.current_epoch is currently finished
         # trainer.current_epoch + 1 is the next that will start
@@ -269,13 +277,16 @@ class NotifyLossLoggerOnEpochEnd(Callback):
     def __init__(self):
         self.counter = 0
 
+    @override
     def on_validation_end(self, trainer, pl_module):
         # override this to disable early stopping at the end of val loop
         pass
 
+    @override
     def on_train_batch_end(self, *args, **kwargs):
         self.counter += 1
 
+    @override
     def on_train_epoch_end(self, trainer, pl_module):
 
         loss_func_obj = pl_module.loss_func_obj
@@ -285,5 +296,5 @@ class NotifyLossLoggerOnEpochEnd(Callback):
                 f"The Loss object ({str(loss_func_obj)}) is not wrapped in LogLossDecorator"
             )
 
-        loss_func_obj.logger.LogLastEntriesMean(self.counter)
+        loss_func_obj.logger.log_last_entries_mean(self.counter)
         self.counter = 0

@@ -8,7 +8,7 @@ from GenerativeModelsData.StackGan2.StackGanUtils.config import cfg, cfg_from_fi
 from GenerativeModelsData.StackGan2.StackGanUtils.model import G_NET
 from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
 from src.DataStructures.ConcreteDataStructures.ImageData import ImageData
-from src.Logger.AbsLogger import AbsLogger
+from src.MetricsLogger.AbsMetricsLogger import AbsMetricsLogger
 
 
 class StackGanGenModel(object, metaclass=abc.ABCMeta):
@@ -45,18 +45,19 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
             "No other devices are supported for StackGan model", RuntimeWarning
         )
 
-    def Generate(self, data: ActionData) -> ImageData:
+    def generate(self, data: ActionData) -> ImageData:
         """
         Generates values based on provided action data
         """
         return ImageData(images=self.model(data.actions)[0][self.gen_level])
 
-    def GetNoise(self, N: int = 1) -> ActionData:
+    def sample_random_actions(self, N: int) -> ActionData:
         """
-        Returns N samples of noise used for generation
+        Returns an action data object containing N samples of noise vectors used as
+        imput for the generation model
 
         Returns:
-            [N, D] tensor, N - number of noise vectors, D - dim of noise vectors
+            Action Data object([N, D] tensor, N - number of noise vectors, D - dim of noise vectors)
         """
 
         if N < 1:
@@ -72,14 +73,14 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
         #                                       )
         #                  )
 
-        dist = self.GetDistribution()
+        dist = self.get_input_noise_distribution()
         actions = []
-        for i in range(N):
+        for _ in range(N):
             actions.append(dist.sample())
 
         return ActionData(actions=torch.stack(actions, dim=0))
 
-    def GetDistribution(self) -> Normal:
+    def get_input_noise_distribution(self) -> Normal:
         """
         Returns the torch distribution object, corresponding to the
         gen model
@@ -97,7 +98,7 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
 
         return dist
 
-    def GetMediaLogger(self) -> AbsLogger:
+    def get_media_logger(self) -> AbsMetricsLogger:
         """
         Returns a logger capable of logging the generated objects
         """

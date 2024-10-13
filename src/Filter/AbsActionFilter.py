@@ -1,6 +1,5 @@
 import abc
 
-
 from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
 
 
@@ -10,7 +9,7 @@ class AbsActionFilter(object, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def Filter(self, data: ActionData) -> ActionData:
+    def filter(self, data: ActionData) -> ActionData:
         """
         Filter actions based on implemented logic and, if set up, return
         limit elements of the result list

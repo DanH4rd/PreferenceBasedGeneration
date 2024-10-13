@@ -9,7 +9,7 @@ class AbsNetworkExtension(object, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def GetExtMethods(self) -> list[str]:
+    def get_ext_method_names(self) -> list[str]:
         """
         Returns a list of avaliable methods
 
@@ -21,7 +21,7 @@ class AbsNetworkExtension(object, metaclass=abc.ABCMeta):
         )
 
     @abc.abstractmethod
-    def CallExtensionMethod(self, name: str, params: list) -> list[str]:
+    def call_extension_method(self, name: str, params: list) -> list[str]:
         """
         Calls an extension operation
 

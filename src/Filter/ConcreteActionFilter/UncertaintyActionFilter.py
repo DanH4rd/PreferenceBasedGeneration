@@ -41,7 +41,7 @@ class UncertaintyActionFilter(AbsActionFilter):
                     f"Wrong limit value type: {self.limit} - {type(self.limit)}"
                 )
 
-    def Filter(self, data: ActionData) -> ActionData:
+    def filter(self, action_data: ActionData) -> ActionData:
         """
         Calculates uncertainty score for actions provided and returns
         limit of actions with the biggest uncertainty scores
@@ -52,12 +52,12 @@ class UncertaintyActionFilter(AbsActionFilter):
         modelExtension = self.rewardModel.GetExtension()
 
         uncertainty_scores = modelExtension.CallExtensionMethod(
-            "CalculateUncertainty", [data.actions]
+            "CalculateUncertainty", [action_data.actions]
         )
 
         sorted_values = torch.argsort(uncertainty_scores, dim=0).squeeze()
 
-        actions = data.actions[sorted_values]
+        actions = action_data.actions[sorted_values]
 
         int_limit = None
 

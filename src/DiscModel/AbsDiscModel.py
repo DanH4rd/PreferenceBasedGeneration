@@ -9,7 +9,7 @@ class AbsDiscModel(object, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def Discriminate(self, data: AbsData) -> None:
+    def discriminate(self, data: AbsData) -> None:
         """
         Generates a discriminate score for the given data
         """
