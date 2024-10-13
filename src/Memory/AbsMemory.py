@@ -1,35 +1,36 @@
 import abc
-import torch
+
 from src.DataStructures.AbsData import AbsData
+
 
 class AbsLoss(object, metaclass=abc.ABCMeta):
     """
-        Base class incupsulating the required logic for memory used in training
+    Base class incupsulating the required logic for memory used in training
     """
 
     @abc.abstractmethod
-    def AddData(self, data:AbsData) -> None:
+    def add_data(self, data: AbsData) -> None:
         """
-            
-            Add new data to the memory
-            Params:
-                data - data to add
+
+        Add new data to the memory
+        Params:
+            data - data to add
         """
-        raise NotImplementedError('users must define AddData to use this base class')
+        raise NotImplementedError("users must define AddData to use this base class")
 
     @abc.abstractmethod
-    def GetMemoryData(self) -> AbsData:
+    def get_data_from_memory(self) -> AbsData:
         """
-            Returns data, contained in memory
+        Returns data, contained in memory
 
-            Returns:
-                AbsData object
+        Returns:
+            AbsData object
         """
-        raise NotImplementedError('users must define AddData to use this base class')
+        raise NotImplementedError("users must define AddData to use this base class")
 
     @abc.abstractmethod
     def __str__(self) -> str:
         """
-            Returns string describing the object
+        Returns string describing the object
         """
-        raise NotImplementedError('users must define __str__ to use this base class')
+        raise NotImplementedError("users must define __str__ to use this base class")

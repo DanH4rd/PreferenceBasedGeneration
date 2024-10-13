@@ -1,24 +1,27 @@
 import abc
-from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
-from src.DataStructures.ConcreteDataStructures.ImageData import ImageData
-from GenerativeModelsData.StackGan2.StackGanUtils.model import D_NET1024, D_NET512, D_NET256, D_NET128, D_NET64
-from GenerativeModelsData.StackGan2.StackGanUtils.config import cfg, cfg_from_file
-from src.Logger.AbsLogger import AbsLogger
 
 import torch
-import warnings
+
+from GenerativeModelsData.StackGan2.StackGanUtils.config import cfg_from_file
+from GenerativeModelsData.StackGan2.StackGanUtils.model import (
+    D_NET64,
+    D_NET128,
+    D_NET256,
+    D_NET1024,
+)
+from src.DataStructures.ConcreteDataStructures.ImageData import ImageData
 
 
 class StackGanDiscModel(object, metaclass=abc.ABCMeta):
     """
-        Base class incupsulating the required logic for StackGanv2 model
+    Base class incupsulating the required logic for StackGanv2 model
     """
 
-    def __init__(self, config_file, checkpoint_file, gen_level, ngpu = 1):
+    def __init__(self, config_file, checkpoint_file, gen_level, ngpu=1):
         self.config_file = config_file
         self.checkpoint_file = checkpoint_file
         self.gen_level = gen_level
-        self.device = 'cpu'
+        self.device = "cpu"
 
         cfg_from_file(self.config_file)
 
@@ -34,15 +37,18 @@ class StackGanDiscModel(object, metaclass=abc.ABCMeta):
             self.model = D_NET1024()
 
         self.model = torch.nn.DataParallel(self.model, list(range(ngpu)))
-        self.model.load_state_dict(torch.load(self.checkpoint_file, map_location=self.device, weights_only=True))
+        self.model.load_state_dict(
+            torch.load(
+                self.checkpoint_file, map_location=self.device, weights_only=True
+            )
+        )
         self.model.eval()
 
-    
-    def Discriminate(self, data: ImageData) -> torch.tensor:
+    def discriminate(self, data: ImageData) -> torch.tensor:
         """
-            Generates values based on provided action data
+        Generates values based on provided action data
         """
         return self.model(data.images)[0]
 
     def __str__(self) -> str:
-        return f'StackGan model. \nConfig: {self.config_file}\nCheckpoint: {self.checkpoint_file}'
+        return f"StackGan discriminator. \nConfig: {self.config_file}\nCheckpoint: {self.checkpoint_file}"
