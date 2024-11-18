@@ -29,7 +29,7 @@ class TestDiscriminationModel:
         disc_model = StackGanDiscModel(
             config_file="./GenerativeModelsData/StackGan2/config/facade_3stages_color.yml",
             checkpoint_file="./GenerativeModelsData/StackGan2/checkpoints/Facade v1.0/netD2.pth",
-            gen_level=2,
+            scale_level=2,
         )
 
         assert (

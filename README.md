@@ -15,3 +15,6 @@ A more detailed description of the system and its components will be added later
 * Windows 10
 * Python 3.12
 * CUDA 10.8
+
+# Class diagram
+

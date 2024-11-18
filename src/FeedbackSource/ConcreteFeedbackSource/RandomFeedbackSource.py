@@ -10,9 +10,7 @@ from src.DataStructures.ConcreteDataStructures.PreferencePairsData import (
 
 
 class RandomFeedbackSource(object, metaclass=abc.ABCMeta):
-    """
-    Generates random feedback
-    """
+    """Generates random feedback for provided action pairs"""
 
     possible_values = [[1.0, 0.0], [0.0, 1.0], [0.5, 0.5], [0.0, 0.0]]
 
@@ -20,7 +18,13 @@ class RandomFeedbackSource(object, metaclass=abc.ABCMeta):
         self, action_pairs_data: ActionPairsData
     ) -> PreferencePairsData:
         """
-        Returns feedback for provided data
+
+        Args:
+            action_pairs_data (ActionPairsData): action pairs for which
+                we want to generate feedback
+
+        Returns:
+            PreferencePairsData: preferences for each action pair
         """
 
         action_pairs_num = action_pairs_data.action_pairs.shape[0]
@@ -35,4 +39,9 @@ class RandomFeedbackSource(object, metaclass=abc.ABCMeta):
         return preference_data
 
     def __str__(self) -> str:
+        """Returns string describing the object
+
+        Returns:
+            str:
+        """
         return "Random feedback"

@@ -11,27 +11,40 @@ class AbsActionDistribution(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def sample(self, N: int) -> ActionData:
-        """
-        Sample N actions from the distribution
+        """Sample N actions from the distribution
 
-        Params:
-            N - number of actions to sample
+        Args:
+            N (int): number of actions to sample
+
+        Raises:
+            NotImplementedError
+
+        Returns:
+            ActionData: a data object
         """
         raise NotImplementedError("users must define Sample to use this base class")
 
     @abc.abstractmethod
     def update(self, data: AbsData) -> None:
-        """
-        Updates the distribution based on input data
+        """Updates the distribution based on input data
 
-        Params:
-            data - data for update
+        Args:
+            data (AbsData): data for update
+
+        Raises:
+            NotImplementedError
         """
+
         raise NotImplementedError("users must define Update to use this base class")
 
     @abc.abstractmethod
     def __str__(self) -> str:
-        """
-        Returns string describing the object
+        """Returns string describing the object
+
+        Raises:
+            NotImplementedError:
+
+        Returns:
+            str
         """
         raise NotImplementedError("users must define __str__ to use this base class")

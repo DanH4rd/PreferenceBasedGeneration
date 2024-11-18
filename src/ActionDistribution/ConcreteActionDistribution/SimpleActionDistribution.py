@@ -7,8 +7,7 @@ from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
 
 
 class SimpleActionDistribution(AbsActionDistribution):
-    """
-    Basically a torch.distribution.Distribution wrapper
+    """Basically a torch.distribution.Distribution wrapper
     Doesnt do anything extra
     """
 
@@ -16,11 +15,17 @@ class SimpleActionDistribution(AbsActionDistribution):
         self.dist = dist
 
     def sample(self, N: int) -> ActionData:
-        """
-        Sample N actions from the distribution
+        """Sample N actions from the distribution
 
-        Params:
-            N - number of actions to sample
+        Args:
+            N (int): number of actions to sample
+
+        Raises:
+            Exception: if the number of actions to
+            sample is lower than zero
+
+        Returns:
+            ActionData: _description_
         """
 
         if N < 1:
@@ -34,10 +39,19 @@ class SimpleActionDistribution(AbsActionDistribution):
         return ActionData(actions=torch.stack(actions, dim=0))
 
     def update(self, data: AbsData) -> None:
+        """Empty function since this class
+        does not support updating based on
+        provided data
+
+        Args:
+            data (AbsData): abstract data object
+        """
         pass
 
     def __str__(self) -> str:
-        """
-        Returns string describing the object
+        """Returns string describing the object
+
+        Returns:
+            str
         """
         return "Simple Action Distribution"
