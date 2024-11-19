@@ -23,7 +23,7 @@ class AbsActionFilter(object, metaclass=abc.ABCMeta):
             ActionData: filtered list of actions
         """
 
-        raise NotImplementedError("users must define Filter to use this base class")
+        raise NotImplementedError("users must define filter to use this base class")
 
     @abc.abstractmethod
     def __str__(self) -> str:

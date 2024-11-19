@@ -21,7 +21,7 @@ class AbsFeedbackSource(object, metaclass=abc.ABCMeta):
         Returns:
             AbsData: feedback data
         """
-        raise NotImplementedError("users must define Filter to use this base class")
+        raise NotImplementedError("users must define generate_feedback to use this base class")
 
     @abc.abstractmethod
     def __str__(self) -> str:

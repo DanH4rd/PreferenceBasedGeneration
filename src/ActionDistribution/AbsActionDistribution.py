@@ -22,7 +22,7 @@ class AbsActionDistribution(object, metaclass=abc.ABCMeta):
         Returns:
             ActionData: a data object
         """
-        raise NotImplementedError("users must define Sample to use this base class")
+        raise NotImplementedError("users must define sample to use this base class")
 
     @abc.abstractmethod
     def update(self, data: AbsData) -> None:
@@ -35,7 +35,7 @@ class AbsActionDistribution(object, metaclass=abc.ABCMeta):
             NotImplementedError
         """
 
-        raise NotImplementedError("users must define Update to use this base class")
+        raise NotImplementedError("users must define update to use this base class")
 
     @abc.abstractmethod
     def __str__(self) -> str:
