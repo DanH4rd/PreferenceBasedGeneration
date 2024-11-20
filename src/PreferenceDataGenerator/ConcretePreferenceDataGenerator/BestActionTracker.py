@@ -11,17 +11,17 @@ from src.PreferenceDataGenerator.AbsPreferenceDataGenerator import (
 
 
 class BestActionTracker(AbsPreferenceDataGenerator):
-    """
-    Base class that adds to the data generation object
-    the ability to track the best presented action
+    """Decorator class that adds to the generated preferences
+    of another preference generator new preferences created
+    by tracking what action is the best of all met thus far 
     """
 
     def __init__(self, prefDataGen: AbsPreferenceDataGenerator):
         """
-        Params:
-            actions = ActionData object containing actions, out of which
-            pairs will be constructed
-        """
+        Args:
+            prefDataGen (AbsPreferenceDataGenerator): preference generator
+                for which to add best action tracking functionality
+        """        
 
         self.prefDataGen = prefDataGen
 
@@ -30,13 +30,20 @@ class BestActionTracker(AbsPreferenceDataGenerator):
     def generate_preference_data(
         self, data: ActionData, limit: int
     ) -> tuple[ActionPairsData, PreferencePairsData]:
-        """
-        Generates preference data with given preference data generator and
+        """Generates preference data with given preference data generator and
         asks for additional preference data to determine the best action.
         Generates additional preference data based on best actions.
 
-        First finds the pairs where
+        Args:
+            data (ActionData): list of actions to generate preferences for
+            limit (int): maximum number of preferences to generate using
+                the base preference generator. Does not apply to
+                additionally generater preferences.
 
+        Returns:
+            tuple[ActionPairsData, PreferencePairsData]: list of action pairs with corresponding preferences
+        
+        
         TODO:
             add an option to ensure in generating additional data stage
             that generated preferences and action pairs are not already present in originally
@@ -44,7 +51,7 @@ class BestActionTracker(AbsPreferenceDataGenerator):
 
             (ACT-LOSS) (ctr f to find line) the operation to get a list of used actions sometimes
             loses some actions while converting from action pairs
-        """
+        """        
 
         action_pairs_data, preference_data = self.prefDataGen.generate_preference_data(
             data=data, limit=limit
@@ -149,4 +156,9 @@ class BestActionTracker(AbsPreferenceDataGenerator):
         return action_pairs_data, preference_data
 
     def __str__(self) -> str:
+        """Returns string describing the object
+
+        Returns:
+            str
+        """        
         return f"Best Action Tracker for {str(self.prefDataGen)}"

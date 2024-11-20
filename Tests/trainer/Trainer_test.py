@@ -56,11 +56,15 @@ class TestTrainer:
         logger = TensorboardScalarLogger(name="pref_loss", writer=writer)
         prefLoss = LogLossDecorator(lossObject=prefLoss, logger=logger)
 
-        reward_model = ptLightningModelWrapper(
+        
+        control_actions = self.gen_model.sample_random_actions(5)
+        control_rewards = reward_model.get_stable_rewards(control_actions).detach()
+
+        ptlreward_model = ptLightningModelWrapper(
             model=reward_model, loss_func_obj=prefLoss
         )
 
-        trainer = ptLightningTrainer(model=reward_model, batch_size=2)
+        trainer = ptLightningTrainer(model=ptlreward_model, batch_size=2)
 
         feedbackSource = RandomFeedbackSource()
         dataGenerator = RandomPreferenceDataGenerator(feedbackSource=feedbackSource)
@@ -84,6 +88,10 @@ class TestTrainer:
         assert len(logger.history["base"]) == (10 / 2) * 11
         assert len(logger.history["_epoch"]) == 11
 
+        post_rewards = reward_model.get_stable_rewards(control_actions).detach()
+        # check if the model did change
+        assert (abs(control_rewards - post_rewards) > 1e-10).all()
+
     ############
     def test_ptl_trainer_for_latent(self):
         nz = self.gen_model.sample_random_actions(N=1).actions.shape[1]
@@ -103,7 +111,7 @@ class TestTrainer:
 
         control_actions = self.gen_model.sample_random_actions(5)
 
-        rewardLoss = ActionRewardLoss(rewardModel=reward_model)
+        rewardLoss = ActionRewardLoss(rewardModel=reward_model.model)
 
         control_rewards = rewardLoss.calculate_loss(control_actions).detach()
 
@@ -146,7 +154,7 @@ class TestTrainer:
         post_rewards = rewardLoss.calculate_loss(control_actions).detach()
 
         # reward model did not change (reward values before and after latent opt are the same)
-        assert ((control_rewards - post_rewards) < 1e-10).all()
+        assert (abs(control_rewards - post_rewards) < 1e-10).all()
 
         # reward vals checks fully replace reward model parametres check
         # post_reward_model_params= map(lambda x: x.data.clone(), reward_model.parameters())

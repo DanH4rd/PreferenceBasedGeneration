@@ -1,6 +1,5 @@
 def freeze_model(model):
-    """
-    Disables gradient calculation for params of a given model
+    """Disables gradient calculation for params of a given torch model
 
     Parametres:
         model - torch module object
@@ -10,8 +9,7 @@ def freeze_model(model):
 
 
 def unfreeze_model(model):
-    """
-    Enables gradient calculation for params of a given model
+    """Enables gradient calculation for params of a given torch model
 
     Parametres:
         model - torch module object

@@ -13,20 +13,24 @@ from src.DataStructures.ConcreteDataStructures.PreferencePairsData import (
 
 
 class RoundsMemory(object, metaclass=abc.ABCMeta):
-    """
-    Memory, keeping data from the last N added data entries.
-    Name comes from base pipeline, when data to memory
-    is added at the end of each round
-
-    Parametres:
-        limit - number of last data entries to keep
-        discount_factor - if float (0<x<=1) will apply a modifier to
-                          preference labels equal to discount_factor^n,
-                          where n is the position of data entry in
-                          memory (from newwest to oldest)
+    """ Memory, keeping the last N number of placed data entries.
+    Name comes from the base preference generation pipeline, 
+    where data to memory is added at the end of each round
     """
 
-    def __init__(self, limit, discount_factor=None) -> None:
+    def __init__(self, limit:int, discount_factor:float|None=None) -> None:
+        """
+        Args:
+            limit (int) - number of last data entries to keep
+            discount_factor (float|None, optional): if float (0<x<=1) will apply a multiplier to
+                          preference labels equal to `discount_factor^n` when extracting data
+                          from memory, where n is the position of data entry. 
+                          Defaults to None.
+
+        Raises:
+            Exception: if the discount factor is float and is not in range (0,1]
+            Exception: if the discount factor is neither None nor float
+        """        
 
         self.memory_list = []
         self.limit = limit
@@ -46,29 +50,34 @@ class RoundsMemory(object, metaclass=abc.ABCMeta):
 
     @override
     def add_data(self, data: ActionPairsPrefPairsContainer) -> None:
-        """
-        Add new preference and action data to the memory
-        Params:
-            data - ActionPairsPrefPairsContainer to add
-        """
+        """Add new preference and action data to the memory and remove
+        old data entries
+
+        Args:
+            data (ActionPairsPrefPairsContainer): action pair list and corrensonding preferences 
+                to add to memory
+        """        
 
         self.memory_list.append(data)
         self.memory_list = self.memory_list[-self.limit :]
 
     @override
     def get_data_from_memory(self) -> ActionPairsPrefPairsContainer:
-        """
-        Returns data, contained in memory
+        """Returns the data kept in memory with discount factor multiplier
+        applied if set.
 
         Returns:
-            AbsData object
-        """
+            ActionPairsPrefPairsContainer: data from memory
+        """        
 
         action_pairs_list = []
         pref_pairs_list = []
 
         memory_length = len(self.memory_list)
 
+        # conbine action pairs lists and preference lists from all
+        # kept container objects into one action pair list and preference list
+        # and apply the discount factor multiplier if set
         for i, data in enumerate(self.memory_list):
             action_pairs_list.append(data.action_pairs_data.action_pairs)
             pref_tensor_entry = data.pref_pairs_data.preference_pairs
@@ -81,6 +90,7 @@ class RoundsMemory(object, metaclass=abc.ABCMeta):
         action_pairs_tensor = torch.concat(action_pairs_list, dim=0)
         pref_pairs_tensor = torch.concat(pref_pairs_list, dim=0)
 
+        # pack memory data in a corresponding class object
         action_pairs_data = ActionPairsData(action_pairs=action_pairs_tensor)
         pref_pairs_data = PreferencePairsData(preference_pairs=pref_pairs_tensor)
 
@@ -92,9 +102,12 @@ class RoundsMemory(object, metaclass=abc.ABCMeta):
 
     @override
     def __str__(self) -> str:
-        """
-        Returns string describing the object
-        """
+        """Returns string describing the object
+
+        Returns:
+            str
+        """        
+
         return (
             "Round Memory Object" + ""
             if self.discount_factor is None

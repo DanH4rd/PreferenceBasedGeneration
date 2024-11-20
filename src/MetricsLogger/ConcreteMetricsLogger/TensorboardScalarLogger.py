@@ -4,15 +4,15 @@ from src.MetricsLogger.AbsMetricsLogger import AbsMetricsLogger
 
 
 class TensorboardScalarLogger(AbsMetricsLogger):
-    """
-    Logger that logs scalar values to tensorboard
+    """Logger that logs scalar values to tensorboard
     """
 
     def __init__(self, name: str, writer: SummaryWriter):
         """
-        Params:t
-            name - values indentifier
-        """
+        Args:
+            name (str): identifier of the logged value
+            writer (SummaryWriter): tensorboard writer to use for logging
+        """        
 
         self.name = name
         self.writer = writer
@@ -20,11 +20,12 @@ class TensorboardScalarLogger(AbsMetricsLogger):
         self.history["base"] = []
 
     def log(self, value: float) -> None:
-        """
-        Performs the Log function of all composite elements.
+        """logs the passed value to tensorboard under
+        the set name using the set writed
 
-        Check the abstract base class for more info.
-        """
+        Args:
+            value (float): value to log
+        """        
 
         self.history["base"].append(value)
 
@@ -33,14 +34,20 @@ class TensorboardScalarLogger(AbsMetricsLogger):
         )
 
     def log_last_entries_mean(self, N: int, postfix: str = "_epoch") -> None:
-        """
-        Calculates the mean of the last N entries and logs a new value
+        """Calculates the mean of the last N entries and logs a new value
         under a separate name (logger name + prefix)
 
-        New metrics are stored in the self.history under the prefix key
+        Args:
+            N (int): number of the newest elements in history to group and log
+            postfix (str): identificator of the new aggregated value.
+                Defaults to "_epoch".
 
-        Check the abstract base class for more info.
-        """
+        Raises:
+            AttributeError: if user tries to save an aggregated value to 'base' history
+        """        
+
+        if postfix == "base":
+            raise AttributeError(f'\"base\" postfix is reserved for standard logging')
 
         if postfix not in self.history.keys():
             self.history[postfix] = []
@@ -53,5 +60,25 @@ class TensorboardScalarLogger(AbsMetricsLogger):
             global_step=len(self.history[postfix]) - 1,
         )
 
+    def get_logged_history(self, prefix= 'base') -> list:
+        """Returns the list of all logged values.
+        If given a prefix returns history of aggregated
+        values associated with the given postfix
+
+        Args:
+            prefix (str, optional): _description_. Defaults to 'base'.
+
+        Returns:
+            list: history of logged values
+        """        
+
+        return self.history[prefix]
+
     def __str__(self) -> str:
+        """Returns string describing the object
+
+        Returns:
+            str
+        """        
+
         return "Tensorboard Scalar Logger"
