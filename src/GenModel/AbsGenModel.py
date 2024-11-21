@@ -8,8 +8,7 @@ from src.Logger.AbsLogger import AbsLogger
 
 
 class AbsGenModel(object, metaclass=abc.ABCMeta):
-    """Base class incupsulating the required logic for a generative model
-    """
+    """Base class incupsulating the required logic for a generative model"""
 
     @abc.abstractmethod
     def generate(self, data: AbsData) -> AbsData:
@@ -23,7 +22,7 @@ class AbsGenModel(object, metaclass=abc.ABCMeta):
 
         Returns:
             AbsData: generated data
-        """        
+        """
 
         raise NotImplementedError("users must define generate to use this base class")
 
@@ -39,9 +38,11 @@ class AbsGenModel(object, metaclass=abc.ABCMeta):
 
         Returns:
             AbsData: noise samples
-        """        
+        """
 
-        raise NotImplementedError("users must define sample_random_actions to use this base class")
+        raise NotImplementedError(
+            "users must define sample_random_actions to use this base class"
+        )
 
     @abc.abstractmethod
     def get_input_noise_distribution(self) -> Distribution:
@@ -56,8 +57,10 @@ class AbsGenModel(object, metaclass=abc.ABCMeta):
 
         TODO:
             replace torch.Distribution with ActionDistribution
-        """        
-        raise NotImplementedError("users must define get_input_noise_distribution to use this base class")
+        """
+        raise NotImplementedError(
+            "users must define get_input_noise_distribution to use this base class"
+        )
 
     @abc.abstractmethod
     def get_media_logger(self) -> AbsLogger:
@@ -68,8 +71,10 @@ class AbsGenModel(object, metaclass=abc.ABCMeta):
 
         Returns:
             AbsLogger: logger capable of loggin generated data
-        """        
-        raise NotImplementedError("users must define get_media_logger to use this base class")
+        """
+        raise NotImplementedError(
+            "users must define get_media_logger to use this base class"
+        )
 
     @abc.abstractmethod
     def set_device(self, device) -> None:
@@ -93,5 +98,5 @@ class AbsGenModel(object, metaclass=abc.ABCMeta):
 
         Returns:
             str
-        """        
+        """
         raise NotImplementedError("users must define __str__ to use this base class")

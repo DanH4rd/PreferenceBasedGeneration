@@ -2,15 +2,14 @@ from src.MetricsLogger.AbsMetricsLogger import AbsMetricsLogger
 
 
 class CompositeLogger(AbsMetricsLogger):
-    """Metrics Logger that is a composition of several other metrics loggers
-    """
+    """Metrics Logger that is a composition of several other metrics loggers"""
 
     def __init__(self, loggers: list[AbsMetricsLogger]):
         """
         Args:
             loggers (list[AbsMetricsLogger]): list of metrics loggers that are
                 elements of the composite logger
-        """        
+        """
 
         self.loggers = loggers
         self.history = None
@@ -23,7 +22,7 @@ class CompositeLogger(AbsMetricsLogger):
         Args:
             logger (AbsMetricsLogger | list[AbsMetricsLogger]): list of loggers or a logger to
                 add to the composition elements
-        """        
+        """
 
         if isinstance(logger, list):
             self.loggers += logger
@@ -35,7 +34,7 @@ class CompositeLogger(AbsMetricsLogger):
 
         Args:
             value (_type_): value to log
-        """        
+        """
 
         for logger in self.loggers:
             logger.Log(value)
@@ -47,7 +46,7 @@ class CompositeLogger(AbsMetricsLogger):
         Args:
             N (int): number of the newest elements in history to group and log
             postfix (str): identificator of the new aggregated value
-        """        
+        """
 
         for logger in self.loggers:
             logger.LogLastEntriesMean(N=N, postfix=postfix)
@@ -57,5 +56,5 @@ class CompositeLogger(AbsMetricsLogger):
 
         Returns:
             str
-        """        
+        """
         return f"Composite logger. Number of members: {len(self.loggers)}"

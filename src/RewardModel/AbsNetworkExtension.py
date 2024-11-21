@@ -16,7 +16,7 @@ class AbsNetworkExtension(object, metaclass=abc.ABCMeta):
 
         Returns:
             list[str]: list of names of the supported operations
-        """        
+        """
 
         raise NotImplementedError(
             "users must define get_ext_method_names to use this base class"
@@ -24,7 +24,6 @@ class AbsNetworkExtension(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def call_extension_method(self, name: str, params: list, sex):
-        
         """Calls a specified extension operation with the given params
 
         Args:
@@ -36,7 +35,7 @@ class AbsNetworkExtension(object, metaclass=abc.ABCMeta):
 
         Returns:
             _type_: Depends on the called method
-        """        
+        """
 
         raise NotImplementedError(
             "users must define call_extension_method to use this base class"
@@ -51,5 +50,5 @@ class AbsNetworkExtension(object, metaclass=abc.ABCMeta):
 
         Returns:
             str
-        """        
+        """
         raise NotImplementedError("users must define __str__ to use this base class")

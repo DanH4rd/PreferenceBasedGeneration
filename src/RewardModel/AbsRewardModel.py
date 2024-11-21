@@ -8,8 +8,7 @@ from src.Trainer.AbsTrainer import AbsTrainer
 
 
 class AbsRewardModel(object, metaclass=abc.ABCMeta):
-    """Base class incupsulating the required Reward model logic
-    """
+    """Base class incupsulating the required Reward model logic"""
 
     @abc.abstractmethod
     def get_rewards(self, data: AbsData) -> torch.Tensor:
@@ -23,7 +22,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
 
         Returns:
             torch.Tensor: list of rewards for given objects
-        """        
+        """
 
         raise NotImplementedError("users must define GetRewards to use this base class")
 
@@ -39,7 +38,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
 
         Returns:
             torch.Tensor: list of rewards for given objects
-        """        
+        """
 
         raise NotImplementedError(
             "users must define get_stable_rewards to use this base class"
@@ -51,7 +50,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
 
         Raises:
             NotImplementedError: this method is abstract
-        """        
+        """
         raise NotImplementedError(
             "users must define set_to_evaluaion_mode to use this base class"
         )
@@ -62,7 +61,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
 
         Raises:
             NotImplementedError: this method is abstract
-        """        
+        """
         raise NotImplementedError(
             "users must define set_to_train_mode to use this base class"
         )
@@ -76,7 +75,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
 
         Returns:
             bool
-        """        
+        """
 
         raise NotImplementedError(
             "users must define is_train_mode to use this base class"
@@ -91,7 +90,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
 
         Raises:
             NotImplementedError: this method is abstract
-        """        
+        """
 
         raise NotImplementedError("users must define set_device to use this base class")
 
@@ -104,9 +103,11 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
 
         Returns:
             AbsTrainer: trainer that can train the reward model
-        """        
+        """
 
-        raise NotImplementedError("users must define get_trainer to use this base class")
+        raise NotImplementedError(
+            "users must define get_trainer to use this base class"
+        )
 
     @abc.abstractmethod
     def get_extension(self) -> AbsNetworkExtension:
@@ -116,10 +117,12 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
             NotImplementedError: this method is abstract
 
         Returns:
-            AbsNetworkExtension: object realising additional functionality 
-        """        
+            AbsNetworkExtension: object realising additional functionality
+        """
 
-        raise NotImplementedError("users must define get_extension to use this base class")
+        raise NotImplementedError(
+            "users must define get_extension to use this base class"
+        )
 
     @abc.abstractmethod
     def freeze(self) -> None:
@@ -127,7 +130,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
 
         Raises:
             NotImplementedError: this model is abstract
-        """        
+        """
 
         raise NotImplementedError("users must define freeze to use this base class")
 
@@ -137,7 +140,7 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
 
         Raises:
             NotImplementedError: this model is abstract
-        """        
+        """
         raise NotImplementedError("users must define unfreeze to use this base class")
 
     @abc.abstractmethod
@@ -149,11 +152,9 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
 
         Returns:
             bool
-        """        
+        """
 
-        raise NotImplementedError(
-            "users must define is_frozen to use this base class"
-        )
+        raise NotImplementedError("users must define is_frozen to use this base class")
 
     @abc.abstractmethod
     def __str__(self) -> str:
@@ -164,5 +165,5 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
 
         Returns:
             str
-        """        
+        """
         raise NotImplementedError("users must define __str__ to use this base class")

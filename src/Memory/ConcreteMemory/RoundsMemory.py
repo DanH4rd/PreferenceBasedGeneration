@@ -13,24 +13,24 @@ from src.DataStructures.ConcreteDataStructures.PreferencePairsData import (
 
 
 class RoundsMemory(object, metaclass=abc.ABCMeta):
-    """ Memory, keeping the last N number of placed data entries.
-    Name comes from the base preference generation pipeline, 
+    """Memory, keeping the last N number of placed data entries.
+    Name comes from the base preference generation pipeline,
     where data to memory is added at the end of each round
     """
 
-    def __init__(self, limit:int, discount_factor:float|None=None) -> None:
+    def __init__(self, limit: int, discount_factor: float | None = None) -> None:
         """
         Args:
             limit (int) - number of last data entries to keep
             discount_factor (float|None, optional): if float (0<x<=1) will apply a multiplier to
                           preference labels equal to `discount_factor^n` when extracting data
-                          from memory, where n is the position of data entry. 
+                          from memory, where n is the position of data entry.
                           Defaults to None.
 
         Raises:
             Exception: if the discount factor is float and is not in range (0,1]
             Exception: if the discount factor is neither None nor float
-        """        
+        """
 
         self.memory_list = []
         self.limit = limit
@@ -54,9 +54,9 @@ class RoundsMemory(object, metaclass=abc.ABCMeta):
         old data entries
 
         Args:
-            data (ActionPairsPrefPairsContainer): action pair list and corrensonding preferences 
+            data (ActionPairsPrefPairsContainer): action pair list and corrensonding preferences
                 to add to memory
-        """        
+        """
 
         self.memory_list.append(data)
         self.memory_list = self.memory_list[-self.limit :]
@@ -68,7 +68,7 @@ class RoundsMemory(object, metaclass=abc.ABCMeta):
 
         Returns:
             ActionPairsPrefPairsContainer: data from memory
-        """        
+        """
 
         action_pairs_list = []
         pref_pairs_list = []
@@ -106,7 +106,7 @@ class RoundsMemory(object, metaclass=abc.ABCMeta):
 
         Returns:
             str
-        """        
+        """
 
         return (
             "Round Memory Object" + ""

@@ -16,7 +16,9 @@ class AbsDiscModel(object, metaclass=abc.ABCMeta):
         Raises:
             NotImplementedError: this method is abstract
         """
-        raise NotImplementedError("users must define discriminate to use this base class")
+        raise NotImplementedError(
+            "users must define discriminate to use this base class"
+        )
 
     @abc.abstractmethod
     def __str__(self) -> str:

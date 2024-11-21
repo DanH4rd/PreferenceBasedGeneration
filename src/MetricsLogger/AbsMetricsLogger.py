@@ -15,7 +15,7 @@ class AbsMetricsLogger(object, metaclass=abc.ABCMeta):
 
         Raises:
             NotImplementedError: this method is abstract
-        """        
+        """
         raise NotImplementedError("users must define log to use this base class")
 
     @abc.abstractmethod
@@ -30,7 +30,7 @@ class AbsMetricsLogger(object, metaclass=abc.ABCMeta):
 
         Raises:
             NotImplementedError: this method is abstract
-        """        
+        """
 
         raise NotImplementedError(
             "users must define log_last_entries_mean to use this base class"
@@ -45,5 +45,5 @@ class AbsMetricsLogger(object, metaclass=abc.ABCMeta):
 
         Returns:
             str
-        """        
+        """
         raise NotImplementedError("users must define __str__ to use this base class")

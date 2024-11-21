@@ -2,8 +2,7 @@ import abc
 
 
 class AbsTrainer(object, metaclass=abc.ABCMeta):
-    """Base class incupsulating the required logic for training an ML model
-    """    
+    """Base class incupsulating the required logic for training an ML model"""
 
     # @abc.abstractmethod
     # def SetLogger(self, logger: AbsLogger) -> None:
@@ -21,9 +20,11 @@ class AbsTrainer(object, metaclass=abc.ABCMeta):
 
         Raises:
             NotImplementedError: this method is abstract
-        """        
+        """
 
-        raise NotImplementedError("users must define run_training to use this base class")
+        raise NotImplementedError(
+            "users must define run_training to use this base class"
+        )
 
     @abc.abstractmethod
     def __str__(self) -> str:
@@ -34,5 +35,5 @@ class AbsTrainer(object, metaclass=abc.ABCMeta):
 
         Returns:
             str
-        """        
+        """
         raise NotImplementedError("users must define __str__ to use this base class")

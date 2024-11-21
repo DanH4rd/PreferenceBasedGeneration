@@ -17,10 +17,10 @@ from src.PreferenceDataGenerator.AbsPreferenceDataGenerator import (
 
 
 class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
-    """  Base class incupsulating the required logic for generating preference data
+    """Base class incupsulating the required logic for generating preference data
     based on constructed graphs of preference relationships between
     actions
-    """    
+    """
 
     def __init__(
         self, feedbackSource: AbsFeedbackSource, deduceAdditionalLinks: bool = False
@@ -32,7 +32,7 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
             deduceAdditionalLinks (bool, optional): If true will create additional links
             between nodes in a single path. Defaults to False.
 
-        """        
+        """
 
         self.feedbackSource = feedbackSource
 
@@ -53,14 +53,14 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
             prefG (nx.DiGraph): graph storing preference relationships between nodes
             genG (nx.Graph): graph storing history of all node pairs for which
                 a preference was asked for
-            node1 (int): node corresponding to action1 in the action pair 
+            node1 (int): node corresponding to action1 in the action pair
             node2 (int): node corresponding to action2 in the action pair
             preference (PreferencePairsData): preference between action1 and action2
 
         Raises:
             Exception: if given more than 1 preference for a given pair
             Exception: if given preference has unexpected value
-        """        
+        """
         # from unprefered to prefered
 
         pref_tensor = preference.preference_pairs.cpu().detach()
@@ -88,16 +88,16 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
         else:
             raise Exception(f"Unexpected preference data: {preference}")
 
-    def find_edge_to_ask (
+    def find_edge_to_ask(
         self,
         actions_tensor: torch.tensor,
         edge_list: list,
         prefGraph: nx.DiGraph,
         genGraph: nx.Graph,
-    )-> bool:
+    ) -> bool:
         """Provided an edge list of possible connections, it will look for the first edge not present in the
-        general graph and generate preference for actions corresponding to the edge nodes. Then 
-        it will add the new edge to the preferece and the general gragh in a way based on the received 
+        general graph and generate preference for actions corresponding to the edge nodes. Then
+        it will add the new edge to the preferece and the general gragh in a way based on the received
         preference.
 
         Args:
@@ -111,7 +111,7 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
         Returns:
             bool: true if the method had found an edge in the edge list avaliable to add to the
                 preference graph. false otherwise
-        """        
+        """
 
         for node1, node2 in edge_list:
 
@@ -144,10 +144,10 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
     def generate_preference_data(
         self, data: ActionData, limit: int
     ) -> tuple[ActionPairsData, PreferencePairsData]:
-        """Constructs a directed graph of preferences relationships between all provided actions. 
+        """Constructs a directed graph of preferences relationships between all provided actions.
         First it tries to connect all the
         components together (edges with preferences [0,0] are ignored). If there is already one
-        component or it is impossible to create it the strategy changes to connecting pairs of actions 
+        component or it is impossible to create it the strategy changes to connecting pairs of actions
         that have the smallest degrees in preference graph.
 
         A bidirectional graph is used in parralel to track already asked pairs and track
@@ -166,7 +166,7 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
 
         Returns:
             tuple[ActionPairsData, PreferencePairsData]: list of action pairs with corresponding preferences
-        """        
+        """
         actions_tensor = data.actions
 
         general_graph = nx.Graph()
@@ -302,5 +302,5 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
 
         Returns:
             str
-        """        
+        """
         return "Graph Preference Data Generator"

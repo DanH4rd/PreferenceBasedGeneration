@@ -4,15 +4,14 @@ from src.MetricsLogger.AbsMetricsLogger import AbsMetricsLogger
 
 
 class TensorboardScalarLogger(AbsMetricsLogger):
-    """Logger that logs scalar values to tensorboard
-    """
+    """Logger that logs scalar values to tensorboard"""
 
     def __init__(self, name: str, writer: SummaryWriter):
         """
         Args:
             name (str): identifier of the logged value
             writer (SummaryWriter): tensorboard writer to use for logging
-        """        
+        """
 
         self.name = name
         self.writer = writer
@@ -25,7 +24,7 @@ class TensorboardScalarLogger(AbsMetricsLogger):
 
         Args:
             value (float): value to log
-        """        
+        """
 
         self.history["base"].append(value)
 
@@ -44,10 +43,10 @@ class TensorboardScalarLogger(AbsMetricsLogger):
 
         Raises:
             AttributeError: if user tries to save an aggregated value to 'base' history
-        """        
+        """
 
         if postfix == "base":
-            raise AttributeError(f'\"base\" postfix is reserved for standard logging')
+            raise AttributeError(f'"base" postfix is reserved for standard logging')
 
         if postfix not in self.history.keys():
             self.history[postfix] = []
@@ -60,7 +59,7 @@ class TensorboardScalarLogger(AbsMetricsLogger):
             global_step=len(self.history[postfix]) - 1,
         )
 
-    def get_logged_history(self, prefix= 'base') -> list:
+    def get_logged_history(self, prefix="base") -> list:
         """Returns the list of all logged values.
         If given a prefix returns history of aggregated
         values associated with the given postfix
@@ -70,7 +69,7 @@ class TensorboardScalarLogger(AbsMetricsLogger):
 
         Returns:
             list: history of logged values
-        """        
+        """
 
         return self.history[prefix]
 
@@ -79,6 +78,6 @@ class TensorboardScalarLogger(AbsMetricsLogger):
 
         Returns:
             str
-        """        
+        """
 
         return "Tensorboard Scalar Logger"

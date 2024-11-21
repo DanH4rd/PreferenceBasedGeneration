@@ -13,7 +13,7 @@ from src.PreferenceDataGenerator.AbsPreferenceDataGenerator import (
 class BestActionTracker(AbsPreferenceDataGenerator):
     """Decorator class that adds to the generated preferences
     of another preference generator new preferences created
-    by tracking what action is the best of all met thus far 
+    by tracking what action is the best of all met thus far
     """
 
     def __init__(self, prefDataGen: AbsPreferenceDataGenerator):
@@ -21,7 +21,7 @@ class BestActionTracker(AbsPreferenceDataGenerator):
         Args:
             prefDataGen (AbsPreferenceDataGenerator): preference generator
                 for which to add best action tracking functionality
-        """        
+        """
 
         self.prefDataGen = prefDataGen
 
@@ -36,15 +36,15 @@ class BestActionTracker(AbsPreferenceDataGenerator):
 
         Args:
             data (ActionData): list of actions to generate preferences for
-            
+
             limit (int): maximum number of preferences the generator can
                 ask the feedback source for preferences. Does not apply to
                 BestActionTracker number of requests to feedbackSource.
 
         Returns:
             tuple[ActionPairsData, PreferencePairsData]: list of action pairs with corresponding preferences
-        
-        
+
+
         TODO:
             add an option to ensure in generating additional data stage
             that generated preferences and action pairs are not already present in originally
@@ -52,7 +52,7 @@ class BestActionTracker(AbsPreferenceDataGenerator):
 
             (ACT-LOSS) (ctr f to find line) the operation to get a list of used actions sometimes
             loses some actions while converting from action pairs
-        """        
+        """
 
         action_pairs_data, preference_data = self.prefDataGen.generate_preference_data(
             data=data, limit=limit
@@ -161,5 +161,5 @@ class BestActionTracker(AbsPreferenceDataGenerator):
 
         Returns:
             str
-        """        
+        """
         return f"Best Action Tracker for {str(self.prefDataGen)}"

@@ -12,8 +12,7 @@ from src.MetricsLogger.AbsMetricsLogger import AbsMetricsLogger
 
 
 class StackGanGenModel(object, metaclass=abc.ABCMeta):
-    """Adapter class for StackGanv2 generator
-    """    
+    """Adapter class for StackGanv2 generator"""
 
     def __init__(self, config_file, checkpoint_file, scale_level, ngpu=1):
         """
@@ -24,7 +23,7 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
                 load model weights from
             scale_level (_type_): defines scale of image we want to work with
             ngpu (int, optional): number of gpus for torch.nn.DataParallel. Defaults to 1.
-        """        
+        """
         self.config_file = config_file
         self.checkpoint_file = checkpoint_file
         self.scale_level = scale_level
@@ -42,21 +41,21 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
         self.model.eval()
 
     def SetDevice(self, device) -> None:
-        """Sets the device for generator model. 
+        """Sets the device for generator model.
 
         Args:
             device (_type_): device object to set to
 
         TODO:
             support parralel
-        """        
+        """
 
         warnings.warn(
             "No other devices are supported for StackGan model", RuntimeWarning
         )
 
     def generate(self, data: ActionData) -> ImageData:
-        """Generates images of set scale based on 
+        """Generates images of set scale based on
         provided action action list
 
         Args:
@@ -64,7 +63,7 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
 
         Returns:
             ImageData: generated images of said scale
-        """        
+        """
 
         return ImageData(images=self.model(data.actions)[0][self.scale_level])
 
@@ -79,7 +78,7 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
 
         Returns:
             ActionData: list of sampled actions
-        """        
+        """
 
         if N < 1:
             raise Exception(f"Generate noise number cannot be lower 1. Provided: {N}")
@@ -107,7 +106,7 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
 
         Returns:
             Normal: Normal distribution object
-        """        
+        """
 
         cfg_from_file(self.config_file)
 
@@ -129,7 +128,7 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
 
         Returns:
             AbsMetricsLogger: Image tensorboard logger
-        """        
+        """
 
         raise NotImplementedError()
 
@@ -138,5 +137,5 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
 
         Returns:
             str:
-        """        
+        """
         return f"StackGan model. \nConfig: {self.config_file}\nCheckpoint: {self.checkpoint_file}"

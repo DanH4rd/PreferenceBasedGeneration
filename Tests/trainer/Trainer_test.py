@@ -56,7 +56,6 @@ class TestTrainer:
         logger = TensorboardScalarLogger(name="pref_loss", writer=writer)
         prefLoss = LogLossDecorator(lossObject=prefLoss, logger=logger)
 
-        
         control_actions = self.gen_model.sample_random_actions(5)
         control_rewards = reward_model.get_stable_rewards(control_actions).detach()
 

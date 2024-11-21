@@ -1,9 +1,9 @@
 import torch
 
 from DataStructures.ConcreteDataStructures.ActionData import ActionData
-from src.Loss.AbsLoss import AbsLoss
-from src.GenModel.AbsGenModel import AbsGenModel
 from src.DiscModel.AbsDiscModel import AbsDiscModel
+from src.GenModel.AbsGenModel import AbsGenModel
+from src.Loss.AbsLoss import AbsLoss
 
 
 class ActionDiscriminatorLoss(AbsLoss):

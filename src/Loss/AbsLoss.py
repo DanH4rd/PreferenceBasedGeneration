@@ -6,8 +6,7 @@ from src.DataStructures.AbsData import AbsData
 
 
 class AbsLoss(object, metaclass=abc.ABCMeta):
-    """Base class incupsulating the required logic for calculating the loss value
-    """
+    """Base class incupsulating the required logic for calculating the loss value"""
 
     @abc.abstractmethod
     def calculate_loss(self, data: AbsData) -> torch.tensor:
@@ -21,7 +20,7 @@ class AbsLoss(object, metaclass=abc.ABCMeta):
 
         Returns:
             torch.tensor: tensor tensor containing loss float value with grad tree
-        """        
+        """
 
         raise NotImplementedError(
             "users must define calculate_loss to use this base class"
@@ -36,5 +35,5 @@ class AbsLoss(object, metaclass=abc.ABCMeta):
 
         Returns:
             str: _description_
-        """        
+        """
         raise NotImplementedError("users must define __str__ to use this base class")

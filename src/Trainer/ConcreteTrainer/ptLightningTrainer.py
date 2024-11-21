@@ -23,29 +23,29 @@ from src.Trainer.AbsTrainer import AbsTrainer
 
 
 class ptlLightningWrapper:
-    """Abstract class of a wrapper for base torch models
-    """    
+    """Abstract class of a wrapper for base torch models"""
+
     pass
 
 
 class ptLightningModelWrapper(L.LightningModule, ptlLightningWrapper):
-    """Wrapper class to transform a basic torch module to torch-lightning module
-    """    
+    """Wrapper class to transform a basic torch module to torch-lightning module"""
+
     def __init__(self, model: AbsRewardModel, loss_func_obj: AbsLoss):
         """
         Args:
             model (AbsRewardModel): basic torch module representing the model
             loss_func_obj (AbsLoss): loss function object to use for loss calculation
                 used during training
-        """        
+        """
 
-        super().__init__()        
+        super().__init__()
 
         self.model = model
         self.loss_func_obj = loss_func_obj
 
     @override
-    def forward(self, x:AbsData) -> torch.tensor:
+    def forward(self, x: AbsData) -> torch.tensor:
         """Run an input through a model and return
         model's output
 
@@ -54,7 +54,7 @@ class ptLightningModelWrapper(L.LightningModule, ptlLightningWrapper):
 
         Returns:
             torch.tensor: return value of the model
-        """        
+        """
         return self.model(x)
 
     @override
@@ -62,13 +62,13 @@ class ptLightningModelWrapper(L.LightningModule, ptlLightningWrapper):
         """Performs a training step for a given batch
 
         Args:
-            batch (_type_): data batch to perform an optimisation   
+            batch (_type_): data batch to perform an optimisation
             step with
             batch_idx (_type_): id of the batch (?)
 
         Returns:
             torch.tensor: loss valaue for the current batch with grad
-        """        
+        """
 
         t_pairs, t_prefs = batch
 
@@ -93,7 +93,7 @@ class ptLightningModelWrapper(L.LightningModule, ptlLightningWrapper):
 
         Returns:
             torch.optim: torch optimiser object
-        """        
+        """
         optimizer = torch.optim.Adam(self.parameters(), lr=0.001)
         return optimizer
 
@@ -101,7 +101,7 @@ class ptLightningModelWrapper(L.LightningModule, ptlLightningWrapper):
 class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
     """Pytorch lightning wrapper that treats an Action Data object with a
     list of actions as a model and optimises it by maximising their
-    predicted rewards got from a passed reward model. 
+    predicted rewards got from a passed reward model.
 
     The updated action values after each train epoch are placed back
     into the originally passed ActionData object.
@@ -118,7 +118,7 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
             reward_model (AbsRewardModel): model to get rewards for actions from
             loss_func_obj (AbsLoss): loss function object to use for loss calculation
                 used during training
-        """        
+        """
         super().__init__()
 
         self.rewardModel = reward_model
@@ -130,8 +130,7 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
 
     @override
     def forward(self, x):
-        """Empty function
-        """        
+        """Empty function"""
 
         return None
 
@@ -146,7 +145,7 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
 
         Returns:
             torch.tensor: loss value for list of actions with grad
-        """        
+        """
 
         t_pairs, t_prefs = batch
 
@@ -161,7 +160,7 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
         """Freezes reward model's weights before the
         training step to not optimise the reward model's
         weights during training
-        """        
+        """
         self.rewardModel.model.freeze()
         pass
 
@@ -169,8 +168,8 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
     def on_train_epoch_end(self):
         """Unfreezes back the reward model's weights after the
         training step as well as places the new values of actions
-        back to the original ActionData object. 
-        """      
+        back to the original ActionData object.
+        """
         self.rewardModel.model.unfreeze()
 
         self.action_data_object.actions = self.action.data.detach().to(
@@ -184,15 +183,14 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
 
         Returns:
             torch.optim: torch optimiser object
-        """        
+        """
 
         optimizer = torch.optim.Adam(self.parameters(), lr=0.001)
         return optimizer
 
 
 class ptLightningTrainer(AbsTrainer):
-    """Implements the training logic for pytorch-lightning modules
-    """    
+    """Implements the training logic for pytorch-lightning modules"""
 
     def __init__(
         self,
@@ -205,7 +203,7 @@ class ptLightningTrainer(AbsTrainer):
             batch_size (int): size of batches into which to slice the train data
         TODO:
             add model optimiser parametrisation
-        """        
+        """
 
         self.global_epoch = 0
 
@@ -248,7 +246,7 @@ class ptLightningTrainer(AbsTrainer):
 
         Raises:
             Exception: if number of action pairs does not match the preferences count
-        """        
+        """
 
         action_pair_tensor = action_data.action_pairs
         preference_pair_tensor = preference_data.preference_pairs
@@ -278,7 +276,7 @@ class ptLightningTrainer(AbsTrainer):
 
         Returns:
             str
-        """        
+        """
         return "PyTorch Lightning Trainer"
 
 
@@ -286,7 +284,7 @@ class TBLogger(Logger):
     """Empty pytorch lightning logger class to replace the default
     ptl logger in order to  disable automatic logging to tensorboard
     """
-    
+
     def __init__(self):
         pass
 
@@ -330,7 +328,7 @@ class TBLogger(Logger):
 class EarlyStopAtEpochInterval(Callback):
     """A pytorch lightning callback that
     performes an early stop of the training process
-    after the set number of training epochs. 
+    after the set number of training epochs.
 
     Allows to run a single ptl trainer's fit
     method in parts.
@@ -339,12 +337,12 @@ class EarlyStopAtEpochInterval(Callback):
     parametre should be set to False.
     """
 
-    def __init__(self, interval_length:int):
+    def __init__(self, interval_length: int):
         """
         Args:
             interval_length (int): number of epochs after which to
             invoke an early stop
-        """        
+        """
         self.epoch_interval = interval_length
         self.epoch_counter = 0
 
@@ -355,13 +353,13 @@ class EarlyStopAtEpochInterval(Callback):
         Args:
             epoch_interval (_type_): number of epochs after which to
                 invoke an early stop
-        """        
+        """
         self.epoch_interval = epoch_interval
 
     def reset_epoch_counter(self):
         """Resets the counter traching the number of performed
         training epochs
-        """        
+        """
         self.epoch_counter = 0
 
     @override
@@ -370,14 +368,14 @@ class EarlyStopAtEpochInterval(Callback):
         pass
 
     @override
-    def on_train_epoch_end(self, trainer:L.Trainer, pl_module):
+    def on_train_epoch_end(self, trainer: L.Trainer, pl_module):
         """On the end of the train epoch updates the counter and
         if the epoch_interval is reached early stoppes the training
 
         Args:
             trainer (_type_): the trainer object to which callback is attached
             pl_module (_type_): the pytorch lightning module that is being optimised (?)
-        """        
+        """
         # trainer.current_epoch is currently finished
         # trainer.current_epoch + 1 is the next that will start
         # if (trainer.current_epoch + 1) % self.epoch_interval == 0:
@@ -390,8 +388,8 @@ class EarlyStopAtEpochInterval(Callback):
 
 
 class NotifyLossLoggerOnEpochEnd(Callback):
-    """Callback that counts the number of batches in each train epoch 
-    and calls LogLastEntriesMean fuction with this number for logger 
+    """Callback that counts the number of batches in each train epoch
+    and calls LogLastEntriesMean fuction with this number for logger
     corresponding to the loss object to log the aggregated metric value for an epoch.
 
     Loss object should be wrapped in LogLossDecorator to use this callback.

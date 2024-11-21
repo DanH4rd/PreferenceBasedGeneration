@@ -2,19 +2,17 @@ import torch
 
 from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
 from src.Loss.AbsLoss import AbsLoss
-
 from src.RewardModel.AbsRewardModel import AbsRewardModel
 
 
 class ActionRewardLoss(AbsLoss):
-    """Negative reward values for given actions. Requires a reference reward model.
-    """
+    """Negative reward values for given actions. Requires a reference reward model."""
 
-    def __init__(self, rewardModel:AbsRewardModel):
+    def __init__(self, rewardModel: AbsRewardModel):
         """
         Args:
             rewardModel (AbsRewardModel): reward model object to get rewards from
-        """        
+        """
 
         self.rewardModel = rewardModel
 
@@ -26,7 +24,7 @@ class ActionRewardLoss(AbsLoss):
 
         Returns:
             torch.tensor: mean of negative action rewards values with grad attached
-        """        
+        """
 
         loss = self.rewardModel.get_stable_rewards(data)
 

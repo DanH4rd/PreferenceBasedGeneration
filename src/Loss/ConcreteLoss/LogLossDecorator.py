@@ -16,7 +16,7 @@ class LogLossDecorator(AbsLoss):
             lossObject (AbsLoss): loss object which calculated loss values to log
             logger (AbsMetricsLogger): metrics logger object that would perform the logging
                 of the loss value
-        """        
+        """
 
         self.lossObject = lossObject
         self.logger = logger
@@ -30,7 +30,7 @@ class LogLossDecorator(AbsLoss):
 
         Returns:
             torch.tensor: loss value with grad
-        """        
+        """
 
         loss = self.lossObject.calculate_loss(data=data)
 
@@ -43,5 +43,5 @@ class LogLossDecorator(AbsLoss):
 
         Returns:
             str
-        """        
+        """
         return f"Log Loss Decorator of {str(self.lossObject)}"

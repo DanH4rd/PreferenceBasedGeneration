@@ -13,9 +13,7 @@ class AbsPreferenceDataGenerator(object, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def generate_preference_data(
-        self, data: AbsData, limit: int
-    ) -> AbsData:
+    def generate_preference_data(self, data: AbsData, limit: int) -> AbsData:
         """Generates preference data for the provided data
 
         Args:
@@ -28,7 +26,7 @@ class AbsPreferenceDataGenerator(object, metaclass=abc.ABCMeta):
 
         Returns:
             AbsData: preferences generated for the given data
-        """        
+        """
 
         raise NotImplementedError("users must define Filter to use this base class")
 
@@ -41,5 +39,5 @@ class AbsPreferenceDataGenerator(object, metaclass=abc.ABCMeta):
 
         Returns:
             str
-        """        
+        """
         raise NotImplementedError("users must define __str__ to use this base class")

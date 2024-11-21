@@ -13,7 +13,7 @@ class CompositeLoss(AbsLoss):
         """
         Args:
             losses (list[AbsLoss]): loss objects of which the composite consists
-        """        
+        """
 
         self.losses = losses
 
@@ -25,7 +25,7 @@ class CompositeLoss(AbsLoss):
         Args:
             loss (AbsLoss | list[AbsLoss]): loss object or a list of those to
                 add to the composite loss elements
-        """        
+        """
 
         if isinstance(loss, list):
             self.losses += loss
@@ -40,7 +40,7 @@ class CompositeLoss(AbsLoss):
 
         Returns:
             torch.tensor: sum of all calculated loss values for given data
-        """        
+        """
 
         total_loss = torch.tensor(0)
 
@@ -54,5 +54,5 @@ class CompositeLoss(AbsLoss):
 
         Returns:
             str
-        """        
+        """
         return f"Composite loss. Number of members: {len(self.loggers)}"

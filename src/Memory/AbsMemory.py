@@ -4,8 +4,7 @@ from src.DataStructures.AbsData import AbsData
 
 
 class AbsLoss(object, metaclass=abc.ABCMeta):
-    """Base class incupsulating the required logic for memory used during training
-    """
+    """Base class incupsulating the required logic for memory used during training"""
 
     @abc.abstractmethod
     def add_data(self, data: AbsData) -> None:
@@ -16,7 +15,7 @@ class AbsLoss(object, metaclass=abc.ABCMeta):
 
         Raises:
             NotImplementedError: this method is abstract
-        """        
+        """
 
         raise NotImplementedError("users must define add_data to use this base class")
 
@@ -29,9 +28,11 @@ class AbsLoss(object, metaclass=abc.ABCMeta):
 
         Returns:
             AbsData: data from memory
-        """        
+        """
 
-        raise NotImplementedError("users must define get_data_from_memory to use this base class")
+        raise NotImplementedError(
+            "users must define get_data_from_memory to use this base class"
+        )
 
     @abc.abstractmethod
     def __str__(self) -> str:
@@ -42,5 +43,5 @@ class AbsLoss(object, metaclass=abc.ABCMeta):
 
         Returns:
             str
-        """        
+        """
         raise NotImplementedError("users must define __str__ to use this base class")
