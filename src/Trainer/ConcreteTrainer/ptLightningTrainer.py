@@ -7,6 +7,7 @@ from lightning.pytorch.callbacks.callback import Callback
 from pytorch_lightning.loggers.logger import Logger
 from typing_extensions import override
 
+from src.DataStructures.AbsData import AbsData
 from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
 from src.DataStructures.ConcreteDataStructures.ActionPairsData import ActionPairsData
 from src.DataStructures.ConcreteDataStructures.ActionPairsPrefPairsContainer import (
@@ -22,22 +23,53 @@ from src.Trainer.AbsTrainer import AbsTrainer
 
 
 class ptlLightningWrapper:
+    """Abstract class of a wrapper for base torch models
+    """    
     pass
 
 
 class ptLightningModelWrapper(L.LightningModule, ptlLightningWrapper):
+    """Wrapper class to transform a basic torch module to torch-lightning module
+    """    
     def __init__(self, model: AbsRewardModel, loss_func_obj: AbsLoss):
-        super().__init__()
+        """
+        Args:
+            model (AbsRewardModel): basic torch module representing the model
+            loss_func_obj (AbsLoss): loss function object to use for loss calculation
+                used during training
+        """        
+
+        super().__init__()        
 
         self.model = model
         self.loss_func_obj = loss_func_obj
 
     @override
-    def forward(self, x):
+    def forward(self, x:AbsData) -> torch.tensor:
+        """Run an input through a model and return
+        model's output
+
+        Args:
+            x (AbsData): input data for object
+
+        Returns:
+            torch.tensor: return value of the model
+        """        
         return self.model(x)
 
     @override
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch, batch_idx) -> torch.tensor:
+        """Performs a training step for a given batch
+
+        Args:
+            batch (_type_): data batch to perform an optimisation   
+            step with
+            batch_idx (_type_): id of the batch (?)
+
+        Returns:
+            torch.tensor: loss valaue for the current batch with grad
+        """        
+
         t_pairs, t_prefs = batch
 
         t_pairs = t_pairs.to(self.device)
@@ -56,21 +88,37 @@ class ptLightningModelWrapper(L.LightningModule, ptlLightningWrapper):
         return loss
 
     @override
-    def configure_optimizers(self):
+    def configure_optimizers(self) -> torch.optim.Optimizer:
+        """Creates a torch optimiser used for training
+
+        Returns:
+            torch.optim: torch optimiser object
+        """        
         optimizer = torch.optim.Adam(self.parameters(), lr=0.001)
         return optimizer
 
 
 class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
-    """
-    ptl wrapper for actiondata object to optimise its actions relative
-    to the provided reward model. The optimised actions are placed
-    into the passed action data object at the end of each epoch
+    """Pytorch lightning wrapper that treats an Action Data object with a
+    list of actions as a model and optimises it by maximising their
+    predicted rewards got from a passed reward model. 
+
+    The updated action values after each train epoch are placed back
+    into the originally passed ActionData object.
+
+    Does not modify the passed reward model during optimising actions.
     """
 
     def __init__(
         self, action: ActionData, reward_model: AbsRewardModel, loss_func_obj: AbsLoss
     ):
+        """
+        Args:
+            action (ActionData): list of actions to optimise for reward maximisation
+            reward_model (AbsRewardModel): model to get rewards for actions from
+            loss_func_obj (AbsLoss): loss function object to use for loss calculation
+                used during training
+        """        
         super().__init__()
 
         self.rewardModel = reward_model
@@ -82,10 +130,24 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
 
     @override
     def forward(self, x):
-        return self.model(x)
+        """Empty function
+        """        
+
+        return None
 
     @override
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch, batch_idx) -> torch.tensor:
+        """Calculate loss for actions using the passed loss
+        function object and returns loss value
+
+        Args:
+            batch (_type_): batch of dummy data.
+            batch_idx (_type_): id of the batch (?)
+
+        Returns:
+            torch.tensor: loss value for list of actions with grad
+        """        
+
         t_pairs, t_prefs = batch
 
         data = ActionData(actions=self.action.to(self.device))
@@ -96,11 +158,19 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
 
     @override
     def on_train_epoch_start(self):
+        """Freezes reward model's weights before the
+        training step to not optimise the reward model's
+        weights during training
+        """        
         self.rewardModel.model.freeze()
         pass
 
     @override
     def on_train_epoch_end(self):
+        """Unfreezes back the reward model's weights after the
+        training step as well as places the new values of actions
+        back to the original ActionData object. 
+        """      
         self.rewardModel.model.unfreeze()
 
         self.action_data_object.actions = self.action.data.detach().to(
@@ -110,11 +180,19 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
 
     @override
     def configure_optimizers(self):
+        """Creates a torch optimiser used for training
+
+        Returns:
+            torch.optim: torch optimiser object
+        """        
+
         optimizer = torch.optim.Adam(self.parameters(), lr=0.001)
         return optimizer
 
 
 class ptLightningTrainer(AbsTrainer):
+    """Implements the training logic for pytorch-lightning modules
+    """    
 
     def __init__(
         self,
@@ -122,9 +200,12 @@ class ptLightningTrainer(AbsTrainer):
         batch_size: int,
     ):
         """
+        Args:
+            model (ptlLightningWrapper): pytorch lightning module to train
+            batch_size (int): size of batches into which to slice the train data
         TODO:
             add model optimiser parametrisation
-        """
+        """        
 
         self.global_epoch = 0
 
@@ -155,6 +236,19 @@ class ptLightningTrainer(AbsTrainer):
         preference_data: PreferencePairsData,
         epochs: int,
     ) -> None:
+        """Runs the training process for a given number of epochs
+        using action pairs list as input train data and preference data
+        as true labels
+
+        Args:
+            action_data (ActionPairsData): list of action pairs used as train input
+            preference_data (PreferencePairsData): preference list used as true labels
+                for action pairs
+            epochs (int): _description_
+
+        Raises:
+            Exception: if number of action pairs does not match the preferences count
+        """        
 
         action_pair_tensor = action_data.action_pairs
         preference_pair_tensor = preference_data.preference_pairs
@@ -180,15 +274,19 @@ class ptLightningTrainer(AbsTrainer):
         self.global_epoch += epochs
 
     def __str__(self) -> str:
+        """Returns string describing the object
+
+        Returns:
+            str
+        """        
         return "PyTorch Lightning Trainer"
 
 
 class TBLogger(Logger):
+    """Empty pytorch lightning logger class to replace the default
+    ptl logger in order to  disable automatic logging to tensorboard
     """
-    Empty pl lightning logger to disable automatic logging
-    to tensorboard
-    """
-
+    
     def __init__(self):
         pass
 
@@ -206,12 +304,11 @@ class TBLogger(Logger):
     def log_metrics(
         self, metrics: Dict[str, float], step: Optional[int] = None
     ) -> None:
-        """Records metrics. This method logs metrics as soon as it received them.
+        """Does nothing
 
         Args:
             metrics: Dictionary with metric names as keys and measured quantities as values
             step: Step number at which the metrics should be recorded
-
         """
         pass
 
@@ -219,7 +316,7 @@ class TBLogger(Logger):
     def log_hyperparams(
         self, params: Union[Dict[str, Any], Namespace], *args: Any, **kwargs: Any
     ) -> None:
-        """Record hyperparameters.
+        """Does nothing.
 
         Args:
             params: :class:`~argparse.Namespace` or `Dict` containing the hyperparameters
@@ -231,22 +328,40 @@ class TBLogger(Logger):
 
 
 class EarlyStopAtEpochInterval(Callback):
-    """
-    Allows to run pt lighting trainer training process
-    by intervals and not all avaliable epochs at once.
+    """A pytorch lightning callback that
+    performes an early stop of the training process
+    after the set number of training epochs. 
+
+    Allows to run a single ptl trainer's fit
+    method in parts.
 
     To resume training after pause trainer's 'should_stop'
-    parametre should be set to False
+    parametre should be set to False.
     """
 
-    def __init__(self, interval_length):
+    def __init__(self, interval_length:int):
+        """
+        Args:
+            interval_length (int): number of epochs after which to
+            invoke an early stop
+        """        
         self.epoch_interval = interval_length
         self.epoch_counter = 0
 
     def set_epoch_interval(self, epoch_interval):
+        """Sets the number of epochs after which to
+            invoke an early stop
+
+        Args:
+            epoch_interval (_type_): number of epochs after which to
+                invoke an early stop
+        """        
         self.epoch_interval = epoch_interval
 
     def reset_epoch_counter(self):
+        """Resets the counter traching the number of performed
+        training epochs
+        """        
         self.epoch_counter = 0
 
     @override
@@ -255,11 +370,19 @@ class EarlyStopAtEpochInterval(Callback):
         pass
 
     @override
-    def on_train_epoch_end(self, trainer, pl_module):
+    def on_train_epoch_end(self, trainer:L.Trainer, pl_module):
+        """On the end of the train epoch updates the counter and
+        if the epoch_interval is reached early stoppes the training
+
+        Args:
+            trainer (_type_): the trainer object to which callback is attached
+            pl_module (_type_): the pytorch lightning module that is being optimised (?)
+        """        
         # trainer.current_epoch is currently finished
         # trainer.current_epoch + 1 is the next that will start
         # if (trainer.current_epoch + 1) % self.epoch_interval == 0:
         #     trainer.should_stop = True
+
         self.epoch_counter += 1
 
         if self.epoch_counter == self.epoch_interval:
@@ -267,11 +390,11 @@ class EarlyStopAtEpochInterval(Callback):
 
 
 class NotifyLossLoggerOnEpochEnd(Callback):
-    """
-    Counts batch number for an epoch and calls LogLastEntriesMean
-    fuction for logger corresponding to loss object.
+    """Callback that counts the number of batches in each train epoch 
+    and calls LogLastEntriesMean fuction with this number for logger 
+    corresponding to the loss object to log the aggregated metric value for an epoch.
 
-    Loss object should be wrapped in LogLossDecorator.
+    Loss object should be wrapped in LogLossDecorator to use this callback.
     """
 
     def __init__(self):

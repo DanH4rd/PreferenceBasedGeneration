@@ -14,26 +14,32 @@ from src.PreferenceDataGenerator.AbsPreferenceDataGenerator import (
 
 
 class RandomPreferenceDataGenerator(AbsPreferenceDataGenerator):
-    """
-    Base class incupsulating the required logic for generating random pairs
+    """Base class incupsulating the required logic for generating random preferences
     """
 
     def __init__(self, feedbackSource: AbsFeedbackSource):
         """
-        Params:
-            actions = ActionData object containing actions, out of which
-            pairs will be constructed
-        """
+        Args:
+            feedbackSource (AbsFeedbackSource): source to which to ask for preferences
+                for action data
+        """     
 
         self.feedbackSource = feedbackSource
 
     def generate_preference_data(
         self, data: ActionData, limit: int
     ) -> tuple[ActionPairsData, PreferencePairsData]:
-        """
-        Creates all possible combinations out of provided actioms and randomly shuffles them.
+        """Creates all possible combinations out of provided actions and randomly shuffles them.
         Then asks for feebback for the first limit pairs.
-        """
+
+        Args:
+            data (ActionData): action list for which to generate preference data
+            limit (int): number of action pairs to ask for feedback
+
+        Returns:
+            tuple[ActionPairsData, PreferencePairsData]: list of action pairs with corresponding preferences
+       """        
+
         actions_tensor = data.actions
 
         action_idx = list(range(len(actions_tensor)))
@@ -57,4 +63,9 @@ class RandomPreferenceDataGenerator(AbsPreferenceDataGenerator):
         return action_pairs_data, preference_data
 
     def __str__(self) -> str:
+        """Returns string describing the object
+
+        Returns:
+            str
+        """        
         return "Random Feedback Manager"

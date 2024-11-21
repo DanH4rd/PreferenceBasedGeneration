@@ -1,6 +1,6 @@
 import torch.nn as nn
 from torch import device
-
+import torch
 from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
 from src.RewardModel.AbsRewardModel import AbsNetworkExtension, AbsRewardModel
 from src.Trainer.AbsTrainer import AbsTrainer
@@ -8,8 +8,19 @@ from src.utils import freeze_model, unfreeze_model
 
 
 class mlpRewardNetwork(nn.Module, AbsRewardModel):
+    """Implementaion of a simple mlp neural network
+    """    
 
     def __init__(self, input_dim, hidden_dim, p=0.5):
+        """
+
+        Args:
+            input_dim (_type_): dimention of the network input
+            hidden_dim (_type_): dimention of the hidden layers
+            p (float, optional): probability value for dropout layers,
+                placed after each non output hidden layer. Defaults to 0.5.
+        """        
+
         super(mlpRewardNetwork, self).__init__()
         self.main = nn.Sequential(
             # seg1
@@ -33,13 +44,45 @@ class mlpRewardNetwork(nn.Module, AbsRewardModel):
         self.isFrozen = False
         self.isTrainMode = True
 
-    def forward(self, x):
+    def forward(self, x:torch.tensor) -> torch.tensor:
+        """Alias for self.get_rewards
+
+        Args:
+            x (_type_): input tensor for the model of shape [B, D]. 
+                B - number of actions, D - dimention of action vectors
+
+        Returns:
+            torch.tensor: list of rewards for each action
+        """        
         return self.get_rewards(x)
 
-    def get_rewards(self, data: ActionData):
+    def get_rewards(self, data: ActionData) -> torch.tensor:
+        """Runs list of actions through the model
+        to get predicted rewards
+
+        Args:
+            data (ActionData): list of actions serving as input for the model
+
+        Returns:
+            torch.tensor: list of rewards for each action
+        """        
+
         return self.main(data.actions)
 
     def get_stable_rewards(self, data: ActionData):
+        """Runs list of actions through the model
+        in evaluation mode, disabling dropout
+        layers and setting batch norm layers in
+        operating mode and etc. If the model is in
+        train mode, method will temporeraly set model
+        to eval and then return it to train.
+
+        Args:
+            data (ActionData): list of actions serving as input for the model
+
+        Returns:
+            torch.tensor: list of rewards for each action
+        """        
 
         returnToTrainMode = False
 
@@ -55,17 +98,31 @@ class mlpRewardNetwork(nn.Module, AbsRewardModel):
         return rewards
 
     def set_to_evaluaion_mode(self):
+        """Sets the model mode to evaluation mode
+        """        
         self.eval()
         self.isTrainMode = False
 
     def set_to_train_mode(self):
+        """Sets the model mode to train mode
+        """        
         self.train()
         self.isTrainMode = True
 
-    def is_train_mode(self):
+    def is_train_mode(self) -> bool:
+        """Returns true if the model is in train mode, false otherwise
+
+        Returns:
+            bool
+        """        
         return self.isTrainMode
 
     def set_device(self, device: str | device) -> None:
+        """Set the model to the provided device
+
+        Args:
+            device (str | device): device identifier to set to
+        """        
         self.to(device)
 
     def get_trainer(self) -> AbsTrainer:
@@ -89,14 +146,23 @@ class mlpRewardNetwork(nn.Module, AbsRewardModel):
         raise NotImplementedError(f"Extension for {str(self)} not specified")
 
     def freeze(self) -> None:
+        """Turns off weight updates for the model
+        """        
         freeze_model(self)
         self.isFrozen = True
 
     def unfreeze(self) -> None:
+        """Turns on weight updates for the model
+        """        
         unfreeze_model(self)
         self.isFrozen = False
 
-    def is_frozen(self) -> None:
+    def is_frozen(self) -> bool:
+        """Returns true if the model's weights are frozen, false otherwise
+
+        Returns:
+            bool
+        """        
         return self.isFrozen
 
     def __str__(self) -> str:

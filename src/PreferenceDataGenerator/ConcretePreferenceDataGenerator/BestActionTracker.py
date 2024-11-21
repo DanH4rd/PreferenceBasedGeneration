@@ -36,9 +36,10 @@ class BestActionTracker(AbsPreferenceDataGenerator):
 
         Args:
             data (ActionData): list of actions to generate preferences for
-            limit (int): maximum number of preferences to generate using
-                the base preference generator. Does not apply to
-                additionally generater preferences.
+            
+            limit (int): maximum number of preferences the generator can
+                ask the feedback source for preferences. Does not apply to
+                BestActionTracker number of requests to feedbackSource.
 
         Returns:
             tuple[ActionPairsData, PreferencePairsData]: list of action pairs with corresponding preferences

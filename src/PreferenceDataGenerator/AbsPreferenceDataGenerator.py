@@ -20,7 +20,8 @@ class AbsPreferenceDataGenerator(object, metaclass=abc.ABCMeta):
 
         Args:
             data (AbsData): data to generate preferences for
-            limit (int): maximum number of preferences method can generate
+            limit (int): maximum number of preferences the generator can
+                ask the feedback source for preferences
 
         Raises:
             NotImplementedError: this method is abstract
