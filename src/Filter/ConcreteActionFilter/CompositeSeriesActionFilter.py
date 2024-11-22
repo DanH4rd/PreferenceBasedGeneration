@@ -1,30 +1,31 @@
-
 from Filter.AbsActionFilter import AbsActionFilter
 from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
 
 
 class CompositeActionFilter(AbsActionFilter):
-    """
-    Filter that is a serial composition of several other filters, performing one by one
+    """Filter that is a serial composition of several other filters, performing one by one
+
+    Realises the composite OOP pattern
     """
 
     def __init__(self, filters: list[AbsActionFilter]):
         """
-        Params:
-            loggers - list of loggers out of which the composite consists of
+
+        Args:
+            filters (list[AbsActionFilter]): list of filters to sequentially apply
         """
 
         self.filters = filters
         self.limit = None
 
     def add_filter(self, filter: AbsActionFilter | list[AbsActionFilter]) -> None:
-        """
-        Adds a filter to the composite elements list. Can accept a list
+        """Adds a filter to the composite elements list. Can accept a list
         of filters as a parametre, in this case it will concat
         the registered filters list with the passed filter lidt
 
-        Params:
-            filters - AbsLogger object or a list of those
+        Args:
+            filter (AbsActionFilter | list[AbsActionFilter]): a filter or a
+            list of filters to add
         """
 
         if isinstance(filter, list):
@@ -33,12 +34,15 @@ class CompositeActionFilter(AbsActionFilter):
             self.filter.append(filter)
 
     def filter(self, action_data: ActionData) -> ActionData:
-        """
-        Performs the Filter function of all composite elements.
+        """Performs the Filter function of all composite elements.
         Filtering is performed one by one - the output of the 1st
         filter is the input of the 2nd filter
 
-        Check the abstract base class for more info.
+        Args:
+            action_data (ActionData): list of actions to filter
+
+        Returns:
+            ActionData: filtered action list
         """
         actions = action_data.actions
         for filter in self.filters:
@@ -47,4 +51,9 @@ class CompositeActionFilter(AbsActionFilter):
         return ActionData(actions=actions)
 
     def __str__(self) -> str:
+        """Returns string describing the object
+
+        Returns:
+            str
+        """
         return f"Composite action filter. Number of members: {len(self.filter)}"

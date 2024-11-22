@@ -41,7 +41,7 @@ class TestPreferenceDataGenerator:
     gen_model = StackGanGenModel(
         config_file="./GenerativeModelsData/StackGan2/config/facade_3stages_color.yml",
         checkpoint_file="./GenerativeModelsData/StackGan2/checkpoints/Facade v1.0/netG_56500.pth",
-        gen_level=2,
+        scale_level=2,
     )
 
     @pytest.mark.parametrize(

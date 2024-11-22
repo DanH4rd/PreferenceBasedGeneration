@@ -10,14 +10,29 @@ class AbsFeedbackSource(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def generate_feedback(self, data: AbsData) -> AbsData:
+        """Returns feedback for provided data
+
+        Args:
+            data (AbsData): data for which we want to get feedback values
+
+        Raises:
+            NotImplementedError: this method is abstract
+
+        Returns:
+            AbsData: feedback data
         """
-        Returns feedback for provided data
-        """
-        raise NotImplementedError("users must define Filter to use this base class")
+        raise NotImplementedError(
+            "users must define generate_feedback to use this base class"
+        )
 
     @abc.abstractmethod
     def __str__(self) -> str:
-        """
-        Returns string describing the object
+        """Returns string describing the object
+
+        Raises:
+            NotImplementedError: this method is abstract
+
+        Returns:
+            str
         """
         raise NotImplementedError("users must define __str__ to use this base class")

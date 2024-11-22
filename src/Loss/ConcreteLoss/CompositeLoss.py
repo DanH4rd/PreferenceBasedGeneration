@@ -5,27 +5,26 @@ from src.Loss.AbsLoss import AbsLoss
 
 
 class CompositeLoss(AbsLoss):
-    """
-    Loss that is a composition of several other losses
+    """Loss that is a composition of several other losses.
+    Returns sum of losses
     """
 
     def __init__(self, losses: list[AbsLoss]):
         """
-        Params:
-            losses - list of losses out of which the composite consists of
-            logger - if provided, will use it to log the loss
+        Args:
+            losses (list[AbsLoss]): loss objects of which the composite consists
         """
 
         self.losses = losses
 
-    def AddLoss(self, loss: AbsLoss | list[AbsLoss]) -> None:
-        """
-        Adds a loss to the composite elements list. Can accept a list
+    def add_loss(self, loss: AbsLoss | list[AbsLoss]) -> None:
+        """Adds a loss to the composite elements list. Can accept a list
         of losses as a parametre, in this case it will concat
         the registered losses list with the passed loss list
 
-        Params:
-            loss - AbsLoss object or a list of those
+        Args:
+            loss (AbsLoss | list[AbsLoss]): loss object or a list of those to
+                add to the composite loss elements
         """
 
         if isinstance(loss, list):
@@ -33,13 +32,16 @@ class CompositeLoss(AbsLoss):
         else:
             self.losses.append(loss)
 
-    def CalculateLoss(self, data: AbsData) -> torch.tensor:
-        """
-        Calculates the total sum of all composite losses.
+    def calculate_loss(self, data: AbsData) -> torch.tensor:
+        """Calculates the total sum of all composite losses.
 
+        Args:
+            data (AbsData): data to calculate loss for
 
-        Check the abstract base class for more info.
+        Returns:
+            torch.tensor: sum of all calculated loss values for given data
         """
+
         total_loss = torch.tensor(0)
 
         for loss in self.losses:
@@ -48,4 +50,9 @@ class CompositeLoss(AbsLoss):
         return total_loss
 
     def __str__(self) -> str:
+        """Returns a string describing an onject
+
+        Returns:
+            str
+        """
         return f"Composite loss. Number of members: {len(self.loggers)}"

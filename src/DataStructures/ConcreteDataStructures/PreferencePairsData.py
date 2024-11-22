@@ -4,15 +4,24 @@ from src.DataStructures.AbsData import AbsData
 
 
 class PreferencePairsData(AbsData):
+    """Class for preference probabilities between a pair of objects"""
 
     def __init__(self, preference_pairs: torch.tensor):
         """
-        Parametres:
-            y - [B,2] tensor, B - batch size
+        Args:
+            preference_pairs (torch.tensor): [B,2] tensor, B - batch size
+
+        Raises:
+            Exception: if provided tensor is of not expected shape
+            Exception: if provided preferences contain values
+                other than [1., 0.], [0., 1.].[0.5, 0.5] and [0., 0.]
+
 
         TODO:
             add check for legal values
+            rename y argument to more descriptful name
         """
+
         self.preference_pairs = preference_pairs
 
         if len(self.preference_pairs.shape) != 2 or self.preference_pairs.shape[1] != 2:
@@ -29,4 +38,9 @@ class PreferencePairsData(AbsData):
                 raise Exception(f"Unallowed preference value: {str(pair.cpu())}")
 
     def __str__(self) -> str:
+        """Returns a string representing an object
+
+        Returns:
+            str
+        """
         return "Pair Preference Data"

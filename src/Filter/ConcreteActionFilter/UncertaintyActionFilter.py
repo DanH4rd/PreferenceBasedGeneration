@@ -19,11 +19,21 @@ class UncertaintyActionFilter(AbsActionFilter):
         self, mode: str, rewardModel: AbsRewardModel, limit: int | float | None
     ):
         """
-        Params:
-            rewardModel - reward model to use as estimator
-            limit - max number of actions to return
-            mode - determines is filter returns based on min values or max values
+        Args:
+            mode (str): determines is filter returns based on min values or max values
+            rewardModel (AbsRewardModel): reward model to use as estimator
+            limit (int | float | None): maximum amount of actions filter
+                can return. Can be set as absolute number of elements
+                or as a percent of the original list
+
+        Raises:
+            NotImplementedError: this class is legacy and more general ScoreActionFilter
+                must be used instead
+            Exception: if absolute limit value is less than 1
+            Exception: if relative limit value is not in range [0,1]
         """
+
+        raise NotImplementedError("Legacy class, use ScoreActionFilter instead")
 
         self.rewardModel = rewardModel
         self.limit = limit

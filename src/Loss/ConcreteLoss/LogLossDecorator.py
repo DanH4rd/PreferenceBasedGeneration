@@ -6,30 +6,30 @@ from src.MetricsLogger.AbsMetricsLogger import AbsMetricsLogger
 
 
 class LogLossDecorator(AbsLoss):
-    """
-    A decorator class, which applied, will additionally log the loss
-    value using a provided logger
+    """A decorator class for loss objects to automatically
+    log the calculated loss value
     """
 
     def __init__(self, lossObject: AbsLoss, logger: AbsMetricsLogger):
         """
-        Params:
-            genModel - generator model object
-            logger - if provided, will use it to log the loss
+        Args:
+            lossObject (AbsLoss): loss object which calculated loss values to log
+            logger (AbsMetricsLogger): metrics logger object that would perform the logging
+                of the loss value
         """
 
         self.lossObject = lossObject
         self.logger = logger
 
     def calculate_loss(self, data: AbsData) -> torch.tensor:
-        """
-        Calculates the loss and logs its value.
+        """Calculates loss using given loss object value and
+        invoke given metrics logger to log the calculated loss
 
-        Parametres:
-            X - [B, D] tensor, B - batch size, D - action dim
+        Args:
+            data (AbsData): data to calculate loss for
 
-
-        Check the abstract base class for more info.
+        Returns:
+            torch.tensor: loss value with grad
         """
 
         loss = self.lossObject.calculate_loss(data=data)
@@ -39,4 +39,9 @@ class LogLossDecorator(AbsLoss):
         return loss
 
     def __str__(self) -> str:
+        """Returns a string describing an onject
+
+        Returns:
+            str
+        """
         return f"Log Loss Decorator of {str(self.lossObject)}"

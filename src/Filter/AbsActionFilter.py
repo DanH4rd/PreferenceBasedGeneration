@@ -10,18 +10,29 @@ class AbsActionFilter(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def filter(self, data: ActionData) -> ActionData:
-        """
-        Filter actions based on implemented logic and, if set up, return
+        """Filter actions based on implemented logic and, if set up, return
         limit elements of the result list
 
-        Params:
-            data - action data to filter
+        Args:
+            data (ActionData): list of actions to filter
+
+        Raises:
+            NotImplementedError: this method is abstract
+
+        Returns:
+            ActionData: filtered list of actions
         """
-        raise NotImplementedError("users must define Filter to use this base class")
+
+        raise NotImplementedError("users must define filter to use this base class")
 
     @abc.abstractmethod
     def __str__(self) -> str:
-        """
-        Returns string describing the object
+        """Returns string describing the object
+
+        Raises:
+            NotImplementedError: this method is abstract
+
+        Returns:
+            str
         """
         raise NotImplementedError("users must define __str__ to use this base class")

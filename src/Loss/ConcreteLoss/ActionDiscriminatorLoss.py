@@ -1,36 +1,36 @@
 import torch
 
 from DataStructures.ConcreteDataStructures.ActionData import ActionData
+from src.DiscModel.AbsDiscModel import AbsDiscModel
+from src.GenModel.AbsGenModel import AbsGenModel
 from src.Loss.AbsLoss import AbsLoss
 
 
 class ActionDiscriminatorLoss(AbsLoss):
-    """
-    Negative discriminator scores for images generated from given actions.
-    Requires a gen model object
+    """Negative GAN discriminator scores for images generated from
+    actions given.
     """
 
-    def __init__(self, genModel, discModel):
+    def __init__(self, genModel:AbsGenModel, discModel:AbsDiscModel):
         """
-        Params:
-            genModel - generator model object
-            discModel - discriminator model object
-            logger - if provided, will use it to log the loss
-        """
+        Args:
+            genModel (AbsGenModel): generator model object
+            discModel (AbsDiscModel): discriminator model object
+        """        
 
         self.genModel = genModel
         self.discModel = discModel
 
-    def CalculateLoss(self, data: ActionData) -> torch.tensor:
-        """
-        Calculates the action disriminator loss for the given actions.
+    def calculate_loss(self, data: ActionData) -> torch.tensor:
+        """First generates images from the provided action list,
+        then calculates discriminator scores for the given images.
 
-        Parametres:
-            X - [B, D] tensor, B - batch size, D - action dim
+        Args:
+            data (ActionData): action list to get disc score for
 
-
-        Check the abstract base class for more info.
-        """
+        Returns:
+            torch.tensor: mean of discrimination score values with grad attached
+        """        
         loss = self.discModel.Discriminate(self.genModel.Generate(data.actions))
 
         loss = -loss.mean()
@@ -38,4 +38,9 @@ class ActionDiscriminatorLoss(AbsLoss):
         return loss
 
     def __str__(self) -> str:
-        return "Action Reward Loss"
+        """Returns a string describing an object
+
+        Returns:
+            str:
+        """        
+        return "Action Discriminator Loss"

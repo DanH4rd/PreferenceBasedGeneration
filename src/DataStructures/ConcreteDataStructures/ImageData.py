@@ -4,20 +4,23 @@ from src.DataStructures.AbsData import AbsData
 
 
 class ImageData(AbsData):
-    """
-    Class for storing image data as tensor
-    """
+    """Class for storing image data in defined format"""
 
     def __init__(self, images: torch.tensor):
         """
-        Parametres:
 
-            images -  [N, C, H, W] tensor
+        Args:
+            images (torch.tensor): [N, C, H, W] tensor
                 N - number of images
                 C - number of channels
                 H - height
                 W - width
+
+        Raises:
+            Exception: if tensor dimention length isn't 4
+            Exception: if number of channels isn't equal to 1 or 3
         """
+
         self.images = images
 
         img_tensor_shape = self.images.shape
@@ -33,4 +36,9 @@ class ImageData(AbsData):
             )
 
     def __str__(self) -> str:
+        """Returns a string representing an object
+
+        Returns:
+            str
+        """
         return "Image Data"

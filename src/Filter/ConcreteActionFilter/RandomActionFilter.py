@@ -7,11 +7,21 @@ from src.Filter.AbsActionFilter import AbsActionFilter
 
 
 class RandomActionFilter(AbsActionFilter):
-    """
-    Filter that returns set amount of action picked randomly
-    """
+    """Filter that randomly picks set amount of actions"""
 
     def __init__(self, limit: int | float | None):
+        """
+
+        Args:
+            limit (int | float | None): maximum amount of actions filter
+                can return. Can be set as absolute number of elements
+                or as a percent of the original list
+
+        Raises:
+            Exception: if absolute limit value is less than 1
+            Exception: if relative limit value is not in range [0,1]
+        """
+
         """
         Params:
             rewardModel - reward model to use as estimator
@@ -20,23 +30,20 @@ class RandomActionFilter(AbsActionFilter):
 
         self.limit = limit
 
-        if self.limit is not None:
-            if isinstance(self.limit, int):
-                if self.limit < 1:
-                    raise Exception(f"Invalid limit int value: {self.limit}")
-            elif isinstance(self.limit, float):
-                if self.limit > 1 or self.limit < 0:
-                    raise Exception(f"Invalid limit float value: {self.limit}")
-            else:
-                raise Exception(
-                    f"Wrong limit value type: {self.limit} - {type(self.limit)}"
-                )
+        if isinstance(self.limit, int) and self.limit < 1:
+            raise Exception(f"Invalid limit int value: {self.limit}")
+
+        elif isinstance(self.limit, float) and (self.limit > 1 or self.limit < 0):
+            raise Exception(f"Invalid limit float value: {self.limit}")
 
     def filter(self, action_data: ActionData) -> ActionData:
-        """
-        Pickes limit of random actions and returns them
+        """Pickes defined number of actions and returns them
 
-        Check the abstract base class for more info.
+        Args:
+            action_data (ActionData): list of actions to filter
+
+        Returns:
+            ActionData: filtered list of actions
         """
 
         sorted_values = randperm(action_data.actions.shape[0])
@@ -56,4 +63,9 @@ class RandomActionFilter(AbsActionFilter):
         return ActionData(actions=actions)
 
     def __str__(self) -> str:
+        """Returns string describing the object
+
+        Returns:
+            str
+        """
         return f"Random Action Filter. Limit: {self.limit}"
