@@ -22,15 +22,15 @@ class StackGanDiscModel(object, metaclass=abc.ABCMeta):
         3: D_NET1024,
     }
 
-    def __init__(self, config_file, checkpoint_file, scale_level, ngpu=1):
+    def __init__(self, config_file:str, checkpoint_file:str, scale_level:int, ngpu:int=1):
         """
 
         Args:
-            config_file (_type_): StackGanv2 path describing used model
+            config_file (str): StackGanv2 path describing used model
                 architecture parametres
-            checkpoint_file (_type_): path to the checkpoint file to
+            checkpoint_file (str): path to the checkpoint file to
                 load model weights from
-            scale_level (_type_): defines scale of image we want to work with
+            scale_level (int): defines scale of image we want to work with
             ngpu (int, optional): number of gpus for torch.nn.DataParallel. Defaults to 1.
         """
         self.config_file = config_file
@@ -52,7 +52,7 @@ class StackGanDiscModel(object, metaclass=abc.ABCMeta):
         self.model.eval()
 
     def discriminate(self, data: ImageData) -> torch.tensor:
-        """Generates values based on provided action data
+        """Generates values based on provided image data
 
         Args:
             data (ImageData): images for which we want to

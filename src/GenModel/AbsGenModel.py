@@ -4,7 +4,7 @@ from torch.distributions import Distribution
 
 from src.DataStructures.AbsData import AbsData
 from src.DataStructures.ConcreteDataStructures.ImageData import ImageData
-from src.Logger.AbsLogger import AbsLogger
+from src.MetricsLogger.AbsMetricsLogger import AbsMetricsLogger
 
 
 class AbsGenModel(object, metaclass=abc.ABCMeta):
@@ -63,7 +63,7 @@ class AbsGenModel(object, metaclass=abc.ABCMeta):
         )
 
     @abc.abstractmethod
-    def get_media_logger(self) -> AbsLogger:
+    def get_media_logger(self) -> AbsMetricsLogger:
         """Returns a default logger for logging generated media
 
         Raises:

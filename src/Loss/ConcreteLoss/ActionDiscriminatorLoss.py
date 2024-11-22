@@ -11,7 +11,7 @@ class ActionDiscriminatorLoss(AbsLoss):
     actions given.
     """
 
-    def __init__(self, genModel:AbsGenModel, discModel;AbsDiscModel):
+    def __init__(self, genModel:AbsGenModel, discModel:AbsDiscModel):
         """
         Args:
             genModel (AbsGenModel): generator model object
@@ -21,7 +21,7 @@ class ActionDiscriminatorLoss(AbsLoss):
         self.genModel = genModel
         self.discModel = discModel
 
-    def CalculateLoss(self, data: ActionData) -> torch.tensor:
+    def calculate_loss(self, data: ActionData) -> torch.tensor:
         """First generates images from the provided action list,
         then calculates discriminator scores for the given images.
 

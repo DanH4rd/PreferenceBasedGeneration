@@ -12,7 +12,6 @@ class CompositeLogger(AbsMetricsLogger):
         """
 
         self.loggers = loggers
-        self.history = None
 
     def add_logger(self, logger: AbsMetricsLogger | list[AbsMetricsLogger]) -> None:
         """Adds a logger to the composite elements list. Can accept a list
@@ -29,7 +28,7 @@ class CompositeLogger(AbsMetricsLogger):
         else:
             self.loggers.append(logger)
 
-    def Log(self, value) -> None:
+    def log(self, value) -> None:
         """Performs the log function of all composite elements with the given value
 
         Args:

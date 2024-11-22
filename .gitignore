@@ -3,6 +3,7 @@ __pycache__/
 .ruff_cache/
 /Tests/*/runs*/
 /GenerativeModelsData/
-
+*.drawio.bkp
+*.drawio.dtmp
 /.venv
 /testing.ipynb

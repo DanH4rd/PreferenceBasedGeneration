@@ -17,7 +17,7 @@ class CompositeLoss(AbsLoss):
 
         self.losses = losses
 
-    def AddLoss(self, loss: AbsLoss | list[AbsLoss]) -> None:
+    def add_loss(self, loss: AbsLoss | list[AbsLoss]) -> None:
         """Adds a loss to the composite elements list. Can accept a list
         of losses as a parametre, in this case it will concat
         the registered losses list with the passed loss list
@@ -32,7 +32,7 @@ class CompositeLoss(AbsLoss):
         else:
             self.losses.append(loss)
 
-    def CalculateLoss(self, data: AbsData) -> torch.tensor:
+    def calculate_loss(self, data: AbsData) -> torch.tensor:
         """Calculates the total sum of all composite losses.
 
         Args:
