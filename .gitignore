@@ -1,9 +1,12 @@
 __pycache__/
 .pytest_cache/
 .ruff_cache/
+/.venv
+
 /Tests/*/runs*/
+/logs/
 /GenerativeModelsData/
+/testing.ipynb
+
 *.drawio.bkp
 *.drawio.dtmp
-/.venv
-/testing.ipynb

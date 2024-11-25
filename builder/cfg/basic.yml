@@ -1,0 +1,58 @@
+# GPU id
+ngpu: 1
+
+# GAN latent size
+nz: 100
+
+TaskTrainer:
+  # size on reward_net layers
+  nh: 100
+  # dropout chance of the reward network
+  p: 0.1
+  # start param of e-greedy
+  e_start: 1
+  # decay of e
+  e_decay: 0.9
+  # minimum value of e
+  e_limit: 0.5
+  # number of sampled z codes
+  num_samples: 10
+  # std deviation for normal dist with z_last as mean
+  omega2: 0.5
+  # learning rate
+  lr: 0.0002
+  # beta1 for ADAM
+  beta1: 0.5
+  # beta2 for ADAM
+  beta2: 0.999
+  # number of reward values that is taken from reward net
+  reward_sample_num: 10
+  # number of episodes stored in memory
+  memory_size: 100
+  # time discount for memory replay
+  time_discount: 0.92
+  # number of epoches for revard net after every new feedback
+  epoches_in_episode: 30
+
+  #Params for latent code optimization
+  LatentTrainer:
+    # number of steps of no improvement we tolerate, -1 turns off patience
+    patience: -1
+    # learning rate
+    lr: 0.001
+    # beta1 for ADAM
+    beta1: 0.5
+    # beta2 for ADAM
+    beta2: 0.999
+    # if true considers in GAN's discriminator loss
+    disc_control: True
+    # number of epoches for latent code optimisation after every new feedback
+    epoches_in_episode: 200
+
+  
+MamlTrainer:
+  lr: 0.0002
+  beta1: 0.5
+  beta2: 0.999
+  maml_epochs: 20
+  task_epochs: 10

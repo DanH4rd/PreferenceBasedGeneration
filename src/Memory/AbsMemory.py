@@ -3,7 +3,7 @@ import abc
 from src.DataStructures.AbsData import AbsData
 
 
-class AbsLoss(object, metaclass=abc.ABCMeta):
+class AbsMemory(object, metaclass=abc.ABCMeta):
     """Base class incupsulating the required logic for memory used during training"""
 
     @abc.abstractmethod
