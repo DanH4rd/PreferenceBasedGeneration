@@ -1,4 +1,6 @@
 import torch
+import PIL
+
 
 from src.DataStructures.AbsData import AbsData
 
@@ -34,6 +36,18 @@ class ImageData(AbsData):
             raise Exception(
                 f"Image has incorrect number of channels({img_tensor_shape[1]}). Image should be either RBG or monochrome"
             )
+        
+    def get_as_pil_images(self):
+        """Returns stored image data as a list of PIL.Image objects
+        """        
+
+        pil_images = []
+
+        for image_array in (self.images.detach().permute(0,2,3,1).cpu().numpy() * 255).astype('uint8'):
+            pil_images.append(PIL.Image.fromarray(image_array))
+        
+        
+        return pil_images
 
     def __str__(self) -> str:
         """Returns a string representing an object

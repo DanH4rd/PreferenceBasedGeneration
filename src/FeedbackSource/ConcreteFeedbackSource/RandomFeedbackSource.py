@@ -3,13 +3,14 @@ from random import randint
 
 import torch
 
+from src.FeedbackSource.AbsFeedbackSource import AbsFeedbackSource
 from src.DataStructures.ConcreteDataStructures.ActionPairsData import ActionPairsData
 from src.DataStructures.ConcreteDataStructures.PreferencePairsData import (
     PreferencePairsData,
 )
 
 
-class RandomFeedbackSource(object, metaclass=abc.ABCMeta):
+class RandomFeedbackSource(AbsFeedbackSource):
     """Generates random feedback for provided action pairs"""
 
     possible_values = [[1.0, 0.0], [0.0, 1.0], [0.5, 0.5], [0.0, 0.0]]

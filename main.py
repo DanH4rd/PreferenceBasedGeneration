@@ -56,8 +56,8 @@ if __name__ == '__main__':
     for r in range(rounds_number):
         sampled_actions = gen_model.sample_random_actions(10)
         action_data, pref_data = preference_generator.generate_preference_data(data=sampled_actions, limit=15)
+        
         memory.add_data(ActionPairsPrefPairsContainer(action_pairs_data=action_data, pref_pairs_data=pref_data))
-
         train_data = memory.get_data_from_memory()
 
         model_trainer.run_training(action_data=train_data.action_pairs_data, 

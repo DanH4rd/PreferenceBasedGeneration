@@ -3,6 +3,7 @@ import warnings
 
 import torch
 from torch.distributions.normal import Normal
+from torchvision.utils import make_grid
 
 from GenerativeModelsData.StackGan2.StackGanUtils.config import cfg, cfg_from_file
 from GenerativeModelsData.StackGan2.StackGanUtils.model import G_NET
@@ -64,8 +65,12 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
         Returns:
             ImageData: generated images of said scale
         """
+        images = self.model(data.actions)[0][self.scale_level]
+        
+        # normalise values of generated images
+        images = torch.stack(list(map(lambda x: make_grid(x, padding=0, normalize=True), images)))
 
-        return ImageData(images=self.model(data.actions)[0][self.scale_level])
+        return ImageData(images=images)
 
     def sample_random_actions(self, N: int) -> ActionData:
         """Samples given number of noise vectors (actions) from noise distribution
