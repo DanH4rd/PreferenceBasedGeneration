@@ -3,7 +3,6 @@ import abc
 from torch.distributions import Distribution
 
 from src.DataStructures.AbsData import AbsData
-from src.DataStructures.ConcreteDataStructures.ImageData import ImageData
 from src.MetricsLogger.AbsMetricsLogger import AbsMetricsLogger
 
 

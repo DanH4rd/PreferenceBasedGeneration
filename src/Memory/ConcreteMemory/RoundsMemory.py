@@ -83,7 +83,7 @@ class RoundsMemory(object, metaclass=abc.ABCMeta):
             pref_tensor_entry = data.pref_pairs_data.preference_pairs
 
             if self.discount_factor is not None:
-                pref_tensor_entry *= pow(self.discount_factor , (memory_length - i))
+                pref_tensor_entry *= pow(self.discount_factor, (memory_length - i))
 
             pref_pairs_list.append(pref_tensor_entry)
 

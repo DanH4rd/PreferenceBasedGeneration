@@ -66,9 +66,11 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
             ImageData: generated images of said scale
         """
         images = self.model(data.actions)[0][self.scale_level]
-        
+
         # normalise values of generated images
-        images = torch.stack(list(map(lambda x: make_grid(x, padding=0, normalize=True), images)))
+        images = torch.stack(
+            list(map(lambda x: make_grid(x, padding=0, normalize=True), images))
+        )
 
         return ImageData(images=images)
 

@@ -46,7 +46,7 @@ class TensorboardScalarLogger(AbsMetricsLogger):
         """
 
         if postfix == "base":
-            raise AttributeError(f'"base" postfix is reserved for standard logging')
+            raise AttributeError('"base" postfix is reserved for standard logging')
 
         if postfix not in self.history.keys():
             self.history[postfix] = []

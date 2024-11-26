@@ -79,7 +79,7 @@ class ScoreActionFilter(AbsActionFilter):
 
             if self.mode == "max":
                 actions = actions[-int_limit:]
-                actions =torch.flip(actions, dims=[0])
+                actions = torch.flip(actions, dims=[0])
             elif self.mode == "min":
                 actions = actions[:int_limit]
                 actions = torch.flip(actions, dims=[0])

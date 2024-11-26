@@ -11,12 +11,12 @@ class ActionDiscriminatorLoss(AbsLoss):
     actions given.
     """
 
-    def __init__(self, genModel:AbsGenModel, discModel:AbsDiscModel):
+    def __init__(self, genModel: AbsGenModel, discModel: AbsDiscModel):
         """
         Args:
             genModel (AbsGenModel): generator model object
             discModel (AbsDiscModel): discriminator model object
-        """        
+        """
 
         self.genModel = genModel
         self.discModel = discModel
@@ -30,7 +30,7 @@ class ActionDiscriminatorLoss(AbsLoss):
 
         Returns:
             torch.tensor: mean of discrimination score values with grad attached
-        """        
+        """
         loss = self.discModel.Discriminate(self.genModel.Generate(data.actions))
 
         loss = -loss.mean()
@@ -42,5 +42,5 @@ class ActionDiscriminatorLoss(AbsLoss):
 
         Returns:
             str:
-        """        
+        """
         return "Action Discriminator Loss"

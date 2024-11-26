@@ -22,7 +22,9 @@ class StackGanDiscModel(object, metaclass=abc.ABCMeta):
         3: D_NET1024,
     }
 
-    def __init__(self, config_file:str, checkpoint_file:str, scale_level:int, ngpu:int=1):
+    def __init__(
+        self, config_file: str, checkpoint_file: str, scale_level: int, ngpu: int = 1
+    ):
         """
 
         Args:

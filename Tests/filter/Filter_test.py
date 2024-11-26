@@ -105,10 +105,16 @@ class TestFilter:
 
         filter_actions = filter.filter(actions)
 
-        assert ((torch.flip(sorted_actions_tensor[-5:], dims=[0]) - filter_actions.actions) < 10e-5).all()
+        assert (
+            (torch.flip(sorted_actions_tensor[-5:], dims=[0]) - filter_actions.actions)
+            < 10e-5
+        ).all()
 
         filter = ScoreActionFilter(mode="min", key=key, limit=0.5)
 
         filter_actions = filter.filter(actions)
 
-        assert ((torch.flip(sorted_actions_tensor[:5], dims=[0]) - filter_actions.actions) < 10e-5).all()
+        assert (
+            (torch.flip(sorted_actions_tensor[:5], dims=[0]) - filter_actions.actions)
+            < 10e-5
+        ).all()

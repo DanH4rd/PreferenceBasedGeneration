@@ -1,10 +1,6 @@
 import abc
 
 from src.DataStructures.AbsData import AbsData
-from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
-from src.DataStructures.ConcreteDataStructures.PreferencePairsData import (
-    PreferencePairsData,
-)
 
 
 class AbsPreferenceDataGenerator(object, metaclass=abc.ABCMeta):

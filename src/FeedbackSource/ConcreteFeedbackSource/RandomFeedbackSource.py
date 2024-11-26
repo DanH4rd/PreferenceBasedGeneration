@@ -1,13 +1,12 @@
-import abc
 from random import randint
 
 import torch
 
-from src.FeedbackSource.AbsFeedbackSource import AbsFeedbackSource
 from src.DataStructures.ConcreteDataStructures.ActionPairsData import ActionPairsData
 from src.DataStructures.ConcreteDataStructures.PreferencePairsData import (
     PreferencePairsData,
 )
+from src.FeedbackSource.AbsFeedbackSource import AbsFeedbackSource
 
 
 class RandomFeedbackSource(AbsFeedbackSource):

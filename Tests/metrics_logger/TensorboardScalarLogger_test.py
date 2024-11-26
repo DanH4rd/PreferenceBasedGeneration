@@ -13,16 +13,19 @@ sys.path.insert(0, parentdir)
 ###################################################
 
 
-from torch.utils.tensorboard import SummaryWriter
-from PIL import Image
 import os
+
+from PIL import Image
+from torch.utils.tensorboard import SummaryWriter
 from torchvision.transforms.functional import pil_to_tensor
 
+from src.DataStructures.ConcreteDataStructures.ImageData import ImageData
+from src.MetricsLogger.ConcreteMetricsLogger.TensorboardImageLogger import (
+    TensorboardImageLogger,
+)
 from src.MetricsLogger.ConcreteMetricsLogger.TensorboardScalarLogger import (
     TensorboardScalarLogger,
 )
-from src.MetricsLogger.ConcreteMetricsLogger.TensorboardImageLogger import TensorboardImageLogger
-from src.DataStructures.ConcreteDataStructures.ImageData import ImageData 
 
 
 class TestMetricsLogger:
@@ -54,7 +57,9 @@ class TestMetricsLogger:
         image_data_list = []
         for root, dirs, files in os.walk("Tests\\metrics_logger\\images"):
             for f in files:
-                image = pil_to_tensor(Image.open(os.path.join(root, f)).convert('RGB')).unsqueeze(0)
+                image = pil_to_tensor(
+                    Image.open(os.path.join(root, f)).convert("RGB")
+                ).unsqueeze(0)
                 image_data_list.append(ImageData(images=image))
 
         for image in image_data_list:

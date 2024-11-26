@@ -1,7 +1,7 @@
 from torch.utils.tensorboard import SummaryWriter
 
-from src.MetricsLogger.AbsMetricsLogger import AbsMetricsLogger
 from src.DataStructures.ConcreteDataStructures.ImageData import ImageData
+from src.MetricsLogger.AbsMetricsLogger import AbsMetricsLogger
 
 
 class TensorboardImageLogger(AbsMetricsLogger):
@@ -28,15 +28,20 @@ class TensorboardImageLogger(AbsMetricsLogger):
         """
 
         if value.images.shape[0] > 1:
-            raise Exception(f'Supported logging only for ine image at time, got {value.images.shape[0]}')
-        
+            raise Exception(
+                f"Supported logging only for ine image at time, got {value.images.shape[0]}"
+            )
+
         self.history["base"].append(value)
 
-        self.writer.add_image(tag=self.name, img_tensor=value.images[0], global_step=len(self.history["base"]) - 1)
+        self.writer.add_image(
+            tag=self.name,
+            img_tensor=value.images[0],
+            global_step=len(self.history["base"]) - 1,
+        )
 
     def log_last_entries_mean(self, N: int, postfix: str = "_epoch") -> None:
-        """Empty function
-        """
+        """Empty function"""
         pass
 
     def get_logged_history(self) -> list:
@@ -46,7 +51,7 @@ class TensorboardImageLogger(AbsMetricsLogger):
             list: history of logged values
         """
 
-        return self.history['base']
+        return self.history["base"]
 
     def __str__(self) -> str:
         """Returns string describing the object
