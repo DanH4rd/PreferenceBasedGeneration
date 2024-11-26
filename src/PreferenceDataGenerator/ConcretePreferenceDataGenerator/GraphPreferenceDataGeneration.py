@@ -78,10 +78,10 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
             prefG.add_edge(u_of_edge=node2, v_of_edge=node1, label="equal2")
             genG.add_edge(u_of_edge=node1, v_of_edge=node2, label="base")
         elif preference == [1.0, 0.0]:
-            prefG.add_edge(u_of_edge=node1, v_of_edge=node2, label="preferable")
+            prefG.add_edge(u_of_edge=node2, v_of_edge=node1, label="preferable")
             genG.add_edge(u_of_edge=node1, v_of_edge=node2, label="base")
         elif preference == [0.0, 1.0]:
-            prefG.add_edge(u_of_edge=node2, v_of_edge=node1, label="preferable")
+            prefG.add_edge(u_of_edge=node1, v_of_edge=node2, label="preferable")
             genG.add_edge(u_of_edge=node1, v_of_edge=node2, label="base")
         elif preference == [0.0, 0.0]:
             genG.add_edge(u_of_edge=node1, v_of_edge=node2, label="zero")

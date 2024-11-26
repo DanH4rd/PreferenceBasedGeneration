@@ -9,7 +9,7 @@ class TestFilter:
 
     def test_transformer_cos_feedback(self):
 
-        target_image = Image.open('Tests\\feedback\\ArtNouveaufacade79.jpeg')
+        target_image = Image.open('Tests\\feedback\\images\\ArtNouveaufacade79.jpeg')
 
         gen_model = StackGanGenModel(config_file='GenerativeModelsData\\StackGan2\\config\\facade_3stages_color.yml',
                                  checkpoint_file='GenerativeModelsData\\StackGan2\\checkpoints\\Facade v1.0\\netG_56500.pth',

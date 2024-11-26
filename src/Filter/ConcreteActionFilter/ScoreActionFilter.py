@@ -10,7 +10,7 @@ from src.Filter.AbsActionFilter import AbsActionFilter
 class ScoreActionFilter(AbsActionFilter):
     """Filter that returns set amount of action based on the provided scoring function
 
-    !!! Returns actions sorted in an ascending way based on their scores !!!
+    !!! Returns actions sorted in an descending way based on their scores !!!
     """
 
     def __init__(
@@ -79,8 +79,10 @@ class ScoreActionFilter(AbsActionFilter):
 
             if self.mode == "max":
                 actions = actions[-int_limit:]
+                actions =torch.flip(actions, dims=[0])
             elif self.mode == "min":
                 actions = actions[:int_limit]
+                actions = torch.flip(actions, dims=[0])
             else:
                 raise Exception(f"Invalid filter mode for ({str(self)}): {self.mode}")
 

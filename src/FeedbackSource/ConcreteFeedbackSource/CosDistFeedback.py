@@ -70,7 +70,22 @@ class CosDistFeedback(AbsFeedbackSource):
         preferences[torch.abs(cos_pair_diff) < self.th_min] = torch.tensor([.5, .5]).to(cos_pair_diff.device)
         preferences[(cos_pair_distances > self.th_max).all(dim=1)] = torch.tensor([0.,0.]).to(cos_pair_diff.device)
 
+        preferences = preferences.to(action_pairs.device)
+
         return PreferencePairsData(preference_pairs=preferences)
+    
+    def get_cos_distances(self, actions:ActionData) -> torch.tensor:
+        image_data = self.gen_model.generate(data=actions)
+        image_data.images = image_data.images.detach()
+
+        inputs = self.processor(images=image_data.get_as_pil_images(), return_tensors="pt", do_rescale=False)
+        inputs['pixel_values'] = inputs['pixel_values'].to(self.device)
+        outputs = self.model(**inputs)
+        cos_embeds = outputs.last_hidden_state.detach()[:, 0]
+
+        return (1 - torch.nn.functional.cosine_similarity(self.target_image_embed
+                                                                , cos_embeds, dim=1
+                                                                , eps=1e-6)).detach()
 
         
     def __str__(self) -> str:

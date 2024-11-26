@@ -4,6 +4,7 @@ __pycache__/
 /.venv
 
 /Tests/*/runs*/
+/Tests/*/images/
 /logs/
 /GenerativeModelsData/
 /testing.ipynb
