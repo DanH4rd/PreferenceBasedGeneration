@@ -119,7 +119,7 @@ class TestTrainer:
         rewardLoss = LogLossDecorator(lossObject=rewardLoss, logger=logger)
 
         model = ptLightningLatentWrapper(
-            reward_model=reward_model, action=action, loss_func_obj=rewardLoss
+            reward_model=reward_model.model, action=action, loss_func_obj=rewardLoss
         )
 
         trainer = ptLightningTrainer(model=model, batch_size=2)

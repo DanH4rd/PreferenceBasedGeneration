@@ -161,7 +161,7 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
         training step to not optimise the reward model's
         weights during training
         """
-        self.rewardModel.model.freeze()
+        self.rewardModel.freeze()
         pass
 
     @override
@@ -170,7 +170,7 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
         training step as well as places the new values of actions
         back to the original ActionData object.
         """
-        self.rewardModel.model.unfreeze()
+        self.rewardModel.unfreeze()
 
         self.action_data_object.actions = self.action.data.detach().to(
             self.action_data_object_device

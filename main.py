@@ -32,8 +32,10 @@ from src.PreferenceDataGenerator.ConcretePreferenceDataGenerator.GraphPreference
     GraphPreferenceDataGeneration,
 )
 from src.RewardModel.ConcreteRewardNetwork.mlpRewardNetwork import mlpRewardNetwork
+from src.ActionDistribution.ConcreteActionDistribution.SimpleActionDistribution import SimpleActionDistribution
 from src.Trainer.ConcreteTrainer.ptLightningTrainer import (
     ptLightningModelWrapper,
+    ptLightningLatentWrapper,
     ptLightningTrainer,
 )
 
@@ -72,10 +74,10 @@ if __name__ == "__main__":
         log_dir=f"logs\\{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}"
     )
     pref_loss_logger = TensorboardScalarLogger(
-        name="Loss/Preference ", writer=tensorboard_writer
+        name="Loss/Preference Loss", writer=tensorboard_writer
     )
     action_loss_logger = TensorboardScalarLogger(
-        name="Loss/Action Reward", writer=tensorboard_writer
+        name="Loss/Action Reward Loss", writer=tensorboard_writer
     )
     destination_handle_image_logger = TensorboardImageLogger(
         name="Image/Destination Image", writer=tensorboard_writer
@@ -86,21 +88,38 @@ if __name__ == "__main__":
             "Image/Target", pil_to_tensor(feedback_source.target_image), 0
         )
 
-    preference_loss = PreferenceLoss(rewardModel=reward_model, decimals=None)
     preference_loss = LogLossDecorator(
-        logger=pref_loss_logger, lossObject=preference_loss
+        logger=pref_loss_logger, 
+        lossObject=PreferenceLoss(rewardModel=reward_model, decimals=None)
     )
 
-    action_reward_loss = ActionRewardLoss(rewardModel=reward_model)
     action_reward_loss = LogLossDecorator(
-        logger=action_loss_logger, lossObject=action_reward_loss
+        logger=action_loss_logger, 
+        lossObject=ActionRewardLoss(rewardModel=reward_model)
     )
 
     memory = RoundsMemory(limit=10, discount_factor=0.99)
 
+    action_dist = SimpleActionDistribution(dist = gen_model.get_input_noise_distribution())
+
     model_trainer = ptLightningTrainer(
         model=ptLightningModelWrapper(
             model=reward_model, loss_func_obj=preference_loss
+        ),
+        batch_size=20,
+    )
+
+    
+    destination_action = action_dist.sample(1)
+    
+    tensorboard_writer.add_image("Image/Starting Desc action"
+                                 , make_grid(gen_model.generate(destination_action).images, nrow=1), 0)
+
+    latent_trainer = ptLightningTrainer(
+        model=ptLightningLatentWrapper(
+            action=destination_action,
+            reward_model=reward_model, 
+            loss_func_obj=action_reward_loss
         ),
         batch_size=20,
     )
@@ -113,7 +132,7 @@ if __name__ == "__main__":
     )
 
     for r in range(rounds_number):
-        sampled_actions = gen_model.sample_random_actions(100)
+        sampled_actions = action_dist.sample(100)
         sampled_actions = max_action_filter.filter(action_data=sampled_actions)
         action_data, pref_data = preference_generator.generate_preference_data(
             data=sampled_actions, limit=15
@@ -132,20 +151,32 @@ if __name__ == "__main__":
             epochs=10,
         )
 
+        dummy_action_data, dummy_pref_data = preference_generator.generate_preference_data(
+            data=gen_model.sample_random_actions(10), limit=100
+        )
+
+        latent_trainer.run_training(
+            action_data=dummy_action_data,
+            preference_data=dummy_pref_data,
+            epochs=10
+        )
+
+        destination_handle_image_logger.log(gen_model.generate(destination_action))
+
     control_actions = max_action_filter.filter(gen_model.sample_random_actions(1000))
     control_images = gen_model.generate(control_actions)
     control_image_grid = make_grid(control_images.images, nrow=3)
     tensorboard_writer.add_image("Image/Control Max", control_image_grid, 0)
-    print("Distances and rewards for best images")
-    print(feedback_source.get_cos_distances(actions=control_actions))
-    print(reward_model.get_stable_rewards(data=control_actions)[:, 0])
-    print()
+    # print("Distances and rewards for best images")
+    # print(feedback_source.get_cos_distances(actions=control_actions))
+    # print(reward_model.get_stable_rewards(data=control_actions)[:, 0])
+    # print()
 
     control_actions = min_action_filter.filter(gen_model.sample_random_actions(1000))
     control_images = gen_model.generate(control_actions)
     control_image_grid = make_grid(control_images.images, nrow=3)
     tensorboard_writer.add_image("Image/Control Min", control_image_grid, 0)
-    print("Distances and rewards for worst images")
-    print(feedback_source.get_cos_distances(actions=control_actions))
-    print(reward_model.get_stable_rewards(data=control_actions)[:, 0])
-    print()
+    # print("Distances and rewards for worst images")
+    # print(feedback_source.get_cos_distances(actions=control_actions))
+    # print(reward_model.get_stable_rewards(data=control_actions)[:, 0])
+    # print()
