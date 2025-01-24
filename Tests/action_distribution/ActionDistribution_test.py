@@ -13,14 +13,12 @@ sys.path.insert(0, parentdir)
 ###################################################
 
 
-from src.ActionDistribution.ConcreteActionDistribution.SimpleActionDistribution import (
-    SimpleActionDistribution,
-)
-from src.ActionDistribution.ConcreteActionDistribution.GreedyNormalActionDistribution import (
+from src.ActionDistribution.GreedyNormalActionDistribution import (
     GreedyNormalActionDistribution,
 )
-from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
-from src.GenModel.ConcreteGenModel.StackGanGenModel import StackGanGenModel
+from src.ActionDistribution.SimpleActionDistribution import SimpleActionDistribution
+from src.DataStructures.ActionData import ActionData
+from src.GenModel.StackGanGenModel import StackGanGenModel
 
 
 class TestActionDistribution:
@@ -45,12 +43,13 @@ class TestActionDistribution:
             scale_level=2,
         )
 
-        dist = GreedyNormalActionDistribution(dist=model.get_input_noise_distribution(),
-                                              destination_action=model.sample_random_actions(N=1),
-                                              e=0.9,
-                                              decay_factor=0.8,
-                                              omega2=0.5
-                                              )
+        dist = GreedyNormalActionDistribution(
+            dist=model.get_input_noise_distribution(),
+            destination_action=model.sample_random_actions(N=1),
+            e=0.9,
+            decay_factor=0.8,
+            omega2=0.5,
+        )
 
         assert isinstance(dist.sample(N=1), ActionData)
         assert dist.sample(N=1).actions.shape[0] == 1

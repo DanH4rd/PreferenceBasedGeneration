@@ -19,13 +19,9 @@ from PIL import Image
 from torch.utils.tensorboard import SummaryWriter
 from torchvision.transforms.functional import pil_to_tensor
 
-from src.DataStructures.ConcreteDataStructures.ImageData import ImageData
-from src.MetricsLogger.ConcreteMetricsLogger.TensorboardImageLogger import (
-    TensorboardImageLogger,
-)
-from src.MetricsLogger.ConcreteMetricsLogger.TensorboardScalarLogger import (
-    TensorboardScalarLogger,
-)
+from src.DataStructures.ImageData import ImageData
+from src.MetricsLogger.TensorboardImageLogger import TensorboardImageLogger
+from src.MetricsLogger.TensorboardScalarLogger import TensorboardScalarLogger
 
 
 class TestMetricsLogger:

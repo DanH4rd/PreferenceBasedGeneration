@@ -15,10 +15,10 @@ sys.path.insert(0, parentdir)
 import pytest
 import torch
 
-from src.Filter.ConcreteActionFilter.RandomActionFilter import RandomActionFilter
-from src.Filter.ConcreteActionFilter.ScoreActionFilter import ScoreActionFilter
-from src.GenModel.ConcreteGenModel.StackGanGenModel import StackGanGenModel
-from src.RewardModel.ConcreteRewardNetwork.mlpRewardNetwork import mlpRewardNetwork
+from src.Filter.RandomActionFilter import RandomActionFilter
+from src.Filter.ScoreActionFilter import ScoreActionFilter
+from src.GenModel.StackGanGenModel import StackGanGenModel
+from src.RewardModel.mlpRewardNetwork import mlpRewardNetwork
 
 ########### Utils
 ##################################

@@ -13,8 +13,8 @@ sys.path.insert(0, parentdir)
 ###################################################
 
 
-from src.GenModel.ConcreteGenModel.StackGanGenModel import StackGanGenModel
-from src.RewardModel.ConcreteRewardNetwork.mlpRewardNetwork import mlpRewardNetwork
+from src.GenModel.StackGanGenModel import StackGanGenModel
+from src.RewardModel.mlpRewardNetwork import mlpRewardNetwork
 
 
 class TestRewardModel:

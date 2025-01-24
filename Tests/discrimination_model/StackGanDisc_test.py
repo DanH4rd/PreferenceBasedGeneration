@@ -13,8 +13,8 @@ sys.path.insert(0, parentdir)
 ###################################################
 
 
-from src.DiscModel.ConcreteDiscModel.StackGanDiscModel import StackGanDiscModel
-from src.GenModel.ConcreteGenModel.StackGanGenModel import StackGanGenModel
+from src.DiscModel.StackGanDiscModel import StackGanDiscModel
+from src.GenModel.StackGanGenModel import StackGanGenModel
 
 
 class TestDiscriminationModel:

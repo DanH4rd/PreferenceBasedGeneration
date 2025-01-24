@@ -14,8 +14,8 @@ sys.path.insert(0, parentdir)
 
 import pytest
 
-from src.DataStructures.ConcreteDataStructures.ActionData import ActionData
-from src.GenModel.ConcreteGenModel.StackGanGenModel import StackGanGenModel
+from src.DataStructures.ActionData import ActionData
+from src.GenModel.StackGanGenModel import StackGanGenModel
 
 generative_models = []
 

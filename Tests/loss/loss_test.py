@@ -15,21 +15,17 @@ sys.path.insert(0, parentdir)
 
 import torch
 
-from src.DataStructures.ConcreteDataStructures.ActionPairsPrefPairsContainer import (
+from src.DataStructures.ActionPairsPrefPairsContainer import (
     ActionPairsPrefPairsContainer,
 )
-from src.DataStructures.ConcreteDataStructures.PreferencePairsData import (
-    PreferencePairsData,
-)
-from src.FeedbackSource.ConcreteFeedbackSource.RandomFeedbackSource import (
-    RandomFeedbackSource,
-)
-from src.GenModel.ConcreteGenModel.StackGanGenModel import StackGanGenModel
-from src.Loss.ConcreteLoss.PreferenceLoss import PreferenceLoss
-from src.PreferenceDataGenerator.ConcretePreferenceDataGenerator.RandomPreferenceDataGenerator import (
+from src.DataStructures.PreferencePairsData import PreferencePairsData
+from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource
+from src.GenModel.StackGanGenModel import StackGanGenModel
+from src.Loss.PreferenceLoss import PreferenceLoss
+from src.PreferenceDataGenerator.RandomPreferenceDataGenerator import (
     RandomPreferenceDataGenerator,
 )
-from src.RewardModel.ConcreteRewardNetwork.mlpRewardNetwork import mlpRewardNetwork
+from src.RewardModel.mlpRewardNetwork import mlpRewardNetwork
 
 
 class TestLoss:

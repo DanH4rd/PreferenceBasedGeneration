@@ -8,34 +8,28 @@ from torch.utils.tensorboard import SummaryWriter
 from torchvision.transforms.functional import pil_to_tensor
 from torchvision.utils import make_grid
 
-from src.DataStructures.ConcreteDataStructures.ActionPairsPrefPairsContainer import (
+from src.ActionDistribution.SimpleActionDistribution import SimpleActionDistribution
+from src.DataStructures.ActionPairsPrefPairsContainer import (
     ActionPairsPrefPairsContainer,
 )
-from src.DiscModel.ConcreteDiscModel.StackGanDiscModel import StackGanDiscModel
-from src.FeedbackSource.ConcreteFeedbackSource.CosDistFeedback import CosDistFeedback
-from src.Filter.ConcreteActionFilter.ScoreActionFilter import ScoreActionFilter
-from src.GenModel.ConcreteGenModel.StackGanGenModel import StackGanGenModel
-from src.Loss.ConcreteLoss.ActionRewardLoss import ActionRewardLoss
-from src.Loss.ConcreteLoss.LogLossDecorator import LogLossDecorator
-from src.Loss.ConcreteLoss.PreferenceLoss import PreferenceLoss
-from src.Memory.ConcreteMemory.RoundsMemory import RoundsMemory
-from src.MetricsLogger.ConcreteMetricsLogger.TensorboardImageLogger import (
-    TensorboardImageLogger,
-)
-from src.MetricsLogger.ConcreteMetricsLogger.TensorboardScalarLogger import (
-    TensorboardScalarLogger,
-)
-from src.PreferenceDataGenerator.ConcretePreferenceDataGenerator.BestActionTracker import (
-    BestActionTracker,
-)
-from src.PreferenceDataGenerator.ConcretePreferenceDataGenerator.GraphPreferenceDataGeneration import (
+from src.DiscModel.StackGanDiscModel import StackGanDiscModel
+from src.FeedbackSource.CosDistFeedback import CosDistFeedback
+from src.Filter.ScoreActionFilter import ScoreActionFilter
+from src.GenModel.StackGanGenModel import StackGanGenModel
+from src.Loss.ActionRewardLoss import ActionRewardLoss
+from src.Loss.LogLossDecorator import LogLossDecorator
+from src.Loss.PreferenceLoss import PreferenceLoss
+from src.Memory.RoundsMemory import RoundsMemory
+from src.MetricsLogger.TensorboardImageLogger import TensorboardImageLogger
+from src.MetricsLogger.TensorboardScalarLogger import TensorboardScalarLogger
+from src.PreferenceDataGenerator.BestActionTracker import BestActionTracker
+from src.PreferenceDataGenerator.GraphPreferenceDataGeneration import (
     GraphPreferenceDataGeneration,
 )
-from src.RewardModel.ConcreteRewardNetwork.mlpRewardNetwork import mlpRewardNetwork
-from src.ActionDistribution.ConcreteActionDistribution.SimpleActionDistribution import SimpleActionDistribution
-from src.Trainer.ConcreteTrainer.ptLightningTrainer import (
-    ptLightningModelWrapper,
+from src.RewardModel.mlpRewardNetwork import mlpRewardNetwork
+from src.Trainer.ptLightningTrainer import (
     ptLightningLatentWrapper,
+    ptLightningModelWrapper,
     ptLightningTrainer,
 )
 
@@ -89,18 +83,19 @@ if __name__ == "__main__":
         )
 
     preference_loss = LogLossDecorator(
-        logger=pref_loss_logger, 
-        lossObject=PreferenceLoss(rewardModel=reward_model, decimals=None)
+        logger=pref_loss_logger,
+        lossObject=PreferenceLoss(rewardModel=reward_model, decimals=None),
     )
 
     action_reward_loss = LogLossDecorator(
-        logger=action_loss_logger, 
-        lossObject=ActionRewardLoss(rewardModel=reward_model)
+        logger=action_loss_logger, lossObject=ActionRewardLoss(rewardModel=reward_model)
     )
 
     memory = RoundsMemory(limit=10, discount_factor=0.99)
 
-    action_dist = SimpleActionDistribution(dist = gen_model.get_input_noise_distribution())
+    action_dist = SimpleActionDistribution(
+        dist=gen_model.get_input_noise_distribution()
+    )
 
     model_trainer = ptLightningTrainer(
         model=ptLightningModelWrapper(
@@ -109,17 +104,19 @@ if __name__ == "__main__":
         batch_size=20,
     )
 
-    
     destination_action = action_dist.sample(1)
-    
-    tensorboard_writer.add_image("Image/Starting Desc action"
-                                 , make_grid(gen_model.generate(destination_action).images, nrow=1), 0)
+
+    tensorboard_writer.add_image(
+        "Image/Starting Desc action",
+        make_grid(gen_model.generate(destination_action).images, nrow=1),
+        0,
+    )
 
     latent_trainer = ptLightningTrainer(
         model=ptLightningLatentWrapper(
             action=destination_action,
-            reward_model=reward_model, 
-            loss_func_obj=action_reward_loss
+            reward_model=reward_model,
+            loss_func_obj=action_reward_loss,
         ),
         batch_size=20,
     )
@@ -151,14 +148,14 @@ if __name__ == "__main__":
             epochs=10,
         )
 
-        dummy_action_data, dummy_pref_data = preference_generator.generate_preference_data(
-            data=gen_model.sample_random_actions(10), limit=100
+        dummy_action_data, dummy_pref_data = (
+            preference_generator.generate_preference_data(
+                data=gen_model.sample_random_actions(10), limit=100
+            )
         )
 
         latent_trainer.run_training(
-            action_data=dummy_action_data,
-            preference_data=dummy_pref_data,
-            epochs=10
+            action_data=dummy_action_data, preference_data=dummy_pref_data, epochs=10
         )
 
         destination_handle_image_logger.log(gen_model.generate(destination_action))

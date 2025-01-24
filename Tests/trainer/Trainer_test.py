@@ -14,21 +14,17 @@ sys.path.insert(0, parentdir)
 
 from torch.utils.tensorboard import SummaryWriter
 
-from src.FeedbackSource.ConcreteFeedbackSource.RandomFeedbackSource import (
-    RandomFeedbackSource,
-)
-from src.GenModel.ConcreteGenModel.StackGanGenModel import StackGanGenModel
-from src.Loss.ConcreteLoss.ActionRewardLoss import ActionRewardLoss
-from src.Loss.ConcreteLoss.LogLossDecorator import LogLossDecorator
-from src.Loss.ConcreteLoss.PreferenceLoss import PreferenceLoss
-from src.MetricsLogger.ConcreteMetricsLogger.TensorboardScalarLogger import (
-    TensorboardScalarLogger,
-)
-from src.PreferenceDataGenerator.ConcretePreferenceDataGenerator.RandomPreferenceDataGenerator import (
+from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource
+from src.GenModel.StackGanGenModel import StackGanGenModel
+from src.Loss.ActionRewardLoss import ActionRewardLoss
+from src.Loss.LogLossDecorator import LogLossDecorator
+from src.Loss.PreferenceLoss import PreferenceLoss
+from src.MetricsLogger.TensorboardScalarLogger import TensorboardScalarLogger
+from src.PreferenceDataGenerator.RandomPreferenceDataGenerator import (
     RandomPreferenceDataGenerator,
 )
-from src.RewardModel.ConcreteRewardNetwork.mlpRewardNetwork import mlpRewardNetwork
-from src.Trainer.ConcreteTrainer.ptLightningTrainer import (
+from src.RewardModel.mlpRewardNetwork import mlpRewardNetwork
+from src.Trainer.ptLightningTrainer import (
     ptLightningLatentWrapper,
     ptLightningModelWrapper,
     ptLightningTrainer,

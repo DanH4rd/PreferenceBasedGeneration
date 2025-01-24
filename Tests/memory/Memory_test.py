@@ -12,15 +12,13 @@ sys.path.insert(0, parentdir)
 ###################################################
 ###################################################
 
-from src.DataStructures.ConcreteDataStructures.ActionPairsPrefPairsContainer import (
+from src.DataStructures.ActionPairsPrefPairsContainer import (
     ActionPairsPrefPairsContainer,
 )
-from src.FeedbackSource.ConcreteFeedbackSource.RandomFeedbackSource import (
-    RandomFeedbackSource,
-)
-from src.GenModel.ConcreteGenModel.StackGanGenModel import StackGanGenModel
-from src.Memory.ConcreteMemory.RoundsMemory import RoundsMemory
-from src.PreferenceDataGenerator.ConcretePreferenceDataGenerator.RandomPreferenceDataGenerator import (
+from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource
+from src.GenModel.StackGanGenModel import StackGanGenModel
+from src.Memory.RoundsMemory import RoundsMemory
+from src.PreferenceDataGenerator.RandomPreferenceDataGenerator import (
     RandomPreferenceDataGenerator,
 )
 

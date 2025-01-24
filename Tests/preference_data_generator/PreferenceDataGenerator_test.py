@@ -14,17 +14,13 @@ sys.path.insert(0, parentdir)
 
 import pytest
 
-from src.FeedbackSource.ConcreteFeedbackSource.RandomFeedbackSource import (
-    RandomFeedbackSource,
-)
-from src.GenModel.ConcreteGenModel.StackGanGenModel import StackGanGenModel
-from src.PreferenceDataGenerator.ConcretePreferenceDataGenerator.BestActionTracker import (
-    BestActionTracker,
-)
-from src.PreferenceDataGenerator.ConcretePreferenceDataGenerator.GraphPreferenceDataGeneration import (
+from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource
+from src.GenModel.StackGanGenModel import StackGanGenModel
+from src.PreferenceDataGenerator.BestActionTracker import BestActionTracker
+from src.PreferenceDataGenerator.GraphPreferenceDataGeneration import (
     GraphPreferenceDataGeneration,
 )
-from src.PreferenceDataGenerator.ConcretePreferenceDataGenerator.RandomPreferenceDataGenerator import (
+from src.PreferenceDataGenerator.RandomPreferenceDataGenerator import (
     RandomPreferenceDataGenerator,
 )
 

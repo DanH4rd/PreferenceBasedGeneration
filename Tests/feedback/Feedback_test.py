@@ -1,9 +1,9 @@
 import torch
 from PIL import Image
 
-from src.DataStructures.ConcreteDataStructures.ActionPairsData import ActionPairsData
-from src.FeedbackSource.ConcreteFeedbackSource.CosDistFeedback import CosDistFeedback
-from src.GenModel.ConcreteGenModel.StackGanGenModel import StackGanGenModel
+from src.DataStructures.ActionPairsData import ActionPairsData
+from src.FeedbackSource.CosDistFeedback import CosDistFeedback
+from src.GenModel.StackGanGenModel import StackGanGenModel
 
 
 class TestFilter:
