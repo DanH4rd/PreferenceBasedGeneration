@@ -36,34 +36,7 @@ from src.Trainer.ptLightningTrainer import (
 if __name__ == "__main__":
     rounds_number = 15
 
-    reward_model = mlpRewardNetwork(input_dim=100, hidden_dim=100)
-
-    gen_model = StackGanGenModel(
-        config_file="GenerativeModelsData\\StackGan2\\config\\facade_3stages_color.yml",
-        checkpoint_file="GenerativeModelsData\\StackGan2\\checkpoints\\Celeba v1.0\\netG_26000.pth",
-        scale_level=0,
-    )
-
-    disc_model = StackGanDiscModel(
-        config_file="GenerativeModelsData\\StackGan2\\config\\facade_3stages_color.yml",
-        checkpoint_file="GenerativeModelsData\\StackGan2\\checkpoints\\Celeba v1.0\\netD0.pth",
-        scale_level=0,
-    )
-
-    # feedback_source = RandomFeedbackSource()
-    feedback_source = CosDistFeedback(
-        target_image=Image.open(
-            "GenerativeModelsData\\StackGan2\\target_images\\000387.jpg"
-        ),
-        th_min=0.01,
-        th_max=0.75,
-        device="cuda",
-        gen_model=gen_model,
-    )
-
-    preference_generator = GraphPreferenceDataGeneration(feedbackSource=feedback_source)
-    preference_generator = BestActionTracker(prefDataGen=preference_generator)
-
+    # metrics loggers
     tensorboard_writer = SummaryWriter(
         log_dir=f"logs\\{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}"
     )
@@ -77,31 +50,52 @@ if __name__ == "__main__":
         name="Image/Destination Image", writer=tensorboard_writer
     )
 
+    # define ML models
+    reward_model = mlpRewardNetwork(input_dim=100, hidden_dim=100)
+    gen_model = StackGanGenModel(
+        config_file="GenerativeModelsData\\StackGan2\\config\\facade_3stages_color.yml",
+        checkpoint_file="GenerativeModelsData\\StackGan2\\checkpoints\\Celeba v1.0\\netG_26000.pth",
+        scale_level=0,
+    )
+    disc_model = StackGanDiscModel(
+        config_file="GenerativeModelsData\\StackGan2\\config\\facade_3stages_color.yml",
+        checkpoint_file="GenerativeModelsData\\StackGan2\\checkpoints\\Celeba v1.0\\netD0.pth",
+        scale_level=0,
+    )
+    
+    # set up feedback and pairs constructor
+    feedback_source = CosDistFeedback(
+        target_image=Image.open(
+            "GenerativeModelsData\\StackGan2\\target_images\\000387.jpg"
+        ),
+        th_min=0.01,
+        th_max=0.75,
+        device="cuda",
+        gen_model=gen_model,
+    )
+
     if feedback_source.target_image != None:
         tensorboard_writer.add_image(
             "Image/Target", pil_to_tensor(feedback_source.target_image), 0
         )
 
+    preference_generator = GraphPreferenceDataGeneration(feedbackSource=feedback_source)
+    preference_generator = BestActionTracker(prefDataGen=preference_generator)
+
+    # set up losses
     preference_loss = LogLossDecorator(
         logger=pref_loss_logger,
         lossObject=PreferenceLoss(rewardModel=reward_model, decimals=None),
     )
-
     action_reward_loss = LogLossDecorator(
         logger=action_loss_logger, lossObject=ActionRewardLoss(rewardModel=reward_model)
     )
 
+    # define memory and action distribution
     memory = RoundsMemory(limit=10, discount_factor=0.99)
 
     action_dist = SimpleActionDistribution(
         dist=gen_model.get_input_noise_distribution()
-    )
-
-    model_trainer = ptLightningTrainer(
-        model=ptLightningModelWrapper(
-            model=reward_model, loss_func_obj=preference_loss
-        ),
-        batch_size=20,
     )
 
     destination_action = action_dist.sample(1)
@@ -110,6 +104,14 @@ if __name__ == "__main__":
         "Image/Starting Desc action",
         make_grid(gen_model.generate(destination_action).images, nrow=1),
         0,
+    )
+
+    # define trainers
+    model_trainer = ptLightningTrainer(
+        model=ptLightningModelWrapper(
+            model=reward_model, loss_func_obj=preference_loss
+        ),
+        batch_size=20,
     )
 
     latent_trainer = ptLightningTrainer(
@@ -121,6 +123,7 @@ if __name__ == "__main__":
         batch_size=20,
     )
 
+    # define filters
     max_action_filter = ScoreActionFilter(
         mode="max", key=lambda x: reward_model.get_stable_rewards(x), limit=10
     )
@@ -131,6 +134,7 @@ if __name__ == "__main__":
     for r in range(rounds_number):
         sampled_actions = action_dist.sample(100)
         sampled_actions = max_action_filter.filter(action_data=sampled_actions)
+        
         action_data, pref_data = preference_generator.generate_preference_data(
             data=sampled_actions, limit=15
         )
@@ -153,6 +157,8 @@ if __name__ == "__main__":
                 data=gen_model.sample_random_actions(10), limit=100
             )
         )
+
+        action_dist.update()
 
         latent_trainer.run_training(
             action_data=dummy_action_data, preference_data=dummy_pref_data, epochs=10
