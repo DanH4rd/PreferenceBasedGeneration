@@ -19,9 +19,27 @@ class ActionData(AbsData):
 
         self.actions = actions
 
-        if len(self.actions.shape) != 2:
-            raise Exception(f"Invalid action tensor shape: {self.actions.shape}")
+        self._check_tensor_format(self.actions)
+        
+    def append(self, actions:torch.tensor):
+        """_summary_
 
+        Args:
+            actions (torch.tensor): tensor with actions to append
+        """
+
+        self._check_tensor_format(actions)
+
+        torch.concat([self.actions, actions], dim = 0)
+        
+        self._check_tensor_format(actions)
+
+    def _check_tensor_format(self, action_tensor:torch.tensor):
+
+        if len(self.actions.shape) != 2:
+            raise Exception(f"Invalid action tensor shape: {action_tensor.shape}")
+
+        
     def __str__(self) -> str:
         """Returns string describing the object
 

@@ -9,11 +9,13 @@ from torchvision.transforms.functional import pil_to_tensor
 from torchvision.utils import make_grid
 
 from src.ActionDistribution.SimpleActionDistribution import SimpleActionDistribution
+from src.ActionDistribution.GreedyNormalActionDistribution import GreedyNormalActionDistribution
 from src.DataStructures.ActionPairsPrefPairsContainer import (
     ActionPairsPrefPairsContainer,
 )
 from src.DiscModel.StackGanDiscModel import StackGanDiscModel
 from src.FeedbackSource.CosDistFeedback import CosDistFeedback
+from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource
 from src.Filter.ScoreActionFilter import ScoreActionFilter
 from src.GenModel.StackGanGenModel import StackGanGenModel
 from src.Loss.ActionRewardLoss import ActionRewardLoss
@@ -23,6 +25,7 @@ from src.Memory.RoundsMemory import RoundsMemory
 from src.MetricsLogger.TensorboardImageLogger import TensorboardImageLogger
 from src.MetricsLogger.TensorboardScalarLogger import TensorboardScalarLogger
 from src.PreferenceDataGenerator.BestActionTracker import BestActionTracker
+from src.PreferenceDataGenerator.RandomPreferenceDataGenerator import RandomPreferenceDataGenerator
 from src.PreferenceDataGenerator.GraphPreferenceDataGeneration import (
     GraphPreferenceDataGeneration,
 )
@@ -82,6 +85,8 @@ if __name__ == "__main__":
     preference_generator = GraphPreferenceDataGeneration(feedbackSource=feedback_source)
     preference_generator = BestActionTracker(prefDataGen=preference_generator)
 
+    dummy_preference_generator = RandomPreferenceDataGenerator(feedbackSource=RandomFeedbackSource())
+
     # set up losses
     preference_loss = LogLossDecorator(
         logger=pref_loss_logger,
@@ -92,13 +97,22 @@ if __name__ == "__main__":
     )
 
     # define memory and action distribution
+    destination_action = gen_model.sample_random_actions(N=1)
+
     memory = RoundsMemory(limit=10, discount_factor=0.99)
 
-    action_dist = SimpleActionDistribution(
-        dist=gen_model.get_input_noise_distribution()
-    )
+    # action_dist = SimpleActionDistribution(
+    #     dist=gen_model.get_input_noise_distribution()
+    # )   
+    
+    action_dist = GreedyNormalActionDistribution(
+            dist=gen_model.get_input_noise_distribution(),
+            destination_action=destination_action,
+            e=0.9,
+            decay_factor=0.8,
+            omega2=0.5,
+        )
 
-    destination_action = action_dist.sample(1)
 
     tensorboard_writer.add_image(
         "Image/Starting Desc action",
@@ -134,6 +148,8 @@ if __name__ == "__main__":
     for r in range(rounds_number):
         sampled_actions = action_dist.sample(100)
         sampled_actions = max_action_filter.filter(action_data=sampled_actions)
+        sampled_actions.append(destination_action.actions.detach()
+        )
         
         action_data, pref_data = preference_generator.generate_preference_data(
             data=sampled_actions, limit=15
@@ -153,12 +169,12 @@ if __name__ == "__main__":
         )
 
         dummy_action_data, dummy_pref_data = (
-            preference_generator.generate_preference_data(
+            dummy_preference_generator.generate_preference_data(
                 data=gen_model.sample_random_actions(10), limit=100
             )
         )
 
-        action_dist.update()
+        action_dist.update(None)
 
         latent_trainer.run_training(
             action_data=dummy_action_data, preference_data=dummy_pref_data, epochs=10

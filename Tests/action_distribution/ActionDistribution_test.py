@@ -43,14 +43,29 @@ class TestActionDistribution:
             scale_level=2,
         )
 
+        e_start = 0.9
+        decay_val = 0.8
+
         dist = GreedyNormalActionDistribution(
             dist=model.get_input_noise_distribution(),
             destination_action=model.sample_random_actions(N=1),
-            e=0.9,
-            decay_factor=0.8,
+            e=e_start,
+            decay_factor=decay_val,
             omega2=0.5,
         )
 
         assert isinstance(dist.sample(N=1), ActionData)
+        assert dist.sample(N=1).actions.shape[0] == 1
+        assert dist.sample(N=4).actions.shape[0] == 4
+
+        dist.update(None)
+        dist.update(None)
+        dist.update(None)
+        dist.update(None)
+        dist.update(None)
+        dist.update(None)
+
+        assert dist.e == e_start * decay_val * decay_val* decay_val* decay_val* decay_val* decay_val
+        
         assert dist.sample(N=1).actions.shape[0] == 1
         assert dist.sample(N=4).actions.shape[0] == 4
