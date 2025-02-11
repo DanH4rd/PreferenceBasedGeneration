@@ -1,6 +1,7 @@
 import abc
 
 import torch
+from dataclasses import dataclass
 
 from GenerativeModelsData.StackGan2.StackGanUtils.config import cfg_from_file
 from GenerativeModelsData.StackGan2.StackGanUtils.model import (
@@ -15,12 +16,29 @@ from src.DataStructures.ImageData import ImageData
 class StackGanDiscModel(object, metaclass=abc.ABCMeta):
     """Adapter class for StackGanv2 implementation"""
 
+
     level_to_model = {
         0: D_NET64,
         1: D_NET128,
         2: D_NET256,
         3: D_NET1024,
     }
+
+    @dataclass
+    class Configuration:
+        """dataclass for grouping constructor parametres
+        """
+        config_file: str
+        checkpoint_file: str
+        scale_level: int
+        ngpu: int = 1
+
+    @staticmethod
+    def CreateFromConfiguration(conf: Configuration):
+        return StackGanDiscModel(config_file= conf.config_file, 
+                                 checkpoint_file=conf.checkpoint_file,
+                                 scale_level=conf.scale_level,
+                                 ngpu=conf.ngpu)
 
     def __init__(
         self, config_file: str, checkpoint_file: str, scale_level: int, ngpu: int = 1

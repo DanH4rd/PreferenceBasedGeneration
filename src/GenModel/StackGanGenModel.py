@@ -15,6 +15,22 @@ from src.DataStructures.ImageData import ImageData
 class StackGanGenModel(object, metaclass=abc.ABCMeta):
     """Adapter class for StackGanv2 generator"""
 
+    @dataclass
+    class Configuration:
+        """dataclass for grouping constructor parametres
+        """
+        config_file: str
+        checkpoint_file: str
+        scale_level: int
+        ngpu: int = 1
+
+    @staticmethod
+    def CreateFromConfiguration(conf: Configuration):
+        return StackGanGenModel(config_file= conf.config_file, 
+                                 checkpoint_file=conf.checkpoint_file,
+                                 scale_level=conf.scale_level,
+                                 ngpu=conf.ngpu)
+
     def __init__(self, config_file, checkpoint_file, scale_level, ngpu=1):
         """
         Args:

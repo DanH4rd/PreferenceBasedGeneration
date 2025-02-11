@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torch import device
+from dataclasses import dataclass
 
 from src.Abstract.AbsRewardModel import AbsNetworkExtension, AbsRewardModel
 from src.Abstract.AbsTrainer import AbsTrainer
@@ -10,7 +11,21 @@ from src.utils import freeze_model, unfreeze_model
 
 class mlpRewardNetwork(nn.Module, AbsRewardModel):
     """Implementaion of a simple mlp neural network"""
+    
+    @dataclass
+    class Configuration:
+        """dataclass for grouping constructor parametres
+        """
+        input_dim: int
+        hidden_dim: int
+        p: float = 0.5
 
+    @staticmethod
+    def CreateFromConfiguration(conf: Configuration):
+        return mlpRewardNetwork(input_dim= conf.input_dim, 
+                                 hidden_dim=conf.hidden_dim,
+                                 p=conf.p)
+    
     def __init__(self, input_dim, hidden_dim, p=0.5):
         """
 

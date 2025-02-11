@@ -1,5 +1,6 @@
 import PIL
 import torch
+from dataclasses import dataclass
 from transformers import ViTImageProcessor, ViTModel
 
 from src.Abstract.AbsFeedbackSource import AbsFeedbackSource
@@ -15,6 +16,25 @@ class CosDistFeedback(AbsFeedbackSource):
     a visual transformer
     """
 
+    @dataclass
+    class Configuration:
+        """dataclass for grouping constructor parametres
+        """
+        target_image: PIL.Image
+        th_min: float
+        th_max: float
+        device: str | None
+        gen_model: AbsGenModel
+
+    @staticmethod
+    def CreateFromConfiguration(conf: Configuration):
+        return CosDistFeedback(
+            target_image = conf.target_image,
+            th_min = conf.th_min,
+            th_max = conf.th_max,
+            device = conf.th_max,
+            gen_model = conf.gen_model)
+    
     def __init__(
         self,
         target_image: PIL.Image,
