@@ -1,5 +1,6 @@
 from argparse import Namespace
 from typing import Any, Dict, Optional, Union
+from dataclasses import dataclass
 
 import lightning as L
 import torch
@@ -189,6 +190,18 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
 
 class ptLightningTrainer(AbsTrainer):
     """Implements the training logic for pytorch-lightning modules"""
+
+    @dataclass
+    class Configuration:
+        """dataclass for grouping constructor parametres
+        """
+        model: ptlLightningWrapper
+        batch_size: int
+
+    @staticmethod
+    def create_from_configuration(conf: Configuration):
+        return ptLightningTrainer(  model= conf.model, 
+                                    batch_size=conf.batch_size)
 
     def __init__(
         self,

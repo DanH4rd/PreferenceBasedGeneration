@@ -1,5 +1,6 @@
 from itertools import combinations, product
 from typing import override
+from dataclasses import dataclass
 
 import networkx as nx
 import numpy as np
@@ -18,6 +19,18 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
     actions
     """
 
+    @dataclass
+    class Configuration:
+        """dataclass for grouping constructor parametres
+        """
+        feedbackSource: AbsFeedbackSource
+        deduceAdditionalLinks: bool = False
+
+    @staticmethod
+    def create_from_configuration(conf: Configuration):
+        return GraphPreferenceDataGeneration(feedbackSource= conf.feedbackSource,
+                                             deduceAdditionalLinks= conf.deduceAdditionalLinks)
+    
     def __init__(
         self, feedbackSource: AbsFeedbackSource, deduceAdditionalLinks: bool = False
     ):

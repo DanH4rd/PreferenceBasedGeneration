@@ -21,7 +21,7 @@ class mlpRewardNetwork(nn.Module, AbsRewardModel):
         p: float = 0.5
 
     @staticmethod
-    def CreateFromConfiguration(conf: Configuration):
+    def create_from_configuration(conf: Configuration):
         return mlpRewardNetwork(input_dim= conf.input_dim, 
                                  hidden_dim=conf.hidden_dim,
                                  p=conf.p)

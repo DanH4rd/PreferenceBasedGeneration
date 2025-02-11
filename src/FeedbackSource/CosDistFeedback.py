@@ -27,7 +27,7 @@ class CosDistFeedback(AbsFeedbackSource):
         gen_model: AbsGenModel
 
     @staticmethod
-    def CreateFromConfiguration(conf: Configuration):
+    def create_from_configuration(conf: Configuration):
         return CosDistFeedback(
             target_image = conf.target_image,
             th_min = conf.th_min,

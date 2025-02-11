@@ -1,5 +1,5 @@
 from random import randint
-
+from dataclasses import dataclass
 import torch
 
 from src.Abstract.AbsFeedbackSource import AbsFeedbackSource
@@ -10,6 +10,15 @@ from src.DataStructures.PreferencePairsData import PreferencePairsData
 class RandomFeedbackSource(AbsFeedbackSource):
     """Generates random feedback for provided action pairs"""
 
+    @dataclass
+    class Configuration:
+        """dataclass for grouping constructor parametres
+        """
+        pass
+
+    @staticmethod
+    def create_from_configuration(conf: Configuration):
+        return RandomFeedbackSource()
     possible_values = [[1.0, 0.0], [0.0, 1.0], [0.5, 0.5], [0.0, 0.0]]
 
     def generate_feedback(

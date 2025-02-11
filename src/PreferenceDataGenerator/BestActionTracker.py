@@ -1,4 +1,5 @@
 import torch
+from dataclasses import dataclass
 
 from src.Abstract.AbsPreferenceDataGenerator import AbsPreferenceDataGenerator
 from src.DataStructures.ActionData import ActionData
@@ -11,7 +12,16 @@ class BestActionTracker(AbsPreferenceDataGenerator):
     of another preference generator new preferences created
     by tracking what action is the best of all met thus far
     """
+    @dataclass
+    class Configuration:
+        """dataclass for grouping constructor parametres
+        """
+        prefDataGen: AbsPreferenceDataGenerator
 
+    @staticmethod
+    def create_from_configuration(conf: Configuration):
+        return BestActionTracker(prefDataGen= conf.prefDataGen)
+    
     def __init__(self, prefDataGen: AbsPreferenceDataGenerator):
         """
         Args:

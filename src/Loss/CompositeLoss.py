@@ -9,7 +9,7 @@ class CompositeLoss(AbsLoss):
     Returns sum of losses
     """
 
-    def __init__(self, losses: list[AbsLoss]):
+    def __init__(self, losses: list[AbsLoss] = []):
         """
         Args:
             losses (list[AbsLoss]): loss objects of which the composite consists
@@ -41,7 +41,9 @@ class CompositeLoss(AbsLoss):
         Returns:
             torch.tensor: sum of all calculated loss values for given data
         """
-
+        if self.is_empty:
+            raise Exception("No losses are present in composite loss")
+        
         total_loss = torch.tensor(0)
 
         for loss in self.losses:
@@ -49,6 +51,9 @@ class CompositeLoss(AbsLoss):
 
         return total_loss
 
+    def is_empty(self):
+        return len(self.losses) == 0
+    
     def __str__(self) -> str:
         """Returns a string describing an onject
 

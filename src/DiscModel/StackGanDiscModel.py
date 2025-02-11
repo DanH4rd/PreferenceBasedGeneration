@@ -34,7 +34,7 @@ class StackGanDiscModel(object, metaclass=abc.ABCMeta):
         ngpu: int = 1
 
     @staticmethod
-    def CreateFromConfiguration(conf: Configuration):
+    def create_from_configuration(conf: Configuration):
         return StackGanDiscModel(config_file= conf.config_file, 
                                  checkpoint_file=conf.checkpoint_file,
                                  scale_level=conf.scale_level,

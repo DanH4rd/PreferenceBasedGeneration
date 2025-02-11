@@ -1,4 +1,5 @@
 from itertools import combinations
+from dataclasses import dataclass
 
 import torch
 
@@ -12,6 +13,16 @@ from src.DataStructures.PreferencePairsData import PreferencePairsData
 class RandomPreferenceDataGenerator(AbsPreferenceDataGenerator):
     """Base class incupsulating the required logic for generating random preferences"""
 
+    @dataclass
+    class Configuration:
+        """dataclass for grouping constructor parametres
+        """
+        feedbackSource: AbsFeedbackSource
+
+    @staticmethod
+    def create_from_configuration(conf: Configuration):
+        return RandomPreferenceDataGenerator(feedbackSource= conf.feedbackSource)
+    
     def __init__(self, feedbackSource: AbsFeedbackSource):
         """
         Args:

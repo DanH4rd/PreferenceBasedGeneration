@@ -1,5 +1,6 @@
 import abc
 from typing import override
+from dataclasses import dataclass
 
 import torch
 
@@ -15,6 +16,18 @@ class RoundsMemory(object, metaclass=abc.ABCMeta):
     Name comes from the base preference generation pipeline,
     where data to memory is added at the end of each round
     """
+
+    @dataclass
+    class Configuration:
+        """dataclass for grouping constructor parametres
+        """
+        limit: int
+        discount_factor: float | None = None
+
+    @staticmethod
+    def create_from_configuration(conf: Configuration):
+        return RoundsMemory(limit= conf.limit, 
+                            discount_factor=conf.discount_factor)
 
     def __init__(self, limit: int, discount_factor: float | None = None) -> None:
         """
