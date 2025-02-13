@@ -232,6 +232,7 @@ class ptLightningTrainer(AbsTrainer):
             enable_checkpointing=False,
             logger=TBLogger(),  # save_dir='.'),
             callbacks=callbacks,
+            # TODO: make a workaround to make max epochs dynamically increase
             max_epochs=9999,
             enable_model_summary=False,
             enable_progress_bar=True,
