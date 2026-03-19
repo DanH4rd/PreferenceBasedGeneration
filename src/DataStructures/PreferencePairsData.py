@@ -27,7 +27,7 @@ class PreferencePairsData(AbsData):
         self.preference_pairs = preference_pairs
 
         if len(self.preference_pairs.shape) != 2 or self.preference_pairs.shape[1] != 2:
-            raise Exception(f"Invalid action tensor shape: {self.y.shape}")
+            raise Exception(f"Invalid action tensor shape: {self.preference_pairs.shape}")
 
         # present_pairs = torch.unique(self.preference_pairs, dim=0)
 

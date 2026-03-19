@@ -16,6 +16,7 @@ from src.DataStructures.ActionPairsPrefPairsContainer import (
 from src.DiscModel.StackGanDiscModel import StackGanDiscModel
 from src.FeedbackSource.CosDistFeedback import CosDistFeedback
 from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource
+from src.FeedbackSource.HumanFeedback import HumanFeedback
 from src.Filter.ScoreActionFilter import ScoreActionFilter
 from src.GenModel.StackGanGenModel import StackGanGenModel
 from src.Loss.ActionRewardLoss import ActionRewardLoss
@@ -67,20 +68,26 @@ if __name__ == "__main__":
     )
     
     # set up feedback and pairs constructor
-    feedback_source = CosDistFeedback(
-        target_image=Image.open(
-            "GenerativeModelsData\\StackGan2\\target_images\\000387.jpg"
-        ),
-        th_min=0.01,
-        th_max=0.75,
-        device="cuda",
-        gen_model=gen_model,
-    )
+    # feedback_source = CosDistFeedback(
+    #     target_image=Image.open(
+    #         "GenerativeModelsData\\StackGan2\\target_images\\000387.jpg"
+    #     ),
+    #     th_min=0.01,
+    #     th_max=0.75,
+    #     device="cuda",
+    #     gen_model=gen_model,
+    # )
 
-    if feedback_source.target_image != None:
-        tensorboard_writer.add_image(
-            "Image/Target", pil_to_tensor(feedback_source.target_image), 0
+    feedback_source = HumanFeedback(
+        window_name="Provide your preferences",
+        gen_model=gen_model,
         )
+
+    if hasattr(feedback_source, "target_image"):
+        if feedback_source.target_image is not None:
+            tensorboard_writer.add_image(
+                "Image/Target", pil_to_tensor(feedback_source.target_image), 0
+            )
 
     preference_generator = GraphPreferenceDataGeneration(feedbackSource=feedback_source)
     preference_generator = BestActionTracker(prefDataGen=preference_generator)

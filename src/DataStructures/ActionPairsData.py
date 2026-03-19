@@ -1,6 +1,7 @@
 import torch
 
 from src.Abstract.AbsData import AbsData
+from src.DataStructures.ActionData import ActionData
 
 
 class ActionPairsData(AbsData):
@@ -21,10 +22,17 @@ class ActionPairsData(AbsData):
         if (
             len(self.action_pairs.shape) != 3
             or self.action_pairs.shape[1] != 2
-            or self.action_pairs.shape[1] != 2
         ):
 
             raise Exception(f"Invalid action tensor shape: {self.action_pairs.shape}")
+        
+    def get_split_actions(self) -> tuple[ActionData, ActionData]:
+        """Splits action pairs into two tensors of shape [B,D]
+
+        Returns:
+            tuple[ActionData, ActionData]: two tensors of shape [B,D]
+        """
+        return ActionData(actions=self.action_pairs[:,0,:]), ActionData(actions=self.action_pairs[:,1,:])
 
     def __str__(self) -> str:
         """Returns a string representing an object
@@ -32,4 +40,4 @@ class ActionPairsData(AbsData):
         Returns:
             str
         """
-        return "Action Loss Data"
+        return "Action Pairs Data"

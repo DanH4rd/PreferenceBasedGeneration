@@ -1,10 +1,11 @@
 easydict
 PyYAML
 pytest
-torch==2.2.2
-torchaudio==2.2.2
-torchvision==0.17.2
-
-isort
-black
+torch==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cu124
+torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+lightning
+pillow
+tensorboard
+transformers
 ruff
