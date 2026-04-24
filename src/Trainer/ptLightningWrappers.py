@@ -6,6 +6,7 @@ import torch
 from src.Abstract.AbsData import AbsData
 from src.Abstract.AbsLoss import AbsLoss
 from src.Abstract.AbsRewardModel import AbsRewardModel
+from src.Abstract.AbsTrainableModel import AbsTrainableModel
 from src.DataStructures.ActionData import ActionData
 from src.DataStructures.ActionPairsData import ActionPairsData
 from src.DataStructures.ActionPairsPrefPairsContainer import (
@@ -102,12 +103,12 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
     """
 
     def __init__(
-        self, action: ActionData, reward_model: AbsRewardModel, loss_func_obj: AbsLoss
+        self, action: ActionData, reward_model: AbsTrainableModel, loss_func_obj: AbsLoss
     ):
         """
         Args:
             action (ActionData): list of actions to optimise for reward maximisation
-            reward_model (AbsRewardModel): model to get rewards for actions from
+            reward_model (AbsTrainableModel): model whose weights are frozen during action optimisation
             loss_func_obj (AbsLoss): loss function object to use for loss calculation
                 used during training
         """

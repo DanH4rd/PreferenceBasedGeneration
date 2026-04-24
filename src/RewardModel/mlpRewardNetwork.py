@@ -3,13 +3,13 @@ import torch.nn as nn
 from torch import device
 from dataclasses import dataclass
 
-from src.Abstract.AbsRewardModel import AbsNetworkExtension, AbsRewardModel
-from src.Abstract.AbsTrainer import AbsTrainer
+from src.Abstract.AbsRewardModel import AbsRewardModel
+from src.Abstract.AbsTrainableModel import AbsTrainableModel
 from src.DataStructures.ActionData import ActionData
 from src.utils import freeze_model, unfreeze_model
 
 
-class mlpRewardNetwork(nn.Module, AbsRewardModel):
+class mlpRewardNetwork(nn.Module, AbsRewardModel, AbsTrainableModel):
     """Implementaion of a simple mlp neural network"""
 
     @dataclass
@@ -137,26 +137,6 @@ class mlpRewardNetwork(nn.Module, AbsRewardModel):
             device (str | device): device identifier to set to
         """
         self.to(device)
-
-    def get_trainer(self) -> AbsTrainer:
-        """
-        Returns the trainer object compatible with the given network
-
-        Returns:
-            trainer object set up for the calling network
-
-        """
-        raise NotImplementedError(f"Trainer is absent for {str(self)}")
-
-    def get_extension(self) -> AbsNetworkExtension:
-        """
-        Returns object realising specific methods for the calling network
-
-        Returns:
-            extension object for the calling network object
-
-        """
-        raise NotImplementedError(f"Extension for {str(self)} not specified")
 
     def freeze(self) -> None:
         """Turns off weight updates for the model"""
