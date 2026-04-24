@@ -7,11 +7,6 @@ parentdir = os.path.dirname(currentdir)
 parentdir = os.path.dirname(parentdir)
 sys.path.insert(0, parentdir)
 
-###################################################
-###################################################
-###################################################
-###################################################
-
 from torch.utils.tensorboard import SummaryWriter
 
 from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource

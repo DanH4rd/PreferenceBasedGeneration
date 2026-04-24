@@ -88,7 +88,8 @@ class TestFilter:
 
         actions = gen_model.sample_random_actions(N=10)
 
-        key = lambda x: reward_model.get_stable_rewards(x)
+        def key(x):
+            return reward_model.get_stable_rewards(x)
 
         reward_model = mlpRewardNetwork(
             input_dim=actions.actions.shape[1], hidden_dim=20, p=0

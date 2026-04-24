@@ -15,4 +15,4 @@ class EmptyActionFilter(AbsActionFilter):
         Returns:
             str
         """
-        return f"Empty filter"
+        return "Empty filter"

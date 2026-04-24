@@ -1,8 +1,6 @@
 from src.Abstract.AbsActionFilter import AbsActionFilter
 from src.DataStructures.ActionData import ActionData
 
-from src.Filter.EmptyActionFilter import EmptyActionFilter
-
 
 class CompositeActionFilter(AbsActionFilter):
     """Filter that is a serial composition of several other filters, performing one by one

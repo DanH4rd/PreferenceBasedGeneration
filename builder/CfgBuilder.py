@@ -3,7 +3,6 @@ import yaml
 from src.Abstract.AbsFeedbackSource import AbsFeedbackSource
 from src.Abstract.AbsMemory import AbsMemory
 from src.Abstract.AbsRewardModel import AbsRewardModel
-from src.Abstract.AbsTrainer import AbsTrainer
 from src.Abstract.AbsActionFilter import AbsActionFilter
 
 from src.Filter.CompositeSeriesActionFilter import CompositeActionFilter

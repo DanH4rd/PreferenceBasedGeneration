@@ -2,12 +2,10 @@
 
 from datetime import datetime
 
-from PIL import Image
 from torch.utils.tensorboard import SummaryWriter
 from torchvision.transforms.functional import pil_to_tensor
 from torchvision.utils import make_grid
 
-from src.ActionDistribution.SimpleActionDistribution import SimpleActionDistribution
 from src.ActionDistribution.GreedyNormalActionDistribution import (
     GreedyNormalActionDistribution,
 )
@@ -15,7 +13,6 @@ from src.DataStructures.ActionPairsPrefPairsContainer import (
     ActionPairsPrefPairsContainer,
 )
 from src.DiscModel.StackGanDiscModel import StackGanDiscModel
-from src.FeedbackSource.CosDistFeedback import CosDistFeedback
 from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource
 from src.FeedbackSource.HumanFeedback import HumanFeedback
 from src.Filter.ScoreActionFilter import ScoreActionFilter

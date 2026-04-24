@@ -1,10 +1,8 @@
-import PIL
 import torch
 from dataclasses import dataclass
 
 from src.Abstract.AbsFeedbackSource import AbsFeedbackSource
 from src.Abstract.AbsGenModel import AbsGenModel
-from src.DataStructures.ActionData import ActionData
 from src.DataStructures.ActionPairsData import ActionPairsData
 from src.DataStructures.PreferencePairsData import PreferencePairsData
 

@@ -1,4 +1,3 @@
-import yaml
 from importlib import import_module
 
 from src.Abstract.AbsFeedbackSource import AbsFeedbackSource
