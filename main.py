@@ -1,4 +1,4 @@
-"""implements the base pipeline of the system"""
+"""Wires all components and runs the PbRL pipeline."""
 
 from datetime import datetime
 
@@ -21,8 +21,10 @@ from src.Loss.ActionRewardLoss import ActionRewardLoss
 from src.Loss.LogLossDecorator import LogLossDecorator
 from src.Loss.PreferenceLoss import PreferenceLoss
 from src.Memory.RoundsMemory import RoundsMemory
+from src.MetricsLogger.TensorboardGridImageLogger import TensorboardGridImageLogger
 from src.MetricsLogger.TensorboardImageLogger import TensorboardImageLogger
 from src.MetricsLogger.TensorboardScalarLogger import TensorboardScalarLogger
+from src.Pipeline.PbRLPipeline import PbRLPipeline
 from src.PreferenceDataGenerator.BestActionTracker import BestActionTracker
 from src.PreferenceDataGenerator.RandomPreferenceDataGenerator import (
     RandomPreferenceDataGenerator,
@@ -38,12 +40,12 @@ from src.Trainer.ptLightningWrappers import (
 )
 
 if __name__ == "__main__":
-    rounds_number = 15
-
-    # metrics loggers
+    # infrastructure
     tensorboard_writer = SummaryWriter(
         log_dir=f"logs\\{datetime.now().strftime('%Y-%m-%d %H-%M-%S')}"
     )
+
+    # metrics loggers
     pref_loss_logger = TensorboardScalarLogger(
         name="Loss/Preference Loss", writer=tensorboard_writer
     )
@@ -52,6 +54,12 @@ if __name__ == "__main__":
     )
     destination_handle_image_logger = TensorboardImageLogger(
         name="Image/Destination Image", writer=tensorboard_writer
+    )
+    control_max_logger = TensorboardGridImageLogger(
+        name="Image/Control Max", writer=tensorboard_writer, nrow=3
+    )
+    control_min_logger = TensorboardGridImageLogger(
+        name="Image/Control Min", writer=tensorboard_writer, nrow=3
     )
 
     # define ML models
@@ -67,7 +75,7 @@ if __name__ == "__main__":
         scale_level=0,
     )
 
-    # set up feedback and pairs constructor
+    # set up feedback and preference generators
     # feedback_source = CosDistFeedback(
     #     target_image=Image.open(
     #         "GenerativeModelsData\\StackGan2\\target_images\\000387.jpg"
@@ -105,7 +113,11 @@ if __name__ == "__main__":
         logger=action_loss_logger, lossObject=ActionRewardLoss(rewardModel=reward_model)
     )
 
-    # define memory and action distribution
+    # destination_action is shared mutable state: the same ActionData instance must
+    # be passed to GreedyNormalActionDistribution, ptLightningLatentWrapper, and
+    # PbRLPipeline. The latent trainer writes optimized tensors back to
+    # destination_action.actions each epoch; the distribution reads
+    # destination_action.actions[0] on update().
     destination_action = gen_model.sample_random_actions(N=1)
 
     memory = RoundsMemory(limit=10, discount_factor=0.99)
@@ -153,56 +165,31 @@ if __name__ == "__main__":
         mode="min", key=lambda x: reward_model.get_stable_rewards(x), limit=10
     )
 
-    for r in range(rounds_number):
-        sampled_actions = action_dist.sample(100)
-        sampled_actions = max_action_filter.filter(action_data=sampled_actions)
-        sampled_actions.append(destination_action.actions.detach())
-
-        action_data, pref_data = preference_generator.generate_preference_data(
-            data=sampled_actions, limit=15
-        )
-
-        memory.add_data(
-            ActionPairsPrefPairsContainer(
-                action_pairs_data=action_data, pref_pairs_data=pref_data
-            )
-        )
-        train_data = memory.get_data_from_memory()
-
-        model_trainer.run_training(
-            action_data=train_data.action_pairs_data,
-            preference_data=train_data.pref_pairs_data,
-            epochs=10,
-        )
-
-        dummy_action_data, dummy_pref_data = (
-            dummy_preference_generator.generate_preference_data(
-                data=gen_model.sample_random_actions(10), limit=100
-            )
-        )
-
-        action_dist.update(None)
-
-        latent_trainer.run_training(
-            action_data=dummy_action_data, preference_data=dummy_pref_data, epochs=10
-        )
-
-        destination_handle_image_logger.log(gen_model.generate(destination_action))
-
-    control_actions = max_action_filter.filter(gen_model.sample_random_actions(1000))
-    control_images = gen_model.generate(control_actions)
-    control_image_grid = make_grid(control_images.images, nrow=3)
-    tensorboard_writer.add_image("Image/Control Max", control_image_grid, 0)
-    # print("Distances and rewards for best images")
-    # print(feedback_source.get_cos_distances(actions=control_actions))
-    # print(reward_model.get_stable_rewards(data=control_actions)[:, 0])
-    # print()
-
-    control_actions = min_action_filter.filter(gen_model.sample_random_actions(1000))
-    control_images = gen_model.generate(control_actions)
-    control_image_grid = make_grid(control_images.images, nrow=3)
-    tensorboard_writer.add_image("Image/Control Min", control_image_grid, 0)
-    # print("Distances and rewards for worst images")
-    # print(feedback_source.get_cos_distances(actions=control_actions))
-    # print(reward_model.get_stable_rewards(data=control_actions)[:, 0])
-    # print()
+    # run pipeline
+    pipeline = PbRLPipeline(
+        config=PbRLPipeline.Configuration(
+            rounds=15,
+            samples_per_round=100,
+            preference_limit_per_round=15,
+            training_epochs_reward=10,
+            training_epochs_latent=10,
+            dummy_sample_size=10,
+            preference_dummy_limit=100,
+            control_sample_size=1000,
+        ),
+        gen_model=gen_model,
+        action_dist=action_dist,
+        destination_action=destination_action,
+        preference_generator=preference_generator,
+        dummy_preference_generator=dummy_preference_generator,
+        memory=memory,
+        model_trainer=model_trainer,
+        latent_trainer=latent_trainer,
+        sampling_filter=max_action_filter,
+        control_max_filter=max_action_filter,
+        control_min_filter=min_action_filter,
+        round_image_logger=destination_handle_image_logger,
+        control_max_logger=control_max_logger,
+        control_min_logger=control_min_logger,
+    )
+    pipeline.run()

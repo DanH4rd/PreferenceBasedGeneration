@@ -1,49 +1,16 @@
-from importlib import import_module
-
 from src.Abstract.AbsFeedbackSource import AbsFeedbackSource
 from src.Abstract.AbsMemory import AbsMemory
 from src.Abstract.AbsRewardModel import AbsRewardModel
 from src.Abstract.AbsTrainer import AbsTrainer
-from src.Abstract.AbsActionFilter import AbsActionFilter
 from src.Abstract.AbsGenModel import AbsGenModel
 from src.Abstract.AbsPreferenceDataGenerator import AbsPreferenceDataGenerator
-from src.Abstract.AbsLoss import AbsLoss
 from src.Abstract.AbsActionDistribution import AbsActionDistribution
 
-from src.Filter.CompositeSeriesActionFilter import CompositeActionFilter
-from src.Loss.CompositeLoss import CompositeLoss
+from builder.AbsBuilder import AbsBuilder
 
 
-class StandardBuilder:
-    """Class that handles the creation and basic dependencies of pipeline components"""
-
-    def __init__(self):
-        self.gen_model = None
-        self.reward_model = None
-        self.action_distribution = None
-        self.action_filters = CompositeActionFilter()
-
-        self.preference_generator = None
-        self.feedback_source = None
-        self.memory = None
-
-        self.reward_model_losses = CompositeLoss()
-        self.reward_model_trainer = None
-
-        self.destination_action_losses = CompositeLoss()
-        self.destination_action_trainer = None
-
-    def add_action_filter(self, action_filter: AbsActionFilter) -> AbsActionFilter:
-        self.action_filters.add_filter(action_filter)
-        return self.action_filters
-
-    def add_reward_model_loss(self, loss: AbsLoss) -> AbsLoss:
-        self.reward_model_losses.add_loss(loss)
-        return self.reward_model_losses
-
-    def add_destination_action_loss(self, loss: AbsLoss) -> AbsLoss:
-        self.destination_action_losses.add_loss(loss)
-        return self.destination_action_losses
+class ConfigBuilder(AbsBuilder):
+    """Builds pipeline components from Configuration dataclasses."""
 
     def create_reward_model(self, config) -> AbsRewardModel:
         if self.reward_model is not None:
@@ -120,38 +87,3 @@ class StandardBuilder:
         self._is_object_of_required_class(AbsTrainer, self.destination_action_trainer)
 
         return self.destination_action_trainer
-
-    def _create_component_from_config(self, config):
-        """Dynamically loads the class of which config object
-        is inner class from and calls its static function
-        for creation of an instance of said class
-
-        Args:
-            config (dataclass): dataclass with constructor parametres for component
-
-        Returns:
-            dynamically created component
-        """
-        config_related_module = type(config).__module__
-        config_related_class = str(type(config)).split(".")[-2]
-
-        component = getattr(
-            import_module(config_related_module), config_related_class
-        ).create_from_configuration(config)
-
-        return component
-
-    def _is_object_of_required_class(self, class_type: type, instance_obj: object):
-        """Raises exception if instance object is not of or does not inferit the class_type
-
-        Args:
-            class_type (type): class type to compare to
-            instance_obj (object): object to check
-
-        Raises:
-            Exception: if instance object is not of or does not inherit class type
-        """
-        if not isinstance(instance_obj, class_type):
-            raise Exception(
-                f"Wrong component configuration object for {class_type}: {type(instance_obj)}"
-            )
