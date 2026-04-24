@@ -35,7 +35,7 @@ class PreferencePairsData(AbsData):
         present_pairs = torch.unique(self.preference_pairs, dim=0)
         pair_vice_sum = present_pairs.sum(dim=1)
 
-        too_big_total_probability = (pair_vice_sum + float.eps) < 1.0
+        too_big_total_probability = (pair_vice_sum > 1.0 + torch.finfo(torch.float32).eps)
         negative_values = (present_pairs < 0.0).any(dim=1)
         illegal_pairs = too_big_total_probability | negative_values
 
