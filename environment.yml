@@ -1,0 +1,22 @@
+name: pbrl2
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12.10
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pytorch-cuda
+  - pip
+  - pip:
+    - easydict==1.13
+    - PyYAML==6.0.3
+    - pytest==9.0.2
+    - lightning==2.6.1
+    - pillow==12.1.1
+    - tensorboard==2.20.0
+    - transformers==5.3.0
+    - ruff==0.15.7
