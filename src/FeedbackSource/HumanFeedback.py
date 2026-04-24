@@ -86,10 +86,10 @@ class HumanFeedback(AbsFeedbackSource):
         right_image_tk = ImageTk.PhotoImage(right_image)
 
         # Update the labels with the new images
-        self.left_label.config(image=left_image_tk)
+        self.left_label.config(image=left_image_tk, width=384)
         self.left_label.image = left_image_tk  # Keep a reference to avoid garbage collection
 
-        self.right_label.config(image=right_image_tk)
+        self.right_label.config(image=right_image_tk, width=384)
         self.right_label.image = right_image_tk  # Keep a reference to avoid garbage collection
     
     def accept_user_preference_btn_callback(self, preference: int):
