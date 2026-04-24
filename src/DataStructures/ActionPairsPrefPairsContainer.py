@@ -28,7 +28,7 @@ class ActionPairsPrefPairsContainer(AbsData):
             != self.pref_pairs_data.preference_pairs.shape[0]
         ):
             raise Exception(
-                f"Action pairs number does not correspond to preference pairs number: {self.action_pairs_data.actions_pairs.shape[0]} and {self.pref_pairs_data.y.shape[0]}"
+                f"Action pairs number does not correspond to preference pairs number: {self.action_pairs_data.action_pairs.shape[0]} and {self.pref_pairs_data.preference_pairs.shape[0]}"
             )
 
     def __str__(self) -> str:

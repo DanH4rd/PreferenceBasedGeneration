@@ -45,14 +45,14 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
         )
 
     @abc.abstractmethod
-    def set_to_evaluaion_mode(self) -> None:
+    def set_to_evaluation_mode(self) -> None:
         """Sets the model to evaluation mode
 
         Raises:
             NotImplementedError: this method is abstract
         """
         raise NotImplementedError(
-            "users must define set_to_evaluaion_mode to use this base class"
+            "users must define set_to_evaluation_mode to use this base class"
         )
 
     @abc.abstractmethod

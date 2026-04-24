@@ -148,6 +148,6 @@ class StandardBuilder:
         Raises:
             Exception: if instance object is not of or does not inherit class type
         """
-        if issubclass(class_type, type(instance_obj)) :
-            raise Exception (f"Wrong component configuration object for {class_type}: {type(instance_obj)}")
+        if not isinstance(instance_obj, class_type):
+            raise Exception(f"Wrong component configuration object for {class_type}: {type(instance_obj)}")
 

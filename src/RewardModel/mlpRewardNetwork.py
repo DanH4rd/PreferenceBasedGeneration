@@ -102,7 +102,7 @@ class mlpRewardNetwork(nn.Module, AbsRewardModel):
         returnToTrainMode = False
 
         if self.is_train_mode():
-            self.set_to_evaluaion_mode()
+            self.set_to_evaluation_mode()
             returnToTrainMode = True
 
         rewards = self.main(data.actions)
@@ -112,7 +112,7 @@ class mlpRewardNetwork(nn.Module, AbsRewardModel):
 
         return rewards
 
-    def set_to_evaluaion_mode(self):
+    def set_to_evaluation_mode(self):
         """Sets the model mode to evaluation mode"""
         self.eval()
         self.isTrainMode = False
