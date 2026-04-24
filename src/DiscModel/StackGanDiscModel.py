@@ -16,7 +16,6 @@ from src.DataStructures.ImageData import ImageData
 class StackGanDiscModel(object, metaclass=abc.ABCMeta):
     """Adapter class for StackGanv2 implementation"""
 
-
     level_to_model = {
         0: D_NET64,
         1: D_NET128,
@@ -26,8 +25,8 @@ class StackGanDiscModel(object, metaclass=abc.ABCMeta):
 
     @dataclass
     class Configuration:
-        """dataclass for grouping constructor parametres
-        """
+        """dataclass for grouping constructor parametres"""
+
         config_file: str
         checkpoint_file: str
         scale_level: int
@@ -35,10 +34,12 @@ class StackGanDiscModel(object, metaclass=abc.ABCMeta):
 
     @staticmethod
     def create_from_configuration(conf: Configuration):
-        return StackGanDiscModel(config_file= conf.config_file, 
-                                 checkpoint_file=conf.checkpoint_file,
-                                 scale_level=conf.scale_level,
-                                 ngpu=conf.ngpu)
+        return StackGanDiscModel(
+            config_file=conf.config_file,
+            checkpoint_file=conf.checkpoint_file,
+            scale_level=conf.scale_level,
+            ngpu=conf.ngpu,
+        )
 
     def __init__(
         self, config_file: str, checkpoint_file: str, scale_level: int, ngpu: int = 1

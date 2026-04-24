@@ -54,7 +54,6 @@ filters.append(create_score_action_filter(mode="min"))
 
 
 class TestFilter:
-
     @pytest.mark.parametrize("filter,filter_name", zip(filters, map(str, filters)))
     def test_base(self, filter, filter_name):
         gen_model = StackGanGenModel(

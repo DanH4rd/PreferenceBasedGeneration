@@ -24,7 +24,6 @@ from src.PreferenceDataGenerator.RandomPreferenceDataGenerator import (
 
 
 class TestMemory:
-
     def test_rounds_memory(self):
         gen_model = StackGanGenModel(
             config_file="./GenerativeModelsData/StackGan2/config/facade_3stages_color.yml",

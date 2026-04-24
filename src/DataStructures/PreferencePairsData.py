@@ -27,7 +27,9 @@ class PreferencePairsData(AbsData):
         self.preference_pairs = preference_pairs
 
         if len(self.preference_pairs.shape) != 2 or self.preference_pairs.shape[1] != 2:
-            raise Exception(f"Invalid action tensor shape: {self.preference_pairs.shape}")
+            raise Exception(
+                f"Invalid action tensor shape: {self.preference_pairs.shape}"
+            )
 
         # Probabilities of a pair must sum to 1, so we check if the sum of each pair is close to 1
         present_pairs = torch.unique(self.preference_pairs, dim=0)
@@ -39,7 +41,9 @@ class PreferencePairsData(AbsData):
 
         if illegal_pairs.any():
             failed_pairs = present_pairs[illegal_pairs]
-            raise Exception(f"Invalid preference pair values: {str(failed_pairs.cpu())}")
+            raise Exception(
+                f"Invalid preference pair values: {str(failed_pairs.cpu())}"
+            )
 
     def __str__(self) -> str:
         """Returns a string representing an object

@@ -3,6 +3,7 @@ from src.DataStructures.ActionData import ActionData
 
 from src.Filter.EmptyActionFilter import EmptyActionFilter
 
+
 class CompositeActionFilter(AbsActionFilter):
     """Filter that is a serial composition of several other filters, performing one by one
 
@@ -46,10 +47,8 @@ class CompositeActionFilter(AbsActionFilter):
             ActionData: filtered action list
         """
 
-        
         if self.is_empty:
             raise Exception("No filters are present in composite series filter")
-        
 
         actions = action_data.actions
         for filter in self.filters:
@@ -59,7 +58,7 @@ class CompositeActionFilter(AbsActionFilter):
 
     def is_empty(self):
         return len(self.filters) == 0
-    
+
     def __str__(self) -> str:
         """Returns string describing the object
 

@@ -18,8 +18,8 @@ class CosDistFeedback(AbsFeedbackSource):
 
     @dataclass
     class Configuration:
-        """dataclass for grouping constructor parametres
-        """
+        """dataclass for grouping constructor parametres"""
+
         target_image: PIL.Image
         th_min: float
         th_max: float
@@ -29,12 +29,13 @@ class CosDistFeedback(AbsFeedbackSource):
     @staticmethod
     def create_from_configuration(conf: Configuration):
         return CosDistFeedback(
-            target_image = conf.target_image,
-            th_min = conf.th_min,
-            th_max = conf.th_max,
-            device = conf.th_max,
-            gen_model = conf.gen_model)
-    
+            target_image=conf.target_image,
+            th_min=conf.th_min,
+            th_max=conf.th_max,
+            device=conf.th_max,
+            gen_model=conf.gen_model,
+        )
+
     def __init__(
         self,
         target_image: PIL.Image,

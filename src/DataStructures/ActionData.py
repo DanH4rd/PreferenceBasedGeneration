@@ -20,7 +20,7 @@ class ActionData(AbsData):
         self.actions = actions
 
         self._check_tensor_format(self.actions)
-        
+
     def append(self, actions: torch.tensor):
         """Appends actions to the existing actions tensor.
 
@@ -36,7 +36,6 @@ class ActionData(AbsData):
         if len(action_tensor.shape) != 2:
             raise Exception(f"Invalid action tensor shape: {action_tensor.shape}")
 
-        
     def __str__(self) -> str:
         """Returns string describing the object
 

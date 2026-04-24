@@ -51,7 +51,6 @@ class CfgBuilder:
         self.reward_model_trainer = None
         self.destination_action_trainer = None
 
-
     def add_action_filter(self) -> AbsActionFilter:
         pass
 

@@ -22,7 +22,6 @@ from src.GenModel.StackGanGenModel import StackGanGenModel
 
 
 class TestActionDistribution:
-
     def test_basic(self):
         model = StackGanGenModel(
             config_file="./GenerativeModelsData/StackGan2/config/facade_3stages_color.yml",
@@ -65,7 +64,16 @@ class TestActionDistribution:
         dist.update(None)
         dist.update(None)
 
-        assert dist.e == e_start * decay_val * decay_val* decay_val* decay_val* decay_val* decay_val
-        
+        assert (
+            dist.e
+            == e_start
+            * decay_val
+            * decay_val
+            * decay_val
+            * decay_val
+            * decay_val
+            * decay_val
+        )
+
         assert dist.sample(N=1).actions.shape[0] == 1
         assert dist.sample(N=4).actions.shape[0] == 4

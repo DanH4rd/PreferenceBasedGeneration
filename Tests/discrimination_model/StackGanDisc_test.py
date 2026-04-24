@@ -18,7 +18,6 @@ from src.GenModel.StackGanGenModel import StackGanGenModel
 
 
 class TestDiscriminationModel:
-
     def test_stackgan_discriminator(self):
         gen_model = StackGanGenModel(
             config_file="./GenerativeModelsData/StackGan2/config/facade_3stages_color.yml",

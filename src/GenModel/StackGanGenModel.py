@@ -18,8 +18,8 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
 
     @dataclass
     class Configuration:
-        """dataclass for grouping constructor parametres
-        """
+        """dataclass for grouping constructor parametres"""
+
         config_file: str
         checkpoint_file: str
         scale_level: int
@@ -27,10 +27,12 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
 
     @staticmethod
     def create_from_configuration(conf: Configuration):
-        return StackGanGenModel(config_file= conf.config_file, 
-                                 checkpoint_file=conf.checkpoint_file,
-                                 scale_level=conf.scale_level,
-                                 ngpu=conf.ngpu)
+        return StackGanGenModel(
+            config_file=conf.config_file,
+            checkpoint_file=conf.checkpoint_file,
+            scale_level=conf.scale_level,
+            ngpu=conf.ngpu,
+        )
 
     def __init__(self, config_file, checkpoint_file, scale_level, ngpu=1):
         """

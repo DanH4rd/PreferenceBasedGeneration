@@ -12,13 +12,14 @@ class RandomFeedbackSource(AbsFeedbackSource):
 
     @dataclass
     class Configuration:
-        """dataclass for grouping constructor parametres
-        """
+        """dataclass for grouping constructor parametres"""
+
         pass
 
     @staticmethod
     def create_from_configuration(conf: Configuration):
         return RandomFeedbackSource()
+
     possible_values = [[1.0, 0.0], [0.0, 1.0], [0.5, 0.5], [0.0, 0.0]]
 
     def generate_feedback(

@@ -11,21 +11,21 @@ from src.utils import freeze_model, unfreeze_model
 
 class mlpRewardNetwork(nn.Module, AbsRewardModel):
     """Implementaion of a simple mlp neural network"""
-    
+
     @dataclass
     class Configuration:
-        """dataclass for grouping constructor parametres
-        """
+        """dataclass for grouping constructor parametres"""
+
         input_dim: int
         hidden_dim: int
         p: float = 0.5
 
     @staticmethod
     def create_from_configuration(conf: Configuration):
-        return mlpRewardNetwork(input_dim= conf.input_dim, 
-                                 hidden_dim=conf.hidden_dim,
-                                 p=conf.p)
-    
+        return mlpRewardNetwork(
+            input_dim=conf.input_dim, hidden_dim=conf.hidden_dim, p=conf.p
+        )
+
     def __init__(self, input_dim, hidden_dim, p=0.5):
         """
 

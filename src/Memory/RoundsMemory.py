@@ -19,15 +19,14 @@ class RoundsMemory(object, metaclass=abc.ABCMeta):
 
     @dataclass
     class Configuration:
-        """dataclass for grouping constructor parametres
-        """
+        """dataclass for grouping constructor parametres"""
+
         limit: int
         discount_factor: float | None = None
 
     @staticmethod
     def create_from_configuration(conf: Configuration):
-        return RoundsMemory(limit= conf.limit, 
-                            discount_factor=conf.discount_factor)
+        return RoundsMemory(limit=conf.limit, discount_factor=conf.discount_factor)
 
     def __init__(self, limit: int, discount_factor: float | None = None) -> None:
         """

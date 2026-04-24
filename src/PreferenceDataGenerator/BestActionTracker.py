@@ -12,16 +12,17 @@ class BestActionTracker(AbsPreferenceDataGenerator):
     of another preference generator new preferences created
     by tracking what action is the best of all met thus far
     """
+
     @dataclass
     class Configuration:
-        """dataclass for grouping constructor parametres
-        """
+        """dataclass for grouping constructor parametres"""
+
         prefDataGen: AbsPreferenceDataGenerator
 
     @staticmethod
     def create_from_configuration(conf: Configuration):
-        return BestActionTracker(prefDataGen= conf.prefDataGen)
-    
+        return BestActionTracker(prefDataGen=conf.prefDataGen)
+
     def __init__(self, prefDataGen: AbsPreferenceDataGenerator):
         """
         Args:
@@ -94,7 +95,6 @@ class BestActionTracker(AbsPreferenceDataGenerator):
         )
 
         for impossible_candidate in best_action_impossible_candidates:
-
             possible_candidate_pos_table = ~(
                 (candidate_actions - impossible_candidate) < 1e-10
             ).all(dim=1)

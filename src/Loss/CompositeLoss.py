@@ -43,7 +43,7 @@ class CompositeLoss(AbsLoss):
         """
         if self.is_empty:
             raise Exception("No losses are present in composite loss")
-        
+
         total_loss = torch.tensor(0)
 
         for loss in self.losses:
@@ -53,7 +53,7 @@ class CompositeLoss(AbsLoss):
 
     def is_empty(self):
         return len(self.losses) == 0
-    
+
     def __str__(self) -> str:
         """Returns a string describing an onject
 

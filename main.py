@@ -1,5 +1,4 @@
-"""implements the base pipeline of the system
-"""
+"""implements the base pipeline of the system"""
 
 from datetime import datetime
 
@@ -9,7 +8,9 @@ from torchvision.transforms.functional import pil_to_tensor
 from torchvision.utils import make_grid
 
 from src.ActionDistribution.SimpleActionDistribution import SimpleActionDistribution
-from src.ActionDistribution.GreedyNormalActionDistribution import GreedyNormalActionDistribution
+from src.ActionDistribution.GreedyNormalActionDistribution import (
+    GreedyNormalActionDistribution,
+)
 from src.DataStructures.ActionPairsPrefPairsContainer import (
     ActionPairsPrefPairsContainer,
 )
@@ -26,15 +27,17 @@ from src.Memory.RoundsMemory import RoundsMemory
 from src.MetricsLogger.TensorboardImageLogger import TensorboardImageLogger
 from src.MetricsLogger.TensorboardScalarLogger import TensorboardScalarLogger
 from src.PreferenceDataGenerator.BestActionTracker import BestActionTracker
-from src.PreferenceDataGenerator.RandomPreferenceDataGenerator import RandomPreferenceDataGenerator
+from src.PreferenceDataGenerator.RandomPreferenceDataGenerator import (
+    RandomPreferenceDataGenerator,
+)
 from src.PreferenceDataGenerator.GraphPreferenceDataGeneration import (
     GraphPreferenceDataGeneration,
 )
 from src.RewardModel.mlpRewardNetwork import mlpRewardNetwork
-from src.Trainer.ptLightningTrainer import (
+from src.Trainer.ptLightningTrainer import ptLightningTrainer
+from src.Trainer.ptLightningWrappers import (
     ptLightningLatentWrapper,
     ptLightningModelWrapper,
-    ptLightningTrainer,
 )
 
 if __name__ == "__main__":
@@ -42,7 +45,7 @@ if __name__ == "__main__":
 
     # metrics loggers
     tensorboard_writer = SummaryWriter(
-        log_dir=f"logs\\{datetime.now().strftime("%Y-%m-%d %H-%M-%S")}"
+        log_dir=f"logs\\{datetime.now().strftime('%Y-%m-%d %H-%M-%S')}"
     )
     pref_loss_logger = TensorboardScalarLogger(
         name="Loss/Preference Loss", writer=tensorboard_writer
@@ -66,7 +69,7 @@ if __name__ == "__main__":
         checkpoint_file="GenerativeModelsData\\StackGan2\\checkpoints\\Celeba v1.0\\netD0.pth",
         scale_level=0,
     )
-    
+
     # set up feedback and pairs constructor
     # feedback_source = CosDistFeedback(
     #     target_image=Image.open(
@@ -81,7 +84,7 @@ if __name__ == "__main__":
     feedback_source = HumanFeedback(
         window_name="Provide your preferences",
         gen_model=gen_model,
-        )
+    )
 
     if hasattr(feedback_source, "target_image"):
         if feedback_source.target_image is not None:
@@ -92,7 +95,9 @@ if __name__ == "__main__":
     preference_generator = GraphPreferenceDataGeneration(feedbackSource=feedback_source)
     preference_generator = BestActionTracker(prefDataGen=preference_generator)
 
-    dummy_preference_generator = RandomPreferenceDataGenerator(feedbackSource=RandomFeedbackSource())
+    dummy_preference_generator = RandomPreferenceDataGenerator(
+        feedbackSource=RandomFeedbackSource()
+    )
 
     # set up losses
     preference_loss = LogLossDecorator(
@@ -110,16 +115,15 @@ if __name__ == "__main__":
 
     # action_dist = SimpleActionDistribution(
     #     dist=gen_model.get_input_noise_distribution()
-    # )   
-    
-    action_dist = GreedyNormalActionDistribution(
-            dist=gen_model.get_input_noise_distribution(),
-            destination_action=destination_action,
-            e=0.9,
-            decay_factor=0.8,
-            omega2=0.5,
-        )
+    # )
 
+    action_dist = GreedyNormalActionDistribution(
+        dist=gen_model.get_input_noise_distribution(),
+        destination_action=destination_action,
+        e=0.9,
+        decay_factor=0.8,
+        omega2=0.5,
+    )
 
     tensorboard_writer.add_image(
         "Image/Starting Desc action",
@@ -155,9 +159,8 @@ if __name__ == "__main__":
     for r in range(rounds_number):
         sampled_actions = action_dist.sample(100)
         sampled_actions = max_action_filter.filter(action_data=sampled_actions)
-        sampled_actions.append(destination_action.actions.detach()
-        )
-        
+        sampled_actions.append(destination_action.actions.detach())
+
         action_data, pref_data = preference_generator.generate_preference_data(
             data=sampled_actions, limit=15
         )

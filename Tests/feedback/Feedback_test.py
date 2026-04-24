@@ -7,7 +7,6 @@ from src.GenModel.StackGanGenModel import StackGanGenModel
 
 
 class TestFilter:
-
     def test_transformer_cos_feedback(self):
 
         target_image = Image.open("Tests\\feedback\\images\\ArtNouveaufacade79.jpeg")

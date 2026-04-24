@@ -15,14 +15,14 @@ class RandomPreferenceDataGenerator(AbsPreferenceDataGenerator):
 
     @dataclass
     class Configuration:
-        """dataclass for grouping constructor parametres
-        """
+        """dataclass for grouping constructor parametres"""
+
         feedbackSource: AbsFeedbackSource
 
     @staticmethod
     def create_from_configuration(conf: Configuration):
-        return RandomPreferenceDataGenerator(feedbackSource= conf.feedbackSource)
-    
+        return RandomPreferenceDataGenerator(feedbackSource=conf.feedbackSource)
+
     def __init__(self, feedbackSource: AbsFeedbackSource):
         """
         Args:

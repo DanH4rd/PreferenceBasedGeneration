@@ -25,7 +25,6 @@ from src.MetricsLogger.TensorboardScalarLogger import TensorboardScalarLogger
 
 
 class TestMetricsLogger:
-
     def test_tensorboard_scalar(self):
 
         writer = SummaryWriter(log_dir="Tests/metrics_logger/runs")

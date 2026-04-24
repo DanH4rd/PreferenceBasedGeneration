@@ -19,20 +19,18 @@ class ActionPairsData(AbsData):
 
         self.action_pairs = action_pairs
 
-        if (
-            len(self.action_pairs.shape) != 3
-            or self.action_pairs.shape[1] != 2
-        ):
-
+        if len(self.action_pairs.shape) != 3 or self.action_pairs.shape[1] != 2:
             raise Exception(f"Invalid action tensor shape: {self.action_pairs.shape}")
-        
+
     def get_split_actions(self) -> tuple[ActionData, ActionData]:
         """Splits action pairs into two tensors of shape [B,D]
 
         Returns:
             tuple[ActionData, ActionData]: two tensors of shape [B,D]
         """
-        return ActionData(actions=self.action_pairs[:,0,:]), ActionData(actions=self.action_pairs[:,1,:])
+        return ActionData(actions=self.action_pairs[:, 0, :]), ActionData(
+            actions=self.action_pairs[:, 1, :]
+        )
 
     def __str__(self) -> str:
         """Returns a string representing an object

@@ -21,16 +21,18 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
 
     @dataclass
     class Configuration:
-        """dataclass for grouping constructor parametres
-        """
+        """dataclass for grouping constructor parametres"""
+
         feedbackSource: AbsFeedbackSource
         deduceAdditionalLinks: bool = False
 
     @staticmethod
     def create_from_configuration(conf: Configuration):
-        return GraphPreferenceDataGeneration(feedbackSource= conf.feedbackSource,
-                                             deduceAdditionalLinks= conf.deduceAdditionalLinks)
-    
+        return GraphPreferenceDataGeneration(
+            feedbackSource=conf.feedbackSource,
+            deduceAdditionalLinks=conf.deduceAdditionalLinks,
+        )
+
     def __init__(
         self, feedbackSource: AbsFeedbackSource, deduceAdditionalLinks: bool = False
     ):
@@ -123,9 +125,7 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
         """
 
         for node1, node2 in edge_list:
-
             if not genGraph.has_edge(u=node1, v=node2):
-
                 action1 = actions_tensor[node1].unsqueeze(0)
                 action2 = actions_tensor[node2].unsqueeze(0)
 
@@ -192,7 +192,6 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
         # until we get the target preference number or all the possible pairs
         # are asked
         while (ask_counter < limit) and (len(general_graph.edges) != max_graph_edges):
-
             gained_feedback = False
 
             components = list(nx.connected_components(nx.Graph(preference_graph)))
@@ -227,7 +226,6 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
 
             # if we didn't ask for a preference feedback while connecting components
             if not gained_feedback:
-
                 nodes = sorted(
                     dict(preference_graph.degree).keys(),
                     key=lambda x: preference_graph.degree[x],

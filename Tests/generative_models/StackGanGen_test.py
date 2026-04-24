@@ -29,7 +29,6 @@ generative_models.append(
 
 
 class TestGeneratimeModel:
-
     @pytest.mark.parametrize(
         "model,model_name", zip(generative_models, map(str, generative_models))
     )

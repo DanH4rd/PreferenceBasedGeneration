@@ -24,15 +24,14 @@ from src.PreferenceDataGenerator.RandomPreferenceDataGenerator import (
     RandomPreferenceDataGenerator,
 )
 from src.RewardModel.mlpRewardNetwork import mlpRewardNetwork
-from src.Trainer.ptLightningTrainer import (
+from src.Trainer.ptLightningTrainer import ptLightningTrainer
+from src.Trainer.ptLightningWrappers import (
     ptLightningLatentWrapper,
     ptLightningModelWrapper,
-    ptLightningTrainer,
 )
 
 
 class TestTrainer:
-
     gen_model = StackGanGenModel(
         config_file="./GenerativeModelsData/StackGan2/config/facade_3stages_color.yml",
         checkpoint_file="./GenerativeModelsData/StackGan2/checkpoints/Facade v1.0/netG_56500.pth",
