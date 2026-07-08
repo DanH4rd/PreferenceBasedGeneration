@@ -148,9 +148,9 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
         return False
 
     @override
-    def generate_preference_data(
+    def generate_preference_data_idx(
         self, data: ActionData, limit: int
-    ) -> tuple[ActionPairsData, PreferencePairsData]:
+    ) -> tuple[torch.Tensor, PreferencePairsData]:
         """Constructs a directed graph of preferences relationships between all provided actions.
         First it tries to connect all the
         components together (edges with preferences [0,0] are ignored). If there is already one
@@ -260,47 +260,45 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
         all_edges = general_graph.edges(data=True)
         all_directed_edges = preference_graph.edges(data=True)
 
-        action_pair_tensor_list = []
+        action_pair_idx_list = []
         preference_pair_tensor_list = []
 
         # generate preference and actions from preference graph
-        for a, b, m in all_directed_edges:
-            action1 = actions_tensor[a].unsqueeze(0)
-            action2 = actions_tensor[b].unsqueeze(0)
+        for node_a, node_b, edge_data_dict in all_directed_edges:
+            action1_idx = node_a
+            action2_idx = node_b
 
-            if m["label"] == "equal1":
-                action_pair_tensor_list.append(torch.stack([action1, action2], dim=1))
+            if edge_data_dict["label"] == "equal1":
+                action_pair_idx_list.append(torch.tensor([action1_idx, action2_idx]))
                 preference_pair_tensor_list.append(torch.tensor([0.5, 0.5]))
-            elif m["label"] == "equal2":
+            elif edge_data_dict["label"] == "equal2":
                 pass
-            elif m["label"] == "preferable":
-                action_pair_tensor_list.append(torch.stack([action1, action2], dim=1))
+            elif edge_data_dict["label"] == "preferable":
+                action_pair_idx_list.append(torch.tensor([action1_idx, action2_idx]))
                 preference_pair_tensor_list.append(torch.tensor([0.0, 1.0]))
             else:
-                raise Exception(f"Unknown label: {m['label']}")
+                raise Exception(f"Unknown label: {edge_data_dict['label']}")
 
         # generate preference and actions from general graph ([0,0] cases)
-        for a, b, m in all_edges:
-            if m["label"] == "zero":
-                action1 = actions_tensor[a].unsqueeze(0)
-                action2 = actions_tensor[b].unsqueeze(0)
+        for node_a, node_b, edge_data_dict in all_edges:
+            if edge_data_dict["label"] == "zero":
+                action1_idx = node_a
+                action2_idx = node_b
 
-                action_pair_tensor_list.append(torch.stack([action1, action2], dim=1))
+                action_pair_idx_list.append(torch.tensor([action1_idx, action2_idx]))
 
                 preference_pair_tensor_list.append(torch.tensor([0.0, 0.0]))
-            elif m["label"] == "base":
+            elif edge_data_dict["label"] == "base":
                 pass
             else:
-                raise Exception(f"Unknown label: {m['label']}")
+                raise Exception(f"Unknown label: {edge_data_dict['label']}")
 
-        action_pairs_data = ActionPairsData(
-            action_pairs=torch.concat(action_pair_tensor_list, dim=0)
-        )
+        action_pairs_idx_data = torch.stack(action_pair_idx_list, dim=0)
         pref_pairs_data = PreferencePairsData(
             preference_pairs=torch.stack(preference_pair_tensor_list, dim=0)
         )
 
-        return action_pairs_data, pref_pairs_data
+        return action_pairs_idx_data, pref_pairs_data
 
     def __str__(self) -> str:
         """Returns string describing the object

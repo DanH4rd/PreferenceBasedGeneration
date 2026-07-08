@@ -30,9 +30,9 @@ class RandomPreferenceDataGenerator(AbsPreferenceDataGenerator):
 
         self.feedbackSource = feedbackSource
 
-    def generate_preference_data(
+    def generate_preference_data_idx(
         self, data: ActionData, limit: int
-    ) -> tuple[ActionPairsData, PreferencePairsData]:
+    ) -> tuple[torch.Tensor, PreferencePairsData]:
         """Creates all possible combinations out of provided actions and randomly shuffles them.
         Then asks for feebback for the first limit pairs.
 
@@ -41,7 +41,7 @@ class RandomPreferenceDataGenerator(AbsPreferenceDataGenerator):
             limit (int): number of action pairs to ask for feedback
 
         Returns:
-            tuple[ActionPairsData, PreferencePairsData]: list of action pairs with corresponding preferences
+            tuple[torch.Tensor, PreferencePairsData]: pairs of ActionData indices and corresponding preferences
         """
 
         actions_tensor = data.actions
@@ -64,7 +64,7 @@ class RandomPreferenceDataGenerator(AbsPreferenceDataGenerator):
 
         preference_data = self.feedbackSource.generate_feedback(action_pairs_data)
 
-        return action_pairs_data, preference_data
+        return pair_idx_tensor, preference_data
 
     def __str__(self) -> str:
         """Returns string describing the object

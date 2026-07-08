@@ -3,29 +3,21 @@
 from datetime import datetime
 
 from torch.utils.tensorboard.writer import SummaryWriter
-from torchvision.transforms.functional import pil_to_tensor
-from torchvision.utils import make_grid
 
 from src.ActionDistribution import (
     GreedyNormalActionDistribution,
 )
-from src.DataStructures import ActionData, TrainableActionData
+from src.DataStructures import TrainableActionData
 from src.DiscModel import StackGanDiscModel
-from src.FeedbackSource import CosDistFeedback, HumanFeedback, RandomFeedbackSource
-from src.Filter import ScoreActionFilter
+from src.FeedbackSource import HumanFeedback
+from src.Filter import CompositeActionFilter, ScoreActionFilter
 from src.GenModel import StackGanGenModel
-from src.Loss import ActionRewardLoss, LogLossDecorator, PreferenceLoss
+from src.Loss import ActionRewardLoss, PreferenceLoss
 from src.Memory import RoundsMemory
-from src.MetricsLogger import (
-    TensorboardGridImageLogger,
-    TensorboardImageLogger,
-    TensorboardScalarLogger,
-)
 from src.Pipeline.PbRLPipeline import PbRLPipeline
 from src.PreferenceDataGenerator import (
     BestActionTracker,
     GraphPreferenceDataGeneration,
-    RandomPreferenceDataGenerator,
 )
 from src.RewardModel import mlpRewardNetwork
 from src.Trainer import (
@@ -38,23 +30,6 @@ if __name__ == "__main__":
     # infrastructure
     tensorboard_writer = SummaryWriter(
         log_dir=f"logs\\{datetime.now().strftime('%Y-%m-%d %H-%M-%S')}"
-    )
-
-    # metrics loggers
-    pref_loss_logger = TensorboardScalarLogger(
-        name="Loss/Preference Loss", writer=tensorboard_writer
-    )
-    action_loss_logger = TensorboardScalarLogger(
-        name="Loss/Action Reward Loss", writer=tensorboard_writer
-    )
-    destination_handle_image_logger = TensorboardImageLogger(
-        name="Image/Destination Image", writer=tensorboard_writer
-    )
-    control_max_logger = TensorboardGridImageLogger(
-        name="Image/Control Max", writer=tensorboard_writer, nrow=3
-    )
-    control_min_logger = TensorboardGridImageLogger(
-        name="Image/Control Min", writer=tensorboard_writer, nrow=3
     )
 
     # define ML models
@@ -71,6 +46,7 @@ if __name__ == "__main__":
     )
 
     # set up feedback and preference generators
+
     # feedback_source = CosDistFeedback(
     #     target_image=Image.open(
     #         "GenerativeModelsData\\StackGan2\\target_images\\000387.jpg"
@@ -86,25 +62,8 @@ if __name__ == "__main__":
         gen_model=gen_model,
     )
 
-    if isinstance(feedback_source, CosDistFeedback):
-        tensorboard_writer.add_image(
-            "Image/Target", pil_to_tensor(feedback_source.target_image), 0
-        )
-
-    preference_generator = GraphPreferenceDataGeneration(feedbackSource=feedback_source)
-    preference_generator = BestActionTracker(prefDataGen=preference_generator)
-
-    dummy_preference_generator = RandomPreferenceDataGenerator(
-        feedbackSource=RandomFeedbackSource()
-    )
-
-    # set up losses
-    preference_loss = LogLossDecorator(
-        logger=pref_loss_logger,
-        lossObject=PreferenceLoss(rewardModel=reward_model, decimals=None),
-    )
-    action_reward_loss = LogLossDecorator(
-        logger=action_loss_logger, lossObject=ActionRewardLoss(rewardModel=reward_model)
+    preference_generator = BestActionTracker(
+        prefDataGen=GraphPreferenceDataGeneration(feedbackSource=feedback_source)
     )
 
     # destination_action_trainable is shared mutable state: the same
@@ -116,7 +75,7 @@ if __name__ == "__main__":
         gen_model.sample_random_actions(N=1)
     )
 
-    memory = RoundsMemory(limit=10, discount_factor=0.99)
+    # define action distribution
 
     # action_dist = SimpleActionDistribution(
     #     dist=gen_model.get_input_noise_distribution()
@@ -130,21 +89,13 @@ if __name__ == "__main__":
         omega2=0.5,
     )
 
-    tensorboard_writer.add_image(
-        "Image/Starting Desc action",
-        make_grid(
-            gen_model.generate(
-                ActionData(actions=destination_action_trainable.detached_actions)
-            ).images,
-            nrow=1,
-        ),
-        0,
-    )
-
     # define trainers
     model_trainer = ptLightningTrainer(
         model=ptLightningModelWrapper(
-            model=reward_model, loss_func_obj=preference_loss
+            model=reward_model,
+            loss_func_obj=PreferenceLoss(rewardModel=reward_model, decimals=None),
+            loss_log_tensorboard_writer=tensorboard_writer,
+            loss_log_name="Loss/Preference Loss",
         ),
         batch_size=20,
     )
@@ -153,19 +104,23 @@ if __name__ == "__main__":
         model=ptLightningLatentWrapper(
             trainable_action=destination_action_trainable,
             reward_model=reward_model,
-            loss_func_obj=action_reward_loss,
+            loss_func_obj=ActionRewardLoss(rewardModel=reward_model),
+            loss_log_tensorboard_writer=tensorboard_writer,
+            loss_log_name="Loss/Action Reward Loss",
         ),
         batch_size=20,
     )
 
-    # define filters
-    max_action_filter = ScoreActionFilter(
-        mode="max", key=lambda x: reward_model.get_stable_rewards(x), limit=10
-    )
-    min_action_filter = ScoreActionFilter(
-        mode="min", key=lambda x: reward_model.get_stable_rewards(x), limit=10
-    )
+    # define memory
+    memory = RoundsMemory(limit=10, discount_factor=0.99)
 
+    # define sampling filter
+    sampling_filter = CompositeActionFilter()
+    sampling_filter.add_filter(
+        ScoreActionFilter(
+            mode="max", key=lambda x: reward_model.get_stable_rewards(x), limit=10
+        )
+    )
     # run pipeline
     pipeline = PbRLPipeline(
         config=PbRLPipeline.Configuration(
@@ -174,23 +129,17 @@ if __name__ == "__main__":
             preference_limit_per_round=15,
             training_epochs_reward=10,
             training_epochs_latent=10,
-            dummy_sample_size=10,
-            preference_dummy_limit=100,
             control_sample_size=1000,
         ),
         gen_model=gen_model,
         action_dist=action_dist,
         destination_action_trainable=destination_action_trainable,
         preference_generator=preference_generator,
-        dummy_preference_generator=dummy_preference_generator,
         memory=memory,
         model_trainer=model_trainer,
         latent_trainer=latent_trainer,
-        sampling_filter=max_action_filter,
-        control_max_filter=max_action_filter,
-        control_min_filter=min_action_filter,
-        round_image_logger=destination_handle_image_logger,
-        control_max_logger=control_max_logger,
-        control_min_logger=control_min_logger,
+        sampling_filter=sampling_filter,
+        reward_model=reward_model,
+        tensorboard_writer=tensorboard_writer,
     )
     pipeline.run()
