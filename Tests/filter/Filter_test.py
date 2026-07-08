@@ -3,22 +3,11 @@ import torch
 
 from src.Filter.RandomActionFilter import RandomActionFilter
 from src.Filter.ScoreActionFilter import ScoreActionFilter
-from src.GenModel.StackGanGenModel import StackGanGenModel
 from src.RewardModel.mlpRewardNetwork import mlpRewardNetwork
 
-########### Utils
-##################################
 
-
-def create_score_action_filter(mode):
-    gen_model = StackGanGenModel(
-        config_file="./GenerativeModelsData/StackGan2/config/facade_3stages_color.yml",
-        checkpoint_file="./GenerativeModelsData/StackGan2/checkpoints/Facade v1.0/netG_56500.pth",
-        scale_level=2,
-    )
-
+def _score_action_filter(gen_model, mode):
     actions = gen_model.sample_random_actions(N=1)
-
     reward_model = mlpRewardNetwork(
         input_dim=actions.actions.shape[1], hidden_dim=20, p=0
     )
@@ -27,59 +16,44 @@ def create_score_action_filter(mode):
     )
 
 
-########### Utils End
-##################################
-
-
-filters = []
-
-filters.append(RandomActionFilter(limit=1))
-
-filters.append(create_score_action_filter(mode="max"))
-filters.append(create_score_action_filter(mode="min"))
+FILTER_FACTORIES = {
+    "random": lambda gen_model: RandomActionFilter(limit=1),
+    "score_max": lambda gen_model: _score_action_filter(gen_model, mode="max"),
+    "score_min": lambda gen_model: _score_action_filter(gen_model, mode="min"),
+}
 
 
 class TestFilter:
-    @pytest.mark.parametrize("filter,filter_name", zip(filters, map(str, filters)))
-    def test_base(self, filter, filter_name):
-        gen_model = StackGanGenModel(
-            config_file="./GenerativeModelsData/StackGan2/config/facade_3stages_color.yml",
-            checkpoint_file="./GenerativeModelsData/StackGan2/checkpoints/Facade v1.0/netG_56500.pth",
-            scale_level=2,
-        )
+    @pytest.fixture(params=list(FILTER_FACTORIES))
+    def action_filter(self, request, facade_gen_model):
+        return FILTER_FACTORIES[request.param](facade_gen_model)
 
-        filter.limit = 10
-        actions = gen_model.sample_random_actions(N=15)
-        actions = filter.filter(actions)
+    def test_base(self, action_filter, facade_gen_model):
+        action_filter.limit = 10
+        actions = facade_gen_model.sample_random_actions(N=15)
+        actions = action_filter.filter(actions)
 
         assert len(actions.actions.shape) == 2
         assert actions.actions.shape[0] == 10
 
-        filter.limit = 0.5
-        actions = gen_model.sample_random_actions(N=10)
-        actions = filter.filter(actions)
+        action_filter.limit = 0.5
+        actions = facade_gen_model.sample_random_actions(N=10)
+        actions = action_filter.filter(actions)
 
         assert len(actions.actions.shape) == 2
         assert actions.actions.shape[0] == 5
 
     ###########
 
-    def test_score_filter_ranking(self):
-
-        gen_model = StackGanGenModel(
-            config_file="./GenerativeModelsData/StackGan2/config/facade_3stages_color.yml",
-            checkpoint_file="./GenerativeModelsData/StackGan2/checkpoints/Facade v1.0/netG_56500.pth",
-            scale_level=2,
-        )
-
-        actions = gen_model.sample_random_actions(N=10)
-
-        def key(x):
-            return reward_model.get_stable_rewards(x)
+    def test_score_filter_ranking(self, facade_gen_model):
+        actions = facade_gen_model.sample_random_actions(N=10)
 
         reward_model = mlpRewardNetwork(
             input_dim=actions.actions.shape[1], hidden_dim=20, p=0
         )
+
+        def key(x):
+            return reward_model.get_stable_rewards(x)
 
         rewards = reward_model.get_stable_rewards(actions)
 
@@ -87,18 +61,18 @@ class TestFilter:
 
         sorted_actions_tensor = actions.actions[rewards_sort]
 
-        filter = ScoreActionFilter(mode="max", key=key, limit=0.5)
+        score_filter = ScoreActionFilter(mode="max", key=key, limit=0.5)
 
-        filter_actions = filter.filter(actions)
+        filter_actions = score_filter.filter(actions)
 
         assert (
             (torch.flip(sorted_actions_tensor[-5:], dims=[0]) - filter_actions.actions)
             < 10e-5
         ).all()
 
-        filter = ScoreActionFilter(mode="min", key=key, limit=0.5)
+        score_filter = ScoreActionFilter(mode="min", key=key, limit=0.5)
 
-        filter_actions = filter.filter(actions)
+        filter_actions = score_filter.filter(actions)
 
         assert (
             (torch.flip(sorted_actions_tensor[:5], dims=[0]) - filter_actions.actions)

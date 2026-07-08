@@ -3,36 +3,25 @@ from src.ActionDistribution.GreedyNormalActionDistribution import (
 )
 from src.ActionDistribution.SimpleActionDistribution import SimpleActionDistribution
 from src.DataStructures.ActionData import ActionData
-from src.GenModel.StackGanGenModel import StackGanGenModel
 
 
 class TestActionDistribution:
-    def test_basic(self):
-        model = StackGanGenModel(
-            config_file="./GenerativeModelsData/StackGan2/config/facade_3stages_color.yml",
-            checkpoint_file="./GenerativeModelsData/StackGan2/checkpoints/Facade v1.0/netG_56500.pth",
-            scale_level=2,
+    def test_basic(self, facade_gen_model):
+        dist = SimpleActionDistribution(
+            dist=facade_gen_model.get_input_noise_distribution()
         )
-
-        dist = SimpleActionDistribution(dist=model.get_input_noise_distribution())
 
         assert isinstance(dist.sample(N=1), ActionData)
         assert dist.sample(N=1).actions.shape[0] == 1
         assert dist.sample(N=4).actions.shape[0] == 4
 
-    def test_greedy(self):
-        model = StackGanGenModel(
-            config_file="./GenerativeModelsData/StackGan2/config/facade_3stages_color.yml",
-            checkpoint_file="./GenerativeModelsData/StackGan2/checkpoints/Facade v1.0/netG_56500.pth",
-            scale_level=2,
-        )
-
+    def test_greedy(self, facade_gen_model):
         e_start = 0.9
         decay_val = 0.8
 
         dist = GreedyNormalActionDistribution(
-            dist=model.get_input_noise_distribution(),
-            destination_action=model.sample_random_actions(N=1),
+            dist=facade_gen_model.get_input_noise_distribution(),
+            destination_action=facade_gen_model.sample_random_actions(N=1),
             e=e_start,
             decay_factor=decay_val,
             omega2=0.5,

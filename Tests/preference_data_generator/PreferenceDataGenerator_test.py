@@ -1,7 +1,6 @@
 import pytest
 
 from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource
-from src.GenModel.StackGanGenModel import StackGanGenModel
 from src.PreferenceDataGenerator.BestActionTracker import BestActionTracker
 from src.PreferenceDataGenerator.GraphPreferenceDataGeneration import (
     GraphPreferenceDataGeneration,
@@ -19,18 +18,12 @@ pref_gen.append(GraphPreferenceDataGeneration(feedbackSource=feedback_source))
 
 
 class TestPreferenceDataGenerator:
-    gen_model = StackGanGenModel(
-        config_file="./GenerativeModelsData/StackGan2/config/facade_3stages_color.yml",
-        checkpoint_file="./GenerativeModelsData/StackGan2/checkpoints/Facade v1.0/netG_56500.pth",
-        scale_level=2,
-    )
-
     @pytest.mark.parametrize(
         "pref_gen,pref_gen_name", zip(pref_gen, map(str, pref_gen))
     )
-    def test_basic(self, pref_gen, pref_gen_name):
+    def test_basic(self, pref_gen, pref_gen_name, facade_gen_model):
 
-        actions = self.gen_model.sample_random_actions(5)
+        actions = facade_gen_model.sample_random_actions(5)
 
         action_pairs, preference_data = pref_gen.generate_preference_data(
             data=actions, limit=15
@@ -43,7 +36,7 @@ class TestPreferenceDataGenerator:
         ]
         assert list(preference_data.preference_pairs.shape) == [10, 2]
 
-        actions = self.gen_model.sample_random_actions(45)
+        actions = facade_gen_model.sample_random_actions(45)
 
         action_pairs, preference_data = pref_gen.generate_preference_data(
             data=actions, limit=10
@@ -62,7 +55,7 @@ class TestPreferenceDataGenerator:
         reason="action loss while converting action pairs to action list with torch.unique",
         raises=AssertionError,
     )
-    def test_best_action_tracker(self):
+    def test_best_action_tracker(self, facade_gen_model):
 
         feedback_source = RandomFeedbackSource()
         prefDataGenerator = RandomPreferenceDataGenerator(
@@ -70,7 +63,7 @@ class TestPreferenceDataGenerator:
         )
         prefDataGenerator = BestActionTracker(prefDataGen=prefDataGenerator)
 
-        actions = self.gen_model.sample_random_actions(15)
+        actions = facade_gen_model.sample_random_actions(15)
 
         action_pairs, preference_data = prefDataGenerator.generate_preference_data(
             data=actions, limit=10

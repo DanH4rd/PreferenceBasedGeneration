@@ -5,8 +5,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+# Create/activate environment (conda, not pip — see environment.yml)
+conda env create -f environment.yml
+conda activate pbrl2
 
 # Run the main pipeline
 python main.py
@@ -24,6 +25,10 @@ pytest Tests/path/to/test_file.py
 # View training metrics
 tensorboard --logdir=logs
 ```
+
+### Testing
+
+Most tests build a real `StackGanGenModel`/`StackGanDiscModel` (GPU inference against StackGan2 checkpoints). Root `conftest.py` has session-scoped fixtures (`facade_gen_model`, `facade_gen_model_scale0`, `facade_disc_model`) — reuse these instead of constructing models per-test (expensive). `require_path()` in `conftest.py` skips a test cleanly when a gitignored external asset (StackGan2 checkpoints/configs, `Tests/*/images/`) isn't present, instead of hard-crashing. Pytest config (`testpaths`, `pythonpath`) lives in `pyproject.toml`.
 
 ## Architecture Overview
 

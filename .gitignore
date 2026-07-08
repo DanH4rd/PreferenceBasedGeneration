@@ -11,3 +11,5 @@ __pycache__/
 
 *.drawio.bkp
 *.drawio.dtmp
+
+.claude.local.md

@@ -1,6 +1,7 @@
+from dataclasses import dataclass
+
 import PIL
 import torch
-from dataclasses import dataclass
 from transformers import ViTImageProcessor, ViTModel
 
 from src.Abstract.AbsFeedbackSource import AbsFeedbackSource
@@ -32,7 +33,7 @@ class CosDistFeedback(AbsFeedbackSource):
             target_image=conf.target_image,
             th_min=conf.th_min,
             th_max=conf.th_max,
-            device=conf.th_max,
+            device=conf.device,
             gen_model=conf.gen_model,
         )
 

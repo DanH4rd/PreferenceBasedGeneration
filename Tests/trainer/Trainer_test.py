@@ -1,7 +1,6 @@
 from torch.utils.tensorboard import SummaryWriter
 
 from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource
-from src.GenModel.StackGanGenModel import StackGanGenModel
 from src.Loss.ActionRewardLoss import ActionRewardLoss
 from src.Loss.LogLossDecorator import LogLossDecorator
 from src.Loss.PreferenceLoss import PreferenceLoss
@@ -18,26 +17,21 @@ from src.Trainer.ptLightningWrappers import (
 
 
 class TestTrainer:
-    gen_model = StackGanGenModel(
-        config_file="./GenerativeModelsData/StackGan2/config/facade_3stages_color.yml",
-        checkpoint_file="./GenerativeModelsData/StackGan2/checkpoints/Facade v1.0/netG_56500.pth",
-        scale_level=2,
-    )
+    def test_ptl_trainer_for_reward_model(self, facade_gen_model, tmp_path):
+        gen_model = facade_gen_model
 
-    def test_ptl_trainer_for_reward_model(self):
-
-        nz = self.gen_model.sample_random_actions(N=1).actions.shape[1]
+        nz = gen_model.sample_random_actions(N=1).actions.shape[1]
         nh = 300
 
         reward_model = mlpRewardNetwork(input_dim=nz, hidden_dim=nh)
 
         prefLoss = PreferenceLoss(rewardModel=reward_model, decimals=None)
 
-        writer = SummaryWriter(log_dir="Tests/trainer/runs_model")
+        writer = SummaryWriter(log_dir=str(tmp_path / "runs_model"))
         logger = TensorboardScalarLogger(name="pref_loss", writer=writer)
         prefLoss = LogLossDecorator(lossObject=prefLoss, logger=logger)
 
-        control_actions = self.gen_model.sample_random_actions(5)
+        control_actions = gen_model.sample_random_actions(5)
         control_rewards = reward_model.get_stable_rewards(control_actions).detach()
 
         ptlreward_model = ptLightningModelWrapper(
@@ -50,7 +44,7 @@ class TestTrainer:
         dataGenerator = RandomPreferenceDataGenerator(feedbackSource=feedbackSource)
 
         action_data, pref_data = dataGenerator.generate_preference_data(
-            data=self.gen_model.sample_random_actions(N=5), limit=20
+            data=gen_model.sample_random_actions(N=5), limit=20
         )
 
         trainer.run_training(
@@ -65,6 +59,8 @@ class TestTrainer:
             action_data=action_data, preference_data=pref_data, epochs=5
         )
 
+        writer.close()
+
         assert len(logger.history["base"]) == (10 / 2) * 11
         assert len(logger.history["_epoch"]) == 11
 
@@ -73,8 +69,10 @@ class TestTrainer:
         assert (abs(control_rewards - post_rewards) > 1e-10).all()
 
     ############
-    def test_ptl_trainer_for_latent(self):
-        nz = self.gen_model.sample_random_actions(N=1).actions.shape[1]
+    def test_ptl_trainer_for_latent(self, facade_gen_model, tmp_path):
+        gen_model = facade_gen_model
+
+        nz = gen_model.sample_random_actions(N=1).actions.shape[1]
         nh = 300
 
         reward_model = mlpRewardNetwork(input_dim=nz, hidden_dim=nh)
@@ -85,17 +83,17 @@ class TestTrainer:
 
         # reward_model_params_control = map(lambda x: x.data.clone(), reward_model.parameters())
 
-        action = self.gen_model.sample_random_actions(N=1)
+        action = gen_model.sample_random_actions(N=1)
 
         action_clone = action.actions.clone()
 
-        control_actions = self.gen_model.sample_random_actions(5)
+        control_actions = gen_model.sample_random_actions(5)
 
         rewardLoss = ActionRewardLoss(rewardModel=reward_model.model)
 
         control_rewards = rewardLoss.calculate_loss(control_actions).detach()
 
-        writer = SummaryWriter(log_dir="Tests/trainer/runs_latent")
+        writer = SummaryWriter(log_dir=str(tmp_path / "runs_latent"))
         logger = TensorboardScalarLogger(name="action_reward_loss", writer=writer)
         rewardLoss = LogLossDecorator(lossObject=rewardLoss, logger=logger)
 
@@ -109,7 +107,7 @@ class TestTrainer:
         dataGenerator = RandomPreferenceDataGenerator(feedbackSource=feedbackSource)
 
         action_data, pref_data = dataGenerator.generate_preference_data(
-            data=self.gen_model.sample_random_actions(5), limit=20
+            data=gen_model.sample_random_actions(5), limit=20
         )
 
         trainer.run_training(
@@ -124,6 +122,8 @@ class TestTrainer:
             action_data=action_data, preference_data=pref_data, epochs=5
         )
 
+        writer.close()
+
         assert len(logger.history["base"]) == (10 / 2) * 11
         assert len(logger.history["_epoch"]) == 11
 
@@ -135,9 +135,3 @@ class TestTrainer:
 
         # reward model did not change (reward values before and after latent opt are the same)
         assert (abs(control_rewards - post_rewards) < 1e-10).all()
-
-        # reward vals checks fully replace reward model parametres check
-        # post_reward_model_params= map(lambda x: x.data.clone(), reward_model.parameters())
-
-        # # reward model params stayed unaffected
-        # assert all( map(lambda control_and_post: ((control_and_post[0] - control_and_post[1]) < 1e-10).all(), zip(reward_model_params_control, post_reward_model_params)))

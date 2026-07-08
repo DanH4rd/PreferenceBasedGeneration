@@ -3,33 +3,29 @@ from PIL import Image
 
 from src.DataStructures.ActionPairsData import ActionPairsData
 from src.FeedbackSource.CosDistFeedback import CosDistFeedback
-from src.GenModel.StackGanGenModel import StackGanGenModel
+
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 
-class TestFilter:
-    def test_transformer_cos_feedback(self):
-
-        target_image = Image.open("Tests\\feedback\\images\\ArtNouveaufacade79.jpeg")
-
-        gen_model = StackGanGenModel(
-            config_file="GenerativeModelsData\\StackGan2\\config\\facade_3stages_color.yml",
-            checkpoint_file="GenerativeModelsData\\StackGan2\\checkpoints\\Facade v1.0\\netG_56500.pth",
-            scale_level=0,
-        )
+class TestFeedback:
+    def test_transformer_cos_feedback(
+        self, facade_gen_model_scale0, feedback_target_image_path
+    ):
+        target_image = Image.open(feedback_target_image_path)
 
         feedback = CosDistFeedback(
             target_image=target_image,
             th_min=0.01,
             th_max=0.75,
-            device="cuda",
-            gen_model=gen_model,
+            device=DEVICE,
+            gen_model=facade_gen_model_scale0,
         )
 
         action_pairs = ActionPairsData(
             action_pairs=torch.stack(
                 [
-                    gen_model.sample_random_actions(N=5).actions,
-                    gen_model.sample_random_actions(N=5).actions,
+                    facade_gen_model_scale0.sample_random_actions(N=5).actions,
+                    facade_gen_model_scale0.sample_random_actions(N=5).actions,
                 ],
                 dim=1,
             )

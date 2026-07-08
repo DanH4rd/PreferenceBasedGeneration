@@ -9,9 +9,6 @@ from torchvision.utils import make_grid
 from src.ActionDistribution.GreedyNormalActionDistribution import (
     GreedyNormalActionDistribution,
 )
-from src.DataStructures.ActionPairsPrefPairsContainer import (
-    ActionPairsPrefPairsContainer,
-)
 from src.DiscModel.StackGanDiscModel import StackGanDiscModel
 from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource
 from src.FeedbackSource.HumanFeedback import HumanFeedback

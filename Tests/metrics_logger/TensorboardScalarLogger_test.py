@@ -10,9 +10,9 @@ from src.MetricsLogger.TensorboardScalarLogger import TensorboardScalarLogger
 
 
 class TestMetricsLogger:
-    def test_tensorboard_scalar(self):
+    def test_tensorboard_scalar(self, tmp_path):
 
-        writer = SummaryWriter(log_dir="Tests/metrics_logger/runs")
+        writer = SummaryWriter(log_dir=str(tmp_path))
         logger = TensorboardScalarLogger(name="test/test_value", writer=writer)
 
         logger.log(1)
@@ -29,13 +29,13 @@ class TestMetricsLogger:
         assert logger.history["base"] == [1, 2, 3, 4, 5]
         assert logger.history["_epoch"] == [2, 4.5]
 
-    def test_tensorboard_image(self):
+    def test_tensorboard_image(self, tmp_path, metrics_logger_images_dir):
 
-        writer = SummaryWriter(log_dir="Tests/metrics_logger/runs")
+        writer = SummaryWriter(log_dir=str(tmp_path))
         logger = TensorboardImageLogger(name="test/test_image", writer=writer)
 
         image_data_list = []
-        for root, dirs, files in os.walk("Tests\\metrics_logger\\images"):
+        for root, dirs, files in os.walk(metrics_logger_images_dir):
             for f in files:
                 image = pil_to_tensor(
                     Image.open(os.path.join(root, f)).convert("RGB")
