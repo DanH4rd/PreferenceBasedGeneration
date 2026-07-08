@@ -48,7 +48,7 @@ Each round of the pipeline:
 
 ### Source Layout
 
-**`src/Abstract/`** — Interfaces that all major components implement. Every component has a corresponding abstract base class here (e.g. `AbsGenModel`, `AbsRewardModel`, `AbsFeedbackSource`, `AbsMemory`, `AbsActionFilter`).
+**`src/Abstract/`** — Interfaces most components implement, each with a `Configuration` dataclass + `create_from_configuration` (e.g. `AbsRewardModel`, `AbsFeedbackSource`, `AbsActionFilter`). Exceptions: `AbsGenModel`, `AbsDiscModel`, `AbsMemory` exist but their concrete classes (`StackGanGenModel`, `StackGanDiscModel`, `RoundsMemory`) do **not** inherit them — treat these three as documentation of intended shape, not an enforced contract.
 
 **`src/DataStructures/`** — Typed tensor wrappers with shape validation:
 - `ActionData [B, D]` — noise vectors fed to the generator
@@ -78,8 +78,6 @@ Each round of the pipeline:
 
 **`src/MetricsLogger/`** — `TensorboardImageLogger`, `TensorboardScalarLogger`, `CompositeLogger`.
 
-**`builder/`** — `StandardBuilder` is a factory that constructs components from `Configuration` dataclasses; `CfgBuilder` loads those configs from YAML (`builder/cfg/basic.yml`).
-
 ### Key Design Conventions
 
 Every component follows the same pattern:
@@ -87,7 +85,7 @@ Every component follows the same pattern:
 2. Has a nested `Configuration` dataclass for its parameters
 3. Exposes a `create_from_configuration(cfg)` static method
 
-This means adding a new component requires: writing the class + abstract base (if new category) + `Configuration` dataclass + wiring it into `StandardBuilder` and `main.py`.
+This means adding a new component requires: writing the class + abstract base (if new category) + `Configuration` dataclass + wiring it into `main.py` (components are wired by hand there — no config-driven builder).
 
 ### External Dependencies
 
