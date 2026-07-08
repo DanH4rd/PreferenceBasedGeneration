@@ -9,8 +9,7 @@ from torchvision.utils import make_grid
 from GenerativeModelsData.StackGan2.StackGanUtils.config import cfg, cfg_from_file
 from GenerativeModelsData.StackGan2.StackGanUtils.model import G_NET
 from src.Abstract.AbsMetricsLogger import AbsMetricsLogger
-from src.DataStructures.ActionData import ActionData
-from src.DataStructures.ImageData import ImageData
+from src.DataStructures import ActionData, ImageData
 
 
 class StackGanGenModel(object, metaclass=abc.ABCMeta):

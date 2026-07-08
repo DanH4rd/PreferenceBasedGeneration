@@ -1,12 +1,12 @@
-from typing import Any, Dict, Optional, Union
 from argparse import Namespace
+from typing import Any, Dict, Optional, Union
 
 import lightning as L
 from lightning.pytorch.callbacks.callback import Callback
 from lightning.pytorch.loggers.logger import Logger
 from typing_extensions import override
 
-from src.Loss.LogLossDecorator import LogLossDecorator
+from src.Loss import LogLossDecorator
 
 
 class TBLogger(Logger):

@@ -5,10 +5,8 @@ from PIL import Image
 from transformers import ViTImageProcessor, ViTModel
 
 from src.Abstract.AbsFeedbackSource import AbsFeedbackSource
-from src.DataStructures.ActionData import ActionData
-from src.DataStructures.ActionPairsData import ActionPairsData
-from src.DataStructures.PreferencePairsData import PreferencePairsData
-from src.GenModel.StackGanGenModel import StackGanGenModel
+from src.DataStructures import ActionData, ActionPairsData, PreferencePairsData
+from src.GenModel import StackGanGenModel
 
 
 class CosDistFeedback(AbsFeedbackSource):
@@ -89,7 +87,6 @@ class CosDistFeedback(AbsFeedbackSource):
         action_data = ActionData(actions=action_data)
 
         image_data = self.gen_model.generate(data=action_data)
-        image_data.images = image_data.images.detach()
 
         inputs = self.processor(
             images=image_data.get_as_pil_images(), return_tensors="pt", do_rescale=False
@@ -132,7 +129,6 @@ class CosDistFeedback(AbsFeedbackSource):
 
     def get_cos_distances(self, actions: ActionData) -> torch.Tensor:
         image_data = self.gen_model.generate(data=actions)
-        image_data.images = image_data.images.detach()
 
         inputs = self.processor(
             images=image_data.get_as_pil_images(), return_tensors="pt", do_rescale=False

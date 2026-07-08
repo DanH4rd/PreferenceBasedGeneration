@@ -3,7 +3,7 @@ from torch.distributions.distribution import Distribution
 
 from src.Abstract.AbsActionDistribution import AbsActionDistribution
 from src.Abstract.AbsData import AbsData
-from src.DataStructures.ActionData import ActionData
+from src.DataStructures import ActionData
 
 
 class SimpleActionDistribution(AbsActionDistribution):

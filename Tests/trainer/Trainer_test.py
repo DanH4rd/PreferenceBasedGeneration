@@ -1,18 +1,17 @@
 from torch.utils.tensorboard.writer import SummaryWriter
 
-from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource
-from src.Loss.ActionRewardLoss import ActionRewardLoss
-from src.Loss.LogLossDecorator import LogLossDecorator
-from src.Loss.PreferenceLoss import PreferenceLoss
-from src.MetricsLogger.TensorboardScalarLogger import TensorboardScalarLogger
-from src.PreferenceDataGenerator.RandomPreferenceDataGenerator import (
+from src.DataStructures import TrainableActionData
+from src.FeedbackSource import RandomFeedbackSource
+from src.Loss import ActionRewardLoss, LogLossDecorator, PreferenceLoss
+from src.MetricsLogger import TensorboardScalarLogger
+from src.PreferenceDataGenerator import (
     RandomPreferenceDataGenerator,
 )
-from src.RewardModel.mlpRewardNetwork import mlpRewardNetwork
-from src.Trainer.ptLightningTrainer import ptLightningTrainer
-from src.Trainer.ptLightningWrappers import (
+from src.RewardModel import mlpRewardNetwork
+from src.Trainer import (
     ptLightningLatentWrapper,
     ptLightningModelWrapper,
+    ptLightningTrainer,
 )
 
 
@@ -83,9 +82,11 @@ class TestTrainer:
 
         # reward_model_params_control = map(lambda x: x.data.clone(), reward_model.parameters())
 
-        action = gen_model.sample_random_actions(N=1)
+        action = TrainableActionData.from_action_data(
+            gen_model.sample_random_actions(N=1)
+        )
 
-        action_clone = action.actions.clone()
+        action_clone = action.detached_actions
 
         control_actions = gen_model.sample_random_actions(5)
 
@@ -98,7 +99,9 @@ class TestTrainer:
         rewardLoss = LogLossDecorator(lossObject=rewardLoss, logger=logger)
 
         model = ptLightningLatentWrapper(
-            reward_model=reward_model.model, action=action, loss_func_obj=rewardLoss
+            reward_model=reward_model.model,
+            trainable_action=action,
+            loss_func_obj=rewardLoss,
         )
 
         trainer = ptLightningTrainer(model=model, batch_size=2)
@@ -128,8 +131,8 @@ class TestTrainer:
         assert len(logger.history["_epoch"]) == 11
 
         # actions in ActionData correspond to optimised actions
-        assert ~((action_clone - model.action) < 1e-10).all()
-        assert ~((action_clone - action.actions) < 1e-10).all()
+        assert ~((action_clone - model.trainable_action.detached_actions) < 1e-10).all()
+        assert ~((action_clone - action.detached_actions) < 1e-10).all()
 
         post_rewards = rewardLoss.calculate_loss(control_actions).detach()
 

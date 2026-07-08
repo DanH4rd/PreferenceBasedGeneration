@@ -1,9 +1,7 @@
 import abc
 
 from src.Abstract.AbsFeedbackSource import AbsFeedbackSource
-from src.DataStructures.ActionData import ActionData
-from src.DataStructures.ActionPairsData import ActionPairsData
-from src.DataStructures.PreferencePairsData import PreferencePairsData
+from src.DataStructures import ActionData, ActionPairsData, PreferencePairsData
 
 
 class AbsPreferenceDataGenerator(object, metaclass=abc.ABCMeta):

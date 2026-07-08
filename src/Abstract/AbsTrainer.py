@@ -1,7 +1,6 @@
 import abc
 
-from src.DataStructures.ActionPairsData import ActionPairsData
-from src.DataStructures.PreferencePairsData import PreferencePairsData
+from src.DataStructures import ActionPairsData, PreferencePairsData
 
 
 class AbsTrainer(object, metaclass=abc.ABCMeta):

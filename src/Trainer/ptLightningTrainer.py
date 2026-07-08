@@ -4,15 +4,15 @@ import lightning as L
 import torch
 
 from src.Abstract.AbsTrainer import AbsTrainer
-from src.DataStructures.ActionPairsData import ActionPairsData
-from src.DataStructures.PreferencePairsData import PreferencePairsData
-from src.Loss.LogLossDecorator import LogLossDecorator
-from src.Trainer.ptLightningCallbacks import (
+from src.DataStructures import ActionPairsData, PreferencePairsData
+from src.Loss import LogLossDecorator
+
+from .ptLightningCallbacks import (
     EarlyStopAtEpochInterval,
     NotifyLossLoggerOnEpochEnd,
     TBLogger,
 )
-from src.Trainer.ptLightningWrappers import ptlLightningWrapper
+from .ptLightningWrappers import ptlLightningWrapper
 
 
 class ptLightningTrainer(AbsTrainer):

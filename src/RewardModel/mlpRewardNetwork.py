@@ -1,10 +1,11 @@
+from dataclasses import dataclass
+
 import torch
 import torch.nn as nn
 from torch import device
-from dataclasses import dataclass
 
 from src.Abstract.AbsTrainableRewardModel import AbsTrainableRewardModel
-from src.DataStructures.ActionData import ActionData
+from src.DataStructures import ActionData
 from src.utils import freeze_model, unfreeze_model
 
 

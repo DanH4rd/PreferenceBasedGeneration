@@ -4,9 +4,8 @@ from PIL import Image
 from torch.utils.tensorboard.writer import SummaryWriter
 from torchvision.transforms.functional import pil_to_tensor
 
-from src.DataStructures.ImageData import ImageData
-from src.MetricsLogger.TensorboardImageLogger import TensorboardImageLogger
-from src.MetricsLogger.TensorboardScalarLogger import TensorboardScalarLogger
+from src.DataStructures import ImageData
+from src.MetricsLogger import TensorboardImageLogger, TensorboardScalarLogger
 
 
 class TestMetricsLogger:

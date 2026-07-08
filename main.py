@@ -6,35 +6,32 @@ from torch.utils.tensorboard.writer import SummaryWriter
 from torchvision.transforms.functional import pil_to_tensor
 from torchvision.utils import make_grid
 
-from src.ActionDistribution.GreedyNormalActionDistribution import (
+from src.ActionDistribution import (
     GreedyNormalActionDistribution,
 )
-from src.DiscModel.StackGanDiscModel import StackGanDiscModel
-from src.FeedbackSource.CosDistFeedback import CosDistFeedback
-from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource
-from src.FeedbackSource.HumanFeedback import HumanFeedback
-from src.Filter.ScoreActionFilter import ScoreActionFilter
-from src.GenModel.StackGanGenModel import StackGanGenModel
-from src.Loss.ActionRewardLoss import ActionRewardLoss
-from src.Loss.LogLossDecorator import LogLossDecorator
-from src.Loss.PreferenceLoss import PreferenceLoss
-from src.Memory.RoundsMemory import RoundsMemory
-from src.MetricsLogger.TensorboardGridImageLogger import TensorboardGridImageLogger
-from src.MetricsLogger.TensorboardImageLogger import TensorboardImageLogger
-from src.MetricsLogger.TensorboardScalarLogger import TensorboardScalarLogger
+from src.DataStructures import ActionData, TrainableActionData
+from src.DiscModel import StackGanDiscModel
+from src.FeedbackSource import CosDistFeedback, HumanFeedback, RandomFeedbackSource
+from src.Filter import ScoreActionFilter
+from src.GenModel import StackGanGenModel
+from src.Loss import ActionRewardLoss, LogLossDecorator, PreferenceLoss
+from src.Memory import RoundsMemory
+from src.MetricsLogger import (
+    TensorboardGridImageLogger,
+    TensorboardImageLogger,
+    TensorboardScalarLogger,
+)
 from src.Pipeline.PbRLPipeline import PbRLPipeline
-from src.PreferenceDataGenerator.BestActionTracker import BestActionTracker
-from src.PreferenceDataGenerator.RandomPreferenceDataGenerator import (
+from src.PreferenceDataGenerator import (
+    BestActionTracker,
+    GraphPreferenceDataGeneration,
     RandomPreferenceDataGenerator,
 )
-from src.PreferenceDataGenerator.GraphPreferenceDataGeneration import (
-    GraphPreferenceDataGeneration,
-)
-from src.RewardModel.mlpRewardNetwork import mlpRewardNetwork
-from src.Trainer.ptLightningTrainer import ptLightningTrainer
-from src.Trainer.ptLightningWrappers import (
+from src.RewardModel import mlpRewardNetwork
+from src.Trainer import (
     ptLightningLatentWrapper,
     ptLightningModelWrapper,
+    ptLightningTrainer,
 )
 
 if __name__ == "__main__":
@@ -110,12 +107,14 @@ if __name__ == "__main__":
         logger=action_loss_logger, lossObject=ActionRewardLoss(rewardModel=reward_model)
     )
 
-    # destination_action is shared mutable state: the same ActionData instance must
-    # be passed to GreedyNormalActionDistribution, ptLightningLatentWrapper, and
-    # PbRLPipeline. The latent trainer writes optimized tensors back to
-    # destination_action.actions each epoch; the distribution reads
-    # destination_action.actions[0] on update().
-    destination_action = gen_model.sample_random_actions(N=1)
+    # destination_action_trainable is shared mutable state: the same
+    # TrainableActionData instance must be passed to GreedyNormalActionDistribution,
+    # ptLightningLatentWrapper, and PbRLPipeline. It registers its actions as an
+    # nn.Parameter, so the latent trainer optimises it in place directly; the
+    # distribution reads its detached_actions[0] on update().
+    destination_action_trainable = TrainableActionData.from_action_data(
+        gen_model.sample_random_actions(N=1)
+    )
 
     memory = RoundsMemory(limit=10, discount_factor=0.99)
 
@@ -125,7 +124,7 @@ if __name__ == "__main__":
 
     action_dist = GreedyNormalActionDistribution(
         dist=gen_model.get_input_noise_distribution(),
-        destination_action=destination_action,
+        destination_action_trainable=destination_action_trainable,
         e=0.9,
         decay_factor=0.8,
         omega2=0.5,
@@ -133,7 +132,12 @@ if __name__ == "__main__":
 
     tensorboard_writer.add_image(
         "Image/Starting Desc action",
-        make_grid(gen_model.generate(destination_action).images, nrow=1),
+        make_grid(
+            gen_model.generate(
+                ActionData(actions=destination_action_trainable.detached_actions)
+            ).images,
+            nrow=1,
+        ),
         0,
     )
 
@@ -147,7 +151,7 @@ if __name__ == "__main__":
 
     latent_trainer = ptLightningTrainer(
         model=ptLightningLatentWrapper(
-            action=destination_action,
+            trainable_action=destination_action_trainable,
             reward_model=reward_model,
             loss_func_obj=action_reward_loss,
         ),
@@ -176,7 +180,7 @@ if __name__ == "__main__":
         ),
         gen_model=gen_model,
         action_dist=action_dist,
-        destination_action=destination_action,
+        destination_action_trainable=destination_action_trainable,
         preference_generator=preference_generator,
         dummy_preference_generator=dummy_preference_generator,
         memory=memory,

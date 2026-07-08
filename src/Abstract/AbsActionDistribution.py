@@ -1,7 +1,7 @@
 import abc
 
 from src.Abstract.AbsData import AbsData
-from src.DataStructures.ActionData import ActionData
+from src.DataStructures import ActionData
 
 
 class AbsActionDistribution(object, metaclass=abc.ABCMeta):

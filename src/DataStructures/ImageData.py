@@ -1,3 +1,5 @@
+from typing import override
+
 import torch
 from PIL import Image
 
@@ -22,9 +24,7 @@ class ImageData(AbsData):
             Exception: if number of channels isn't equal to 1 or 3
         """
 
-        self.images = images
-
-        img_tensor_shape = self.images.shape
+        img_tensor_shape = images.shape
 
         if len(img_tensor_shape) != 4:
             raise Exception(
@@ -36,13 +36,34 @@ class ImageData(AbsData):
                 f"Image has incorrect number of channels({img_tensor_shape[1]}). Image should be either RBG or monochrome"
             )
 
+        self._images = images.detach().clone()
+
+    @property
+    def images(self) -> torch.Tensor:
+        """Returns a clone of the stored images tensor
+
+        Returns:
+            torch.Tensor: [N, C, H, W] tensor
+        """
+        return self._images.clone()
+
+    @override
+    def clone(self) -> "ImageData":
+        """Returns an independent deep copy of this object
+
+        Returns:
+            ImageData: new object holding a cloned images tensor
+        """
+
+        return ImageData(images=self.images)
+
     def get_as_pil_images(self):
         """Returns stored image data as a list of PIL.Image objects"""
 
         pil_images = []
 
         for image_array in (
-            self.images.detach().permute(0, 2, 3, 1).cpu().numpy() * 255
+            self._images.permute(0, 2, 3, 1).cpu().numpy() * 255
         ).astype("uint8"):
             pil_images.append(Image.fromarray(image_array))
 

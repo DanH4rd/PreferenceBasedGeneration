@@ -1,4 +1,4 @@
-from src.DataStructures.ActionData import ActionData
+from src.DataStructures import ActionData
 
 
 class TestGenerativeModel:

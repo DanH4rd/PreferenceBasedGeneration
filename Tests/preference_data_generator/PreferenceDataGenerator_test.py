@@ -1,11 +1,9 @@
 import pytest
 
-from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource
-from src.PreferenceDataGenerator.BestActionTracker import BestActionTracker
-from src.PreferenceDataGenerator.GraphPreferenceDataGeneration import (
+from src.FeedbackSource import RandomFeedbackSource
+from src.PreferenceDataGenerator import (
+    BestActionTracker,
     GraphPreferenceDataGeneration,
-)
-from src.PreferenceDataGenerator.RandomPreferenceDataGenerator import (
     RandomPreferenceDataGenerator,
 )
 

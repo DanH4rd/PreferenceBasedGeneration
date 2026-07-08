@@ -1,5 +1,5 @@
 from src.Abstract.AbsActionFilter import AbsActionFilter
-from src.DataStructures.ActionData import ActionData
+from src.DataStructures import ActionData
 
 
 class CompositeActionFilter(AbsActionFilter):
@@ -8,14 +8,8 @@ class CompositeActionFilter(AbsActionFilter):
     Realises the composite OOP pattern
     """
 
-    def __init__(self, filters: list[AbsActionFilter] = []):
-        """
-
-        Args:
-            filters (list[AbsActionFilter]): list of filters to sequentially apply
-        """
-
-        self.filters = filters
+    def __init__(self):
+        self.filters: list[AbsActionFilter] = []
         self.limit = None
 
     def add_filter(self, filter: AbsActionFilter | list[AbsActionFilter]) -> None:

@@ -1,7 +1,7 @@
 import abc
+from dataclasses import dataclass
 
 import torch
-from dataclasses import dataclass
 
 from GenerativeModelsData.StackGan2.StackGanUtils.config import cfg_from_file
 from GenerativeModelsData.StackGan2.StackGanUtils.model import (
@@ -10,7 +10,7 @@ from GenerativeModelsData.StackGan2.StackGanUtils.model import (
     D_NET256,
     D_NET1024,
 )
-from src.DataStructures.ImageData import ImageData
+from src.DataStructures import ImageData
 
 
 class StackGanDiscModel(object, metaclass=abc.ABCMeta):

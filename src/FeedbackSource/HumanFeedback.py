@@ -1,13 +1,12 @@
-import torch
+import tkinter as tk
 from dataclasses import dataclass
 
-from src.Abstract.AbsFeedbackSource import AbsFeedbackSource
-from src.DataStructures.ActionPairsData import ActionPairsData
-from src.DataStructures.PreferencePairsData import PreferencePairsData
-from src.GenModel.StackGanGenModel import StackGanGenModel
-
-import tkinter as tk
+import torch
 from PIL import ImageTk
+
+from src.Abstract.AbsFeedbackSource import AbsFeedbackSource
+from src.DataStructures import ActionPairsData, PreferencePairsData
+from src.GenModel import StackGanGenModel
 
 
 class HumanFeedback(AbsFeedbackSource):

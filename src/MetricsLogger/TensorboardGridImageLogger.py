@@ -2,7 +2,7 @@ from torch.utils.tensorboard.writer import SummaryWriter
 from torchvision.utils import make_grid
 
 from src.Abstract.AbsMetricsLogger import AbsMetricsLogger
-from src.DataStructures.ImageData import ImageData
+from src.DataStructures import ImageData
 
 
 class TensorboardGridImageLogger(AbsMetricsLogger):

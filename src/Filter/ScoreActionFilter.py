@@ -4,7 +4,7 @@ from collections.abc import Callable
 import torch
 
 from src.Abstract.AbsActionFilter import AbsActionFilter
-from src.DataStructures.ActionData import ActionData
+from src.DataStructures import ActionData
 
 
 class ScoreActionFilter(AbsActionFilter):

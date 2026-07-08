@@ -1,9 +1,9 @@
-from src.DataStructures.ActionPairsPrefPairsContainer import (
+from src.DataStructures import (
     ActionPairsPrefPairsContainer,
 )
-from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource
-from src.Memory.RoundsMemory import RoundsMemory
-from src.PreferenceDataGenerator.RandomPreferenceDataGenerator import (
+from src.FeedbackSource import RandomFeedbackSource
+from src.Memory import RoundsMemory
+from src.PreferenceDataGenerator import (
     RandomPreferenceDataGenerator,
 )
 

@@ -1,10 +1,9 @@
-import torch
 from dataclasses import dataclass
 
+import torch
+
 from src.Abstract.AbsPreferenceDataGenerator import AbsPreferenceDataGenerator
-from src.DataStructures.ActionData import ActionData
-from src.DataStructures.ActionPairsData import ActionPairsData
-from src.DataStructures.PreferencePairsData import PreferencePairsData
+from src.DataStructures import ActionData, ActionPairsData, PreferencePairsData
 
 
 class BestActionTracker(AbsPreferenceDataGenerator):

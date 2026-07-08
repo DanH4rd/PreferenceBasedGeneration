@@ -1,6 +1,6 @@
 import abc
 
-from src.DataStructures.ActionData import ActionData
+from src.DataStructures import ActionData
 
 
 class AbsActionFilter(object, metaclass=abc.ABCMeta):

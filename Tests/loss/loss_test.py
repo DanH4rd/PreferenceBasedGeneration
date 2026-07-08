@@ -1,15 +1,15 @@
 import torch
 
-from src.DataStructures.ActionPairsPrefPairsContainer import (
+from src.DataStructures import (
     ActionPairsPrefPairsContainer,
+    PreferencePairsData,
 )
-from src.DataStructures.PreferencePairsData import PreferencePairsData
-from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource
-from src.Loss.PreferenceLoss import PreferenceLoss
-from src.PreferenceDataGenerator.RandomPreferenceDataGenerator import (
+from src.FeedbackSource import RandomFeedbackSource
+from src.Loss import PreferenceLoss
+from src.PreferenceDataGenerator import (
     RandomPreferenceDataGenerator,
 )
-from src.RewardModel.mlpRewardNetwork import mlpRewardNetwork
+from src.RewardModel import mlpRewardNetwork
 
 
 class TestLoss:

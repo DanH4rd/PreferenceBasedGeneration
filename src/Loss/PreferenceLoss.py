@@ -2,8 +2,8 @@ import torch
 
 from src.Abstract.AbsLoss import AbsLoss
 from src.Abstract.AbsRewardModel import AbsRewardModel
-from src.DataStructures.ActionData import ActionData
-from src.DataStructures.ActionPairsPrefPairsContainer import (
+from src.DataStructures import (
+    ActionData,
     ActionPairsPrefPairsContainer,
 )
 

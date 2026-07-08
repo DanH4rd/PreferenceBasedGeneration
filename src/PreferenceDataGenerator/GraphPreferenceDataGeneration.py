@@ -1,6 +1,6 @@
+from dataclasses import dataclass
 from itertools import combinations, product
 from typing import Iterable, override
-from dataclasses import dataclass
 
 import networkx as nx
 import numpy as np
@@ -8,9 +8,7 @@ import torch
 
 from src.Abstract.AbsFeedbackSource import AbsFeedbackSource
 from src.Abstract.AbsPreferenceDataGenerator import AbsPreferenceDataGenerator
-from src.DataStructures.ActionData import ActionData
-from src.DataStructures.ActionPairsData import ActionPairsData
-from src.DataStructures.PreferencePairsData import PreferencePairsData
+from src.DataStructures import ActionData, ActionPairsData, PreferencePairsData
 
 
 class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):

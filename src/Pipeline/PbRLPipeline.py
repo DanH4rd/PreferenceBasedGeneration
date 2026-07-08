@@ -5,12 +5,13 @@ from src.Abstract.AbsActionFilter import AbsActionFilter
 from src.Abstract.AbsMetricsLogger import AbsMetricsLogger
 from src.Abstract.AbsPreferenceDataGenerator import AbsPreferenceDataGenerator
 from src.Abstract.AbsTrainer import AbsTrainer
-from src.DataStructures.ActionData import ActionData
-from src.DataStructures.ActionPairsPrefPairsContainer import (
+from src.DataStructures import (
+    ActionData,
     ActionPairsPrefPairsContainer,
+    TrainableActionData,
 )
-from src.GenModel.StackGanGenModel import StackGanGenModel
-from src.Memory.RoundsMemory import RoundsMemory
+from src.GenModel import StackGanGenModel
+from src.Memory import RoundsMemory
 
 
 class PbRLPipeline:
@@ -20,12 +21,13 @@ class PbRLPipeline:
     dependencies such as destination_action — is the caller's responsibility.
     This class only executes the pipeline given fully wired components.
 
-    Note on destination_action aliasing: the same ActionData instance must be
-    passed here and to both GreedyNormalActionDistribution and
-    ptLightningLatentWrapper. The latent trainer writes optimized tensors back
-    to destination_action.actions each epoch; the distribution reads
-    destination_action.actions[0] on update(). All three objects must share the
-    same reference for mutations to propagate correctly across rounds.
+    Note on destination_action_trainable aliasing: the same TrainableActionData
+    instance must be passed here, to GreedyNormalActionDistribution, and to
+    ptLightningLatentWrapper. It registers its actions as an nn.Parameter, so
+    the latent trainer optimises it in place directly (no copy-back step);
+    the distribution reads its detached_actions[0] on update(). All three
+    objects must share the same reference for mutations to propagate
+    correctly across rounds.
     """
 
     @dataclass
@@ -44,7 +46,7 @@ class PbRLPipeline:
         config: "PbRLPipeline.Configuration",
         gen_model: StackGanGenModel,
         action_dist: AbsActionDistribution,
-        destination_action: ActionData,
+        destination_action_trainable: TrainableActionData,
         preference_generator: AbsPreferenceDataGenerator,
         dummy_preference_generator: AbsPreferenceDataGenerator,
         memory: RoundsMemory,
@@ -60,7 +62,7 @@ class PbRLPipeline:
         self.config = config
         self.gen_model = gen_model
         self.action_dist = action_dist
-        self.destination_action = destination_action
+        self.destination_action_trainable = destination_action_trainable
         self.preference_generator = preference_generator
         self.dummy_preference_generator = dummy_preference_generator
         self.memory = memory
@@ -81,7 +83,7 @@ class PbRLPipeline:
     def _run_round(self) -> None:
         sampled = self.action_dist.sample(self.config.samples_per_round)
         sampled = self.sampling_filter.filter(action_data=sampled)
-        sampled.append(self.destination_action.actions.detach())
+        sampled.append(self.destination_action_trainable.detached_actions)
 
         action_data, pref_data = self.preference_generator.generate_preference_data(
             data=sampled, limit=self.config.preference_limit_per_round
@@ -113,7 +115,11 @@ class PbRLPipeline:
             preference_data=dummy_pref_data,
             epochs=self.config.training_epochs_latent,
         )
-        self.round_image_logger.log(self.gen_model.generate(self.destination_action))
+        self.round_image_logger.log(
+            self.gen_model.generate(
+                ActionData(actions=self.destination_action_trainable.detached_actions)
+            )
+        )
 
     def _run_control_logging(self) -> None:
         for mode_filter, logger in [

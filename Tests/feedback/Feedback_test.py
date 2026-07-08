@@ -2,7 +2,7 @@ import torch
 from PIL import Image
 
 from src.DataStructures.ActionPairsData import ActionPairsData
-from src.FeedbackSource.CosDistFeedback import CosDistFeedback
+from src.FeedbackSource import CosDistFeedback
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -21,14 +21,9 @@ class TestFeedback:
             gen_model=facade_gen_model_scale0,
         )
 
-        action_pairs = ActionPairsData(
-            action_pairs=torch.stack(
-                [
-                    facade_gen_model_scale0.sample_random_actions(N=5).actions,
-                    facade_gen_model_scale0.sample_random_actions(N=5).actions,
-                ],
-                dim=1,
-            )
+        action_pairs = ActionPairsData.from_split_actions(
+            facade_gen_model_scale0.sample_random_actions(N=5),
+            facade_gen_model_scale0.sample_random_actions(N=5),
         )
 
         preference_data = feedback.generate_feedback(action_pairs_data=action_pairs)

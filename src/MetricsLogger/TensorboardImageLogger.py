@@ -1,7 +1,7 @@
 from torch.utils.tensorboard.writer import SummaryWriter
 
 from src.Abstract.AbsMetricsLogger import AbsMetricsLogger
-from src.DataStructures.ImageData import ImageData
+from src.DataStructures import ImageData
 
 
 class TensorboardImageLogger(AbsMetricsLogger):

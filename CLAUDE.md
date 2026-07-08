@@ -58,6 +58,7 @@ Each round of the pipeline:
 - `ActionPairsData [B, 2, D]` — pairs of actions for comparison
 - `PreferencePairsData` — labels: `[1,0]` left, `[0,1]` right, `[0.5,0.5]` equal, `[0,0]` skip
 - `ImageData [N, C, H, W]` — generated images
+- `TrainableActionData` — wraps a live `nn.Parameter` for `ptLightningLatentWrapper`'s latent optimization. `.actions` aliases `.grad_actions` (grad-tracked); `.detached_actions` is the safe non-training read. `clone()`/`append()` intentionally raise — it's a single shared autograd-graph object, not meant to be copied.
 
 **`src/GenModel/`** — Wraps StackGAN v2. `StackGanGenModel` provides `generate()`, `sample_random_actions()`, and `get_input_noise_distribution()`.
 
@@ -82,6 +83,12 @@ Each round of the pipeline:
 **`src/MetricsLogger/`** — `TensorboardImageLogger`, `TensorboardScalarLogger`, `CompositeLogger`.
 
 ### Key Design Conventions
+
+A class inheriting both an `src/Abstract` base and `nn.Module` (e.g. `TrainableActionData(ActionData, nn.Module)`) must call `nn.Module.__init__(self)` explicitly in `__init__` — `AbsData`/`ActionData` don't chain `super().__init__()`, so skipping it raises `AttributeError: cannot assign parameters before Module.__init__() call` the moment you assign an `nn.Parameter`.
+
+`ActionRewardLoss`/`mlpRewardNetwork` read `data.actions` generically across any `ActionData` subtype. A subclass needing different `.actions` semantics (e.g. grad passthrough) must alias the property to what it wants those generic readers to see — blocking or renaming it away breaks the loss-calculation chain with no type error, only a failing training run.
+
+Inside `src/DataStructures/`, import sibling classes directly from their submodule (`from .X import X`), never through the package itself (`from src.DataStructures import X`) — `__init__.py`'s import order can then silently bind the wrong object (a bare submodule instead of the class) with no static-analysis or immediate-runtime signal.
 
 `torch.tensor` (function) vs `torch.Tensor` (class) — only use `torch.Tensor` in type annotations, `torch.tensor(...)` is for constructing tensors. Easy typo, basedpyright catches it as "Expected class but received function".
 

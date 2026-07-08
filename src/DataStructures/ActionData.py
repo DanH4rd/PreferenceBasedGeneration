@@ -1,3 +1,5 @@
+from typing import override
+
 import torch
 
 from src.Abstract.AbsData import AbsData
@@ -17,9 +19,27 @@ class ActionData(AbsData):
             Exception: if given tensor's dimention length isn't 2
         """
 
-        self.actions = actions
+        self._check_tensor_format(actions)
+        self._actions = actions.detach()
 
-        self._check_tensor_format(self.actions)
+    @property
+    def actions(self) -> torch.Tensor:
+        """Returns a clone of the stored actions tensor
+
+        Returns:
+            torch.Tensor: [B, D] tensor containing actions
+        """
+        return self._actions.clone()
+
+    @override
+    def clone(self) -> "ActionData":
+        """Returns an independent deep copy of this object
+
+        Returns:
+            ActionData: new object holding a cloned actions tensor
+        """
+
+        return ActionData(actions=self.actions)
 
     def append(self, actions: torch.Tensor):
         """Appends actions to the existing actions tensor.
@@ -29,12 +49,14 @@ class ActionData(AbsData):
         """
 
         self._check_tensor_format(actions)
-        self.actions = torch.concat([self.actions, actions], dim=0)
+        self._actions = torch.concat([self._actions, actions.detach()], dim=0)
 
     def _check_tensor_format(self, action_tensor: torch.Tensor):
 
         if len(action_tensor.shape) != 2:
-            raise Exception(f"Invalid action tensor shape: {action_tensor.shape}")
+            raise Exception(
+                f"Invalid action tensor shape: {action_tensor.shape}. Expected [B, D] shape."
+            )
 
     def __str__(self) -> str:
         """Returns string describing the object

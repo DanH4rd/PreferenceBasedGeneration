@@ -4,7 +4,7 @@ import torch
 
 from src.Abstract.AbsActionFilter import AbsActionFilter
 from src.Abstract.AbsRewardModel import AbsRewardModel
-from src.DataStructures.ActionData import ActionData
+from src.DataStructures import ActionData
 
 
 class UncertaintyActionFilter(AbsActionFilter):

@@ -1,9 +1,8 @@
 import pytest
 import torch
 
-from src.Filter.RandomActionFilter import RandomActionFilter
-from src.Filter.ScoreActionFilter import ScoreActionFilter
-from src.RewardModel.mlpRewardNetwork import mlpRewardNetwork
+from src.Filter import RandomActionFilter, ScoreActionFilter
+from src.RewardModel import mlpRewardNetwork
 
 
 def _score_action_filter(gen_model, mode):

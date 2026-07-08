@@ -1,4 +1,4 @@
-from src.RewardModel.mlpRewardNetwork import mlpRewardNetwork
+from src.RewardModel import mlpRewardNetwork
 
 
 class TestRewardModel:

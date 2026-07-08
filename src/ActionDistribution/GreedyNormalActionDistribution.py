@@ -4,31 +4,33 @@ from torch.distributions.normal import Normal
 
 from src.Abstract.AbsActionDistribution import AbsActionDistribution
 from src.Abstract.AbsData import AbsData
-from src.DataStructures.ActionData import ActionData
+from src.DataStructures import ActionData, TrainableActionData
 
 
 class GreedyNormalActionDistribution(AbsActionDistribution):
-    """Basically a torch.distribution.Distribution wrapper
-    Doesnt do anything extra
+    """Basically a torch.distribution.Distribution wrapper with extra functionality'
+
+    Expects destination_action_trainable to be mutable and updated outside the class
     """
 
     def __init__(
         self,
         dist: Distribution,
-        destination_action: ActionData,
+        destination_action_trainable: TrainableActionData,
         e: float,
         decay_factor: float,
         omega2: float,
     ):
         self.dist = dist
-        self.destination_action = destination_action
+        self.destination_action_trainable = destination_action_trainable
         self.e = e
         self.decay_factor = decay_factor
         self.omega2 = omega2
 
         self.nearby_dist = Normal(
-            self.destination_action.actions[0],
-            torch.ones(self.destination_action.actions[0].shape) * self.omega2,
+            self.destination_action_trainable.detached_actions[0],
+            torch.ones(self.destination_action_trainable.detached_actions[0].shape)
+            * self.omega2,
             validate_args=None,
         )
 
@@ -70,11 +72,17 @@ class GreedyNormalActionDistribution(AbsActionDistribution):
             data (AbsData | None): abstract data object
         """
 
+        if len(self.destination_action_trainable.detached_actions) > 1:
+            raise NotImplementedError(
+                "GreedyNormalActionDistribution expects destination_action to be a single action"
+            )
+
         self.e *= self.decay_factor
 
         self.nearby_dist = Normal(
-            self.destination_action.actions[0],
-            torch.ones(self.destination_action.actions[0].shape) * self.omega2,
+            self.destination_action_trainable.detached_actions[0],
+            torch.ones(self.destination_action_trainable.detached_actions[0].shape)
+            * self.omega2,
             validate_args=None,
         )
         pass

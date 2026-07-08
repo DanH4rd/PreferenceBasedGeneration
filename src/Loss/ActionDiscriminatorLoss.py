@@ -1,9 +1,9 @@
 import torch
 
 from src.Abstract.AbsLoss import AbsLoss
-from src.DataStructures.ActionData import ActionData
-from src.DiscModel.StackGanDiscModel import StackGanDiscModel
-from src.GenModel.StackGanGenModel import StackGanGenModel
+from src.DataStructures import ActionData
+from src.DiscModel import StackGanDiscModel
+from src.GenModel import StackGanGenModel
 
 
 class ActionDiscriminatorLoss(AbsLoss[ActionData]):

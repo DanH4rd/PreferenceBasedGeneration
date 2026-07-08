@@ -1,10 +1,10 @@
-from random import randint
 from dataclasses import dataclass
+from random import randint
+
 import torch
 
 from src.Abstract.AbsFeedbackSource import AbsFeedbackSource
-from src.DataStructures.ActionPairsData import ActionPairsData
-from src.DataStructures.PreferencePairsData import PreferencePairsData
+from src.DataStructures import ActionPairsData, PreferencePairsData
 
 
 class RandomFeedbackSource(AbsFeedbackSource):

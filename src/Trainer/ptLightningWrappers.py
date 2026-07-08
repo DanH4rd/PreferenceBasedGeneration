@@ -6,12 +6,13 @@ import torch
 from src.Abstract.AbsLoss import AbsLoss
 from src.Abstract.AbsTrainableModel import AbsTrainableModel
 from src.Abstract.AbsTrainableRewardModel import AbsTrainableRewardModel
-from src.DataStructures.ActionData import ActionData
-from src.DataStructures.ActionPairsData import ActionPairsData
-from src.DataStructures.ActionPairsPrefPairsContainer import (
+from src.DataStructures import (
+    ActionData,
+    ActionPairsData,
     ActionPairsPrefPairsContainer,
+    PreferencePairsData,
+    TrainableActionData,
 )
-from src.DataStructures.PreferencePairsData import PreferencePairsData
 
 
 class ptlLightningWrapper(L.LightningModule):
@@ -91,25 +92,26 @@ class ptLightningModelWrapper(ptlLightningWrapper):
 
 
 class ptLightningLatentWrapper(ptlLightningWrapper):
-    """Pytorch lightning wrapper that treats an Action Data object with a
-    list of actions as a model and optimises it by maximising their
-    predicted rewards got from a passed reward model.
+    """Pytorch lightning wrapper that treats a TrainableActionData object's
+    actions as a model parameter and optimises it by maximising the
+    predicted reward got from a passed reward model.
 
-    The updated action values after each train epoch are placed back
-    into the originally passed ActionData object.
+    trainable_action registers its actions as an nn.Parameter, so the
+    trainer optimises it in place directly (no copy-back step); the caller's
+    reference to the same instance sees the updated values immediately.
 
     Does not modify the passed reward model during optimising actions.
     """
 
     def __init__(
         self,
-        action: ActionData,
+        trainable_action: TrainableActionData,
         reward_model: AbsTrainableModel,
         loss_func_obj: AbsLoss,
     ):
         """
         Args:
-            action (ActionData): list of actions to optimise for reward maximisation
+            trainable_action (TrainableActionData): action to optimise for reward maximisation
             reward_model (AbsTrainableModel): model whose weights are frozen during action optimisation
             loss_func_obj (AbsLoss): loss function object to use for loss calculation
                 used during training
@@ -117,9 +119,7 @@ class ptLightningLatentWrapper(ptlLightningWrapper):
         super().__init__()
 
         self.rewardModel = reward_model
-        self.action_data_object = action
-        self.action_data_object_device = action.actions.device
-        self.action = torch.nn.parameter.Parameter(action.actions)
+        self.trainable_action = trainable_action
 
         self.loss_func_obj = loss_func_obj
 
@@ -144,9 +144,7 @@ class ptLightningLatentWrapper(ptlLightningWrapper):
 
         t_pairs, t_prefs = batch
 
-        data = ActionData(actions=self.action.to(self.device))
-
-        loss = self.loss_func_obj.calculate_loss(data)
+        loss = self.loss_func_obj.calculate_loss(self.trainable_action)
 
         return loss
 
@@ -162,14 +160,11 @@ class ptLightningLatentWrapper(ptlLightningWrapper):
     @override
     def on_train_epoch_end(self):
         """Unfreezes back the reward model's weights after the
-        training step as well as places the new values of actions
-        back to the original ActionData object.
+        training step. No copy-back needed: trainable_action's Parameter
+        is optimised in place.
         """
         self.rewardModel.unfreeze()
 
-        self.action_data_object.actions = self.action.data.detach().to(
-            self.action_data_object_device
-        )
         pass
 
     @override

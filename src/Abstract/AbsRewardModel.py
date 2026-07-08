@@ -2,7 +2,7 @@ import abc
 
 import torch
 
-from src.DataStructures.ActionData import ActionData
+from src.DataStructures import ActionData
 
 
 class AbsRewardModel(object, metaclass=abc.ABCMeta):

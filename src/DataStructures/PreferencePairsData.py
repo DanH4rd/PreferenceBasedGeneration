@@ -1,3 +1,5 @@
+from typing import override
+
 import torch
 
 from src.Abstract.AbsData import AbsData
@@ -24,15 +26,13 @@ class PreferencePairsData(AbsData):
             change valid preference data by checking if the pairs sum to 1
         """
 
-        self.preference_pairs = preference_pairs
+        preference_pairs = preference_pairs.detach()
 
-        if len(self.preference_pairs.shape) != 2 or self.preference_pairs.shape[1] != 2:
-            raise Exception(
-                f"Invalid action tensor shape: {self.preference_pairs.shape}"
-            )
+        if len(preference_pairs.shape) != 2 or preference_pairs.shape[1] != 2:
+            raise Exception(f"Invalid action tensor shape: {preference_pairs.shape}")
 
         # Probabilities of a pair must sum to 1, so we check if the sum of each pair is close to 1
-        present_pairs = torch.unique(self.preference_pairs, dim=0)
+        present_pairs = torch.unique(preference_pairs, dim=0)
         pair_vice_sum = present_pairs.sum(dim=1)
 
         too_big_total_probability = pair_vice_sum > 1.0 + torch.finfo(torch.float32).eps
@@ -44,6 +44,27 @@ class PreferencePairsData(AbsData):
             raise Exception(
                 f"Invalid preference pair values: {str(failed_pairs.cpu())}"
             )
+
+        self._preference_pairs = preference_pairs
+
+    @property
+    def preference_pairs(self) -> torch.Tensor:
+        """Returns a clone of the stored preference pairs tensor
+
+        Returns:
+            torch.Tensor: [B,2] tensor, B - batch size
+        """
+        return self._preference_pairs.clone()
+
+    @override
+    def clone(self) -> "PreferencePairsData":
+        """Returns an independent deep copy of this object
+
+        Returns:
+            PreferencePairsData: new object holding a cloned preference pairs tensor
+        """
+
+        return PreferencePairsData(preference_pairs=self.preference_pairs)
 
     def __str__(self) -> str:
         """Returns a string representing an object

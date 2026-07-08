@@ -1,14 +1,14 @@
 import abc
-from typing import override
 from dataclasses import dataclass
+from typing import override
 
 import torch
 
-from src.DataStructures.ActionPairsData import ActionPairsData
-from src.DataStructures.ActionPairsPrefPairsContainer import (
+from src.DataStructures import (
+    ActionPairsData,
     ActionPairsPrefPairsContainer,
+    PreferencePairsData,
 )
-from src.DataStructures.PreferencePairsData import PreferencePairsData
 
 
 class RoundsMemory(object, metaclass=abc.ABCMeta):

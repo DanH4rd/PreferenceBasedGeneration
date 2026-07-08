@@ -1,8 +1,8 @@
-from src.ActionDistribution.GreedyNormalActionDistribution import (
+from src.ActionDistribution import (
     GreedyNormalActionDistribution,
+    SimpleActionDistribution,
 )
-from src.ActionDistribution.SimpleActionDistribution import SimpleActionDistribution
-from src.DataStructures.ActionData import ActionData
+from src.DataStructures import ActionData, TrainableActionData
 
 
 class TestActionDistribution:
@@ -21,7 +21,9 @@ class TestActionDistribution:
 
         dist = GreedyNormalActionDistribution(
             dist=facade_gen_model.get_input_noise_distribution(),
-            destination_action=facade_gen_model.sample_random_actions(N=1),
+            destination_action_trainable=TrainableActionData.from_action_data(
+                facade_gen_model.sample_random_actions(N=1)
+            ),
             e=e_start,
             decay_factor=decay_val,
             omega2=0.5,

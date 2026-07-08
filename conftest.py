@@ -2,8 +2,8 @@ import os
 
 import pytest
 
-from src.DiscModel.StackGanDiscModel import StackGanDiscModel
-from src.GenModel.StackGanGenModel import StackGanGenModel
+from src.DiscModel import StackGanDiscModel
+from src.GenModel import StackGanGenModel
 
 STACKGAN_CONFIG = "GenerativeModelsData/StackGan2/config/facade_3stages_color.yml"
 STACKGAN_CHECKPOINT_G = (
