@@ -1,14 +1,14 @@
 from dataclasses import dataclass
 
-import PIL
 import torch
+from PIL import Image
 from transformers import ViTImageProcessor, ViTModel
 
 from src.Abstract.AbsFeedbackSource import AbsFeedbackSource
-from src.Abstract.AbsGenModel import AbsGenModel
 from src.DataStructures.ActionData import ActionData
 from src.DataStructures.ActionPairsData import ActionPairsData
 from src.DataStructures.PreferencePairsData import PreferencePairsData
+from src.GenModel.StackGanGenModel import StackGanGenModel
 
 
 class CosDistFeedback(AbsFeedbackSource):
@@ -21,11 +21,11 @@ class CosDistFeedback(AbsFeedbackSource):
     class Configuration:
         """dataclass for grouping constructor parametres"""
 
-        target_image: PIL.Image
+        target_image: Image.Image
         th_min: float
         th_max: float
         device: str | None
-        gen_model: AbsGenModel
+        gen_model: StackGanGenModel
 
     @staticmethod
     def create_from_configuration(conf: Configuration):
@@ -39,11 +39,11 @@ class CosDistFeedback(AbsFeedbackSource):
 
     def __init__(
         self,
-        target_image: PIL.Image,
+        target_image: Image.Image,
         th_min: float,
         th_max: float,
         device: str | None,
-        gen_model: AbsGenModel,
+        gen_model: StackGanGenModel,
     ):
         self.th_min = th_min
         self.th_max = th_max
@@ -51,11 +51,12 @@ class CosDistFeedback(AbsFeedbackSource):
         self.processor = ViTImageProcessor.from_pretrained(
             "google/vit-base-patch16-224-in21k"
         )
-        self.model = (
-            ViTModel.from_pretrained("google/vit-base-patch16-224-in21k")
-            .to(device)
-            .eval()
-        )
+        self.model = ViTModel.from_pretrained("google/vit-base-patch16-224-in21k")
+        if device is not None:
+            # transformers ships no py.typed stubs; basedpyright misresolves
+            # PreTrainedModel.to()'s overloads against __call__.
+            self.model = self.model.to(device)  # pyright: ignore[reportArgumentType]
+        self.model = self.model.eval()
         self.device = device
 
         self.target_image = target_image
@@ -129,7 +130,7 @@ class CosDistFeedback(AbsFeedbackSource):
 
         return PreferencePairsData(preference_pairs=preferences)
 
-    def get_cos_distances(self, actions: ActionData) -> torch.tensor:
+    def get_cos_distances(self, actions: ActionData) -> torch.Tensor:
         image_data = self.gen_model.generate(data=actions)
         image_data.images = image_data.images.detach()
 

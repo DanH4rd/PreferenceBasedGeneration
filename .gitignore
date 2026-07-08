@@ -13,3 +13,6 @@ __pycache__/
 *.drawio.dtmp
 
 .claude.local.md
+
+/.zed/
+/.vscode/

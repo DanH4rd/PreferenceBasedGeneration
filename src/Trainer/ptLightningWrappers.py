@@ -3,10 +3,9 @@ from typing import override
 import lightning as L
 import torch
 
-from src.Abstract.AbsData import AbsData
 from src.Abstract.AbsLoss import AbsLoss
-from src.Abstract.AbsRewardModel import AbsRewardModel
 from src.Abstract.AbsTrainableModel import AbsTrainableModel
+from src.Abstract.AbsTrainableRewardModel import AbsTrainableRewardModel
 from src.DataStructures.ActionData import ActionData
 from src.DataStructures.ActionPairsData import ActionPairsData
 from src.DataStructures.ActionPairsPrefPairsContainer import (
@@ -15,19 +14,19 @@ from src.DataStructures.ActionPairsPrefPairsContainer import (
 from src.DataStructures.PreferencePairsData import PreferencePairsData
 
 
-class ptlLightningWrapper:
+class ptlLightningWrapper(L.LightningModule):
     """Abstract class of a wrapper for base torch models"""
 
-    pass
+    loss_func_obj: AbsLoss
 
 
-class ptLightningModelWrapper(L.LightningModule, ptlLightningWrapper):
+class ptLightningModelWrapper(ptlLightningWrapper):
     """Wrapper class to transform a basic torch module to torch-lightning module"""
 
-    def __init__(self, model: AbsRewardModel, loss_func_obj: AbsLoss):
+    def __init__(self, model: AbsTrainableRewardModel, loss_func_obj: AbsLoss):
         """
         Args:
-            model (AbsRewardModel): basic torch module representing the model
+            model (AbsTrainableRewardModel): basic torch module representing the model
             loss_func_obj (AbsLoss): loss function object to use for loss calculation
                 used during training
         """
@@ -38,20 +37,20 @@ class ptLightningModelWrapper(L.LightningModule, ptlLightningWrapper):
         self.loss_func_obj = loss_func_obj
 
     @override
-    def forward(self, x: AbsData) -> torch.tensor:
+    def forward(self, x: ActionData) -> torch.Tensor:
         """Run an input through a model and return
         model's output
 
         Args:
-            x (AbsData): input data for object
+            x (ActionData): input data for object
 
         Returns:
-            torch.tensor: return value of the model
+            torch.Tensor: return value of the model
         """
-        return self.model(x)
+        return self.model.get_rewards(x)
 
     @override
-    def training_step(self, batch, batch_idx) -> torch.tensor:
+    def training_step(self, batch, batch_idx) -> torch.Tensor:
         """Performs a training step for a given batch
 
         Args:
@@ -60,7 +59,7 @@ class ptLightningModelWrapper(L.LightningModule, ptlLightningWrapper):
             batch_idx (_type_): id of the batch (?)
 
         Returns:
-            torch.tensor: loss valaue for the current batch with grad
+            torch.Tensor: loss valaue for the current batch with grad
         """
 
         t_pairs, t_prefs = batch
@@ -91,7 +90,7 @@ class ptLightningModelWrapper(L.LightningModule, ptlLightningWrapper):
         return optimizer
 
 
-class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
+class ptLightningLatentWrapper(ptlLightningWrapper):
     """Pytorch lightning wrapper that treats an Action Data object with a
     list of actions as a model and optimises it by maximising their
     predicted rewards got from a passed reward model.
@@ -103,7 +102,10 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
     """
 
     def __init__(
-        self, action: ActionData, reward_model: AbsTrainableModel, loss_func_obj: AbsLoss
+        self,
+        action: ActionData,
+        reward_model: AbsTrainableModel,
+        loss_func_obj: AbsLoss,
     ):
         """
         Args:
@@ -128,7 +130,7 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
         return None
 
     @override
-    def training_step(self, batch, batch_idx) -> torch.tensor:
+    def training_step(self, batch, batch_idx) -> torch.Tensor:
         """Calculate loss for actions using the passed loss
         function object and returns loss value
 
@@ -137,7 +139,7 @@ class ptLightningLatentWrapper(L.LightningModule, ptlLightningWrapper):
             batch_idx (_type_): id of the batch (?)
 
         Returns:
-            torch.tensor: loss value for list of actions with grad
+            torch.Tensor: loss value for list of actions with grad
         """
 
         t_pairs, t_prefs = batch

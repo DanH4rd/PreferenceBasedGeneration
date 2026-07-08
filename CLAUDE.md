@@ -19,6 +19,9 @@ pytest Tests/
 ruff check .
 ruff format .
 
+# Type check (env pointed via pyproject.toml [tool.basedpyright] venvPath/venv — NOT pythonPath, that key is silently rejected)
+basedpyright
+
 # Run a single test file
 pytest Tests/path/to/test_file.py
 
@@ -72,13 +75,19 @@ Each round of the pipeline:
 
 **`src/ActionDistribution/`** — `SimpleActionDistribution` (pure random from generator prior), `GreedyNormalActionDistribution` (epsilon-greedy Gaussian around the current destination action).
 
-**`src/Filter/`** — `ScoreActionFilter` selects top/bottom-N actions by predicted reward; `CompositeSeriesActionFilter` chains multiple filters.
+**`src/Filter/`** — `ScoreActionFilter` selects top/bottom-N actions by predicted reward; `CompositeSeriesActionFilter` chains multiple filters. `UncertaintyActionFilter` is an intentional non-functional placeholder for a future feature (constructor always raises `NotImplementedError`, references removed `AbsNetworkExtension` API) — leave it, don't remove as dead code.
 
 **`src/Loss/`** — `PreferenceLoss` (cross-entropy on softmax-ed reward pairs), `ActionRewardLoss` (negated reward for maximization), `LogLossDecorator`, `CompositeLoss`.
 
 **`src/MetricsLogger/`** — `TensorboardImageLogger`, `TensorboardScalarLogger`, `CompositeLogger`.
 
 ### Key Design Conventions
+
+`torch.tensor` (function) vs `torch.Tensor` (class) — only use `torch.Tensor` in type annotations, `torch.tensor(...)` is for constructing tensors. Easy typo, basedpyright catches it as "Expected class but received function".
+
+Use `lightning.pytorch.*` imports everywhere, never `pytorch_lightning.*` — both packages are installed but are different classes at runtime (`Logger`, `Callback`, etc. don't match), breaking Lightning's internal isinstance checks despite looking interchangeable.
+
+Abstract base classes in `src/Abstract/` must declare the exact param names/types every concrete override uses (basedpyright flags LSP-violating narrowing otherwise). `AbsLoss` is `Generic[D]` since different loss subclasses need different input data types — subclass as `AbsLoss[ActionData]`, not bare `AbsLoss`.
 
 Every component follows the same pattern:
 1. Inherits from an abstract base class in `src/Abstract/`

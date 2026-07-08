@@ -58,7 +58,6 @@ class RoundsMemory(object, metaclass=abc.ABCMeta):
                 )
         pass
 
-    @override
     def add_data(self, data: ActionPairsPrefPairsContainer) -> None:
         """Add new preference and action data to the memory and remove
         old data entries
@@ -71,7 +70,6 @@ class RoundsMemory(object, metaclass=abc.ABCMeta):
         self.memory_list.append(data)
         self.memory_list = self.memory_list[-self.limit :]
 
-    @override
     def get_data_from_memory(self) -> ActionPairsPrefPairsContainer:
         """Returns the data kept in memory with discount factor multiplier
         applied if set.

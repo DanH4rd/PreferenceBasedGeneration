@@ -1,25 +1,28 @@
 import abc
+from typing import Generic, TypeVar
 
 import torch
 
 from src.Abstract.AbsData import AbsData
 
+D = TypeVar("D", bound=AbsData)
 
-class AbsLoss(object, metaclass=abc.ABCMeta):
+
+class AbsLoss(Generic[D], metaclass=abc.ABCMeta):
     """Base class incupsulating the required logic for calculating the loss value"""
 
     @abc.abstractmethod
-    def calculate_loss(self, data: AbsData) -> torch.tensor:
+    def calculate_loss(self, data: D) -> torch.Tensor:
         """Calculate loss for the given data
 
         Args:
-            data (AbsData): data to calculate loss for
+            data (D): data to calculate loss for
 
         Raises:
             NotImplementedError: this method is abstract
 
         Returns:
-            torch.tensor: tensor tensor containing loss float value with grad tree
+            torch.Tensor: tensor tensor containing loss float value with grad tree
         """
 
         raise NotImplementedError(

@@ -2,3 +2,10 @@
 pythonpath = ["."]
 testpaths = ["Tests"]
 addopts = "-ra"
+
+[tool.basedpyright]
+venvPath = "C:/Anaconda/envs"
+venv = "pbrl2"
+include = ["src", "Tests", "main.py", "conftest.py"]
+exclude = ["**/__pycache__", "GenerativeModelsData", "builder", "logs", "artifacts"]
+typeCheckingMode = "standard"

@@ -2,18 +2,18 @@ import abc
 
 import torch
 
-from src.Abstract.AbsData import AbsData
+from src.DataStructures.ActionData import ActionData
 
 
 class AbsRewardModel(object, metaclass=abc.ABCMeta):
     """Base class for reward models: maps actions to scalar reward predictions."""
 
     @abc.abstractmethod
-    def get_rewards(self, data: AbsData) -> torch.Tensor:
+    def get_rewards(self, data: ActionData) -> torch.Tensor:
         """Returns rewards for given actions in the current model mode.
 
         Args:
-            data (AbsData): actions to generate rewards for
+            data (ActionData): actions to generate rewards for
 
         Returns:
             torch.Tensor: reward for each action
@@ -21,11 +21,11 @@ class AbsRewardModel(object, metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_stable_rewards(self, data: AbsData) -> torch.Tensor:
+    def get_stable_rewards(self, data: ActionData) -> torch.Tensor:
         """Returns rewards using evaluation mode (no dropout, stable batch norm).
 
         Args:
-            data (AbsData): actions to generate rewards for
+            data (ActionData): actions to generate rewards for
 
         Returns:
             torch.Tensor: reward for each action

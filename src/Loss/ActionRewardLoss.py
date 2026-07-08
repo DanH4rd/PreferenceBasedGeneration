@@ -5,7 +5,7 @@ from src.Abstract.AbsRewardModel import AbsRewardModel
 from src.DataStructures.ActionData import ActionData
 
 
-class ActionRewardLoss(AbsLoss):
+class ActionRewardLoss(AbsLoss[ActionData]):
     """Negative reward values for given actions. Requires a reference reward model."""
 
     def __init__(self, rewardModel: AbsRewardModel):
@@ -16,14 +16,14 @@ class ActionRewardLoss(AbsLoss):
 
         self.rewardModel = rewardModel
 
-    def calculate_loss(self, data: ActionData) -> torch.tensor:
+    def calculate_loss(self, data: ActionData) -> torch.Tensor:
         """Calculates negative action rewards for the given actions and sums it
 
         Args:
             data (ActionData): list of actions to calculate loss for
 
         Returns:
-            torch.tensor: mean of negative action rewards values with grad attached
+            torch.Tensor: mean of negative action rewards values with grad attached
         """
 
         loss = self.rewardModel.get_stable_rewards(data)

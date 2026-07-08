@@ -72,7 +72,7 @@ class StackGanDiscModel(object, metaclass=abc.ABCMeta):
         )
         self.model.eval()
 
-    def discriminate(self, data: ImageData) -> torch.tensor:
+    def discriminate(self, data: ImageData) -> torch.Tensor:
         """Generates values based on provided image data
 
         Args:
@@ -80,7 +80,7 @@ class StackGanDiscModel(object, metaclass=abc.ABCMeta):
                 calculate discriminator score
 
         Returns:
-            torch.tensor: [N,1] tensor containing discriminator scores
+            torch.Tensor: [N,1] tensor containing discriminator scores
                 for corresponding images
         """
         return self.model(data.images)[0]

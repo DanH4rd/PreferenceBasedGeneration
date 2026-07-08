@@ -16,7 +16,7 @@ class ScoreActionFilter(AbsActionFilter):
     def __init__(
         self,
         mode: str,
-        key: Callable[[ActionData], torch.tensor],
+        key: Callable[[ActionData], torch.Tensor],
         limit: int | float | None,
     ):
         """
@@ -25,7 +25,7 @@ class ScoreActionFilter(AbsActionFilter):
             mode (str): operating mode of the filter:
                 'max' - returns actions with the largest score values;
                 'min' - returns actions with the lowest score values;
-            key (Callable[[ActionData], torch.tensor]): lambda function that defines the
+            key (Callable[[ActionData], torch.Tensor]): lambda function that defines the
                 score we base the filtering on
             limit (int | float | None): maximum amount of actions filter
                 can return. Can be set as absolute number of elements

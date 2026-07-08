@@ -1,5 +1,5 @@
-import PIL
 import torch
+from PIL import Image
 
 from src.Abstract.AbsData import AbsData
 
@@ -7,11 +7,11 @@ from src.Abstract.AbsData import AbsData
 class ImageData(AbsData):
     """Class for storing image data in defined format"""
 
-    def __init__(self, images: torch.tensor):
+    def __init__(self, images: torch.Tensor):
         """
 
         Args:
-            images (torch.tensor): [N, C, H, W] tensor
+            images (torch.Tensor): [N, C, H, W] tensor
                 N - number of images
                 C - number of channels
                 H - height
@@ -44,7 +44,7 @@ class ImageData(AbsData):
         for image_array in (
             self.images.detach().permute(0, 2, 3, 1).cpu().numpy() * 255
         ).astype("uint8"):
-            pil_images.append(PIL.Image.fromarray(image_array))
+            pil_images.append(Image.fromarray(image_array))
 
         return pil_images
 

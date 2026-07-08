@@ -1,6 +1,9 @@
 import abc
 
-from src.Abstract.AbsData import AbsData
+from src.Abstract.AbsFeedbackSource import AbsFeedbackSource
+from src.DataStructures.ActionData import ActionData
+from src.DataStructures.ActionPairsData import ActionPairsData
+from src.DataStructures.PreferencePairsData import PreferencePairsData
 
 
 class AbsPreferenceDataGenerator(object, metaclass=abc.ABCMeta):
@@ -8,12 +11,16 @@ class AbsPreferenceDataGenerator(object, metaclass=abc.ABCMeta):
     preference data using feedback from a scecified source
     """
 
+    feedbackSource: AbsFeedbackSource
+
     @abc.abstractmethod
-    def generate_preference_data(self, data: AbsData, limit: int) -> AbsData:
+    def generate_preference_data(
+        self, data: ActionData, limit: int
+    ) -> tuple[ActionPairsData, PreferencePairsData]:
         """Generates preference data for the provided data
 
         Args:
-            data (AbsData): data to generate preferences for
+            data (ActionData): data to generate preferences for
             limit (int): maximum number of preferences the generator can
                 ask the feedback source for preferences
 
@@ -21,7 +28,8 @@ class AbsPreferenceDataGenerator(object, metaclass=abc.ABCMeta):
             NotImplementedError: this method is abstract
 
         Returns:
-            AbsData: preferences generated for the given data
+            tuple[ActionPairsData, PreferencePairsData]: action pairs and
+                preferences generated for the given data
         """
 
         raise NotImplementedError("users must define Filter to use this base class")

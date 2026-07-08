@@ -3,13 +3,12 @@ import torch.nn as nn
 from torch import device
 from dataclasses import dataclass
 
-from src.Abstract.AbsRewardModel import AbsRewardModel
-from src.Abstract.AbsTrainableModel import AbsTrainableModel
+from src.Abstract.AbsTrainableRewardModel import AbsTrainableRewardModel
 from src.DataStructures.ActionData import ActionData
 from src.utils import freeze_model, unfreeze_model
 
 
-class mlpRewardNetwork(nn.Module, AbsRewardModel, AbsTrainableModel):
+class mlpRewardNetwork(nn.Module, AbsTrainableRewardModel):
     """Implementaion of a simple mlp neural network"""
 
     @dataclass
@@ -59,7 +58,7 @@ class mlpRewardNetwork(nn.Module, AbsRewardModel, AbsTrainableModel):
         self.isFrozen = False
         self.isTrainMode = True
 
-    def forward(self, x: torch.tensor) -> torch.tensor:
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Alias for self.get_rewards
 
         Args:
@@ -67,11 +66,11 @@ class mlpRewardNetwork(nn.Module, AbsRewardModel, AbsTrainableModel):
                 B - number of actions, D - dimention of action vectors
 
         Returns:
-            torch.tensor: list of rewards for each action
+            torch.Tensor: list of rewards for each action
         """
-        return self.get_rewards(x)
+        return self.get_rewards(ActionData(actions=x))
 
-    def get_rewards(self, data: ActionData) -> torch.tensor:
+    def get_rewards(self, data: ActionData) -> torch.Tensor:
         """Runs list of actions through the model
         to get predicted rewards
 
@@ -79,7 +78,7 @@ class mlpRewardNetwork(nn.Module, AbsRewardModel, AbsTrainableModel):
             data (ActionData): list of actions serving as input for the model
 
         Returns:
-            torch.tensor: list of rewards for each action
+            torch.Tensor: list of rewards for each action
         """
 
         return self.main(data.actions)
@@ -96,7 +95,7 @@ class mlpRewardNetwork(nn.Module, AbsRewardModel, AbsTrainableModel):
             data (ActionData): list of actions serving as input for the model
 
         Returns:
-            torch.tensor: list of rewards for each action
+            torch.Tensor: list of rewards for each action
         """
 
         returnToTrainMode = False

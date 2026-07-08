@@ -19,7 +19,7 @@ class AbsMetricsLogger(object, metaclass=abc.ABCMeta):
         raise NotImplementedError("users must define log to use this base class")
 
     @abc.abstractmethod
-    def log_last_entries_mean(self, N: int, postfix: str) -> None:
+    def log_last_entries_mean(self, N: int, postfix: str = "_epoch") -> None:
         """takes the given number of last elements i history and logs
         an aggregated value of those elements.(f.e average of the last 5 logged
         accuracy values)

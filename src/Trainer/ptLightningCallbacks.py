@@ -3,7 +3,7 @@ from argparse import Namespace
 
 import lightning as L
 from lightning.pytorch.callbacks.callback import Callback
-from pytorch_lightning.loggers.logger import Logger
+from lightning.pytorch.loggers.logger import Logger
 from typing_extensions import override
 
 from src.Loss.LogLossDecorator import LogLossDecorator
@@ -25,7 +25,7 @@ class TBLogger(Logger):
     @property
     @override
     def version(self) -> Optional[Union[int, str]]:
-        return (0, "empty")
+        return 0
 
     @override
     def log_metrics(

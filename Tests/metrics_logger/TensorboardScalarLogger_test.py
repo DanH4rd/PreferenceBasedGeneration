@@ -1,7 +1,7 @@
 import os
 
 from PIL import Image
-from torch.utils.tensorboard import SummaryWriter
+from torch.utils.tensorboard.writer import SummaryWriter
 from torchvision.transforms.functional import pil_to_tensor
 
 from src.DataStructures.ImageData import ImageData

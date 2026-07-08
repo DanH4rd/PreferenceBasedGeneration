@@ -25,11 +25,11 @@ class AbsActionDistribution(object, metaclass=abc.ABCMeta):
         raise NotImplementedError("users must define sample to use this base class")
 
     @abc.abstractmethod
-    def update(self, data: AbsData) -> None:
+    def update(self, data: AbsData | None) -> None:
         """Updates the distribution based on input data
 
         Args:
-            data (AbsData): data for update
+            data (AbsData | None): data for update
 
         Raises:
             NotImplementedError

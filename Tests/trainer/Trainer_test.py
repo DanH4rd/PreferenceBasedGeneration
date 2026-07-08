@@ -1,4 +1,4 @@
-from torch.utils.tensorboard import SummaryWriter
+from torch.utils.tensorboard.writer import SummaryWriter
 
 from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource
 from src.Loss.ActionRewardLoss import ActionRewardLoss

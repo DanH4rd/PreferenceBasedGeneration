@@ -6,10 +6,10 @@ from src.Abstract.AbsData import AbsData
 class PreferencePairsData(AbsData):
     """Class for preference probabilities between a pair of objects"""
 
-    def __init__(self, preference_pairs: torch.tensor):
+    def __init__(self, preference_pairs: torch.Tensor):
         """
         Args:
-            preference_pairs (torch.tensor): [B,2] tensor, B - batch size
+            preference_pairs (torch.Tensor): [B,2] tensor, B - batch size
 
         Raises:
             Exception: if provided tensor is of not expected shape
@@ -35,7 +35,7 @@ class PreferencePairsData(AbsData):
         present_pairs = torch.unique(self.preference_pairs, dim=0)
         pair_vice_sum = present_pairs.sum(dim=1)
 
-        too_big_total_probability = (pair_vice_sum > 1.0 + torch.finfo(torch.float32).eps)
+        too_big_total_probability = pair_vice_sum > 1.0 + torch.finfo(torch.float32).eps
         negative_values = (present_pairs < 0.0).any(dim=1)
         illegal_pairs = too_big_total_probability | negative_values
 

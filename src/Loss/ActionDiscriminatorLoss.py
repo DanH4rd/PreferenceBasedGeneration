@@ -1,27 +1,27 @@
 import torch
 
-from src.Abstract.AbsDiscModel import AbsDiscModel
-from src.Abstract.AbsGenModel import AbsGenModel
 from src.Abstract.AbsLoss import AbsLoss
 from src.DataStructures.ActionData import ActionData
+from src.DiscModel.StackGanDiscModel import StackGanDiscModel
+from src.GenModel.StackGanGenModel import StackGanGenModel
 
 
-class ActionDiscriminatorLoss(AbsLoss):
+class ActionDiscriminatorLoss(AbsLoss[ActionData]):
     """Negative GAN discriminator scores for images generated from
     actions given.
     """
 
-    def __init__(self, genModel: AbsGenModel, discModel: AbsDiscModel):
+    def __init__(self, genModel: StackGanGenModel, discModel: StackGanDiscModel):
         """
         Args:
-            genModel (AbsGenModel): generator model object
-            discModel (AbsDiscModel): discriminator model object
+            genModel (StackGanGenModel): generator model object
+            discModel (StackGanDiscModel): discriminator model object
         """
 
         self.genModel = genModel
         self.discModel = discModel
 
-    def calculate_loss(self, data: ActionData) -> torch.tensor:
+    def calculate_loss(self, data: ActionData) -> torch.Tensor:
         """First generates images from the provided action list,
         then calculates discriminator scores for the given images.
 
@@ -29,9 +29,9 @@ class ActionDiscriminatorLoss(AbsLoss):
             data (ActionData): action list to get disc score for
 
         Returns:
-            torch.tensor: mean of discrimination score values with grad attached
+            torch.Tensor: mean of discrimination score values with grad attached
         """
-        loss = self.discModel.Discriminate(self.genModel.Generate(data.actions))
+        loss = self.discModel.discriminate(self.genModel.generate(data))
 
         loss = -loss.mean()
 

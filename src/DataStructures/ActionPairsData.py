@@ -7,11 +7,11 @@ from src.DataStructures.ActionData import ActionData
 class ActionPairsData(AbsData):
     """Class for storing action pairs"""
 
-    def __init__(self, action_pairs: torch.tensor):
+    def __init__(self, action_pairs: torch.Tensor):
         """
 
         Args:
-            action_pairs (torch.tensor): [B,2,D] tensor, B - batch size, D - action dim
+            action_pairs (torch.Tensor): [B,2,D] tensor, B - batch size, D - action dim
 
         Raises:
             Exception: if the given tensor is not of the expected shape

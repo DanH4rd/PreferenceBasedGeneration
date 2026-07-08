@@ -8,7 +8,7 @@ from src.DataStructures.ActionPairsPrefPairsContainer import (
 )
 
 
-class PreferenceLoss(AbsLoss):
+class PreferenceLoss(AbsLoss[ActionPairsPrefPairsContainer]):
     """Class than calculates cross entrpy loss for preference probabilities
     for action pairs. Extimates preference probabilities based on action
     rewards
@@ -33,24 +33,24 @@ class PreferenceLoss(AbsLoss):
                 raise Exception(f"Invalid decimals value: {self.decimals}")
 
     def ConvertRewards2Preferences(
-        self, r1: torch.tensor, r2: torch.tensor
-    ) -> torch.tensor:
+        self, r1: torch.Tensor, r2: torch.Tensor
+    ) -> torch.Tensor:
         """Function that converts rewards pairs to preferences using SoftMax
 
         Args:
-            r1 (torch.tensor): list of first elements in reward pairs ([B,1] tensor),
+            r1 (torch.Tensor): list of first elements in reward pairs ([B,1] tensor),
                 B - number of pairs
-            r2 (torch.tensor): list of second elements in reward pairs ([B,1] tensor)
+            r2 (torch.Tensor): list of second elements in reward pairs ([B,1] tensor)
                 B - number of pairs
 
         Returns:
-            torch.tensor: preference probabilities for the first elements in pairs
+            torch.Tensor: preference probabilities for the first elements in pairs
         """
 
         answer = torch.exp(r1) / (torch.exp(r1) + torch.exp(r2))
         return answer
 
-    def calculate_loss(self, data: ActionPairsPrefPairsContainer) -> torch.tensor:
+    def calculate_loss(self, data: ActionPairsPrefPairsContainer) -> torch.Tensor:
         """Calculates Cross Entropy loss on preference probabilities for the given
         action pairs and real preferences
 
@@ -60,7 +60,7 @@ class PreferenceLoss(AbsLoss):
                 as ground truth labels
 
         Returns:
-            torch.tensor: mean of cross entropy loss with a grad
+            torch.Tensor: mean of cross entropy loss with a grad
 
         TODO:
             Calculate preference probs only for the first elements, then

@@ -1,4 +1,4 @@
-from torch.utils.tensorboard import SummaryWriter
+from torch.utils.tensorboard.writer import SummaryWriter
 from torchvision.utils import make_grid
 
 from src.Abstract.AbsMetricsLogger import AbsMetricsLogger

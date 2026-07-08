@@ -29,9 +29,9 @@ class CompositeActionFilter(AbsActionFilter):
         """
 
         if isinstance(filter, list):
-            self.filter += filter
+            self.filters += filter
         else:
-            self.filter.append(filter)
+            self.filters.append(filter)
 
     def filter(self, action_data: ActionData) -> ActionData:
         """Performs the Filter function of all composite elements.
@@ -45,14 +45,13 @@ class CompositeActionFilter(AbsActionFilter):
             ActionData: filtered action list
         """
 
-        if self.is_empty:
+        if self.is_empty():
             raise Exception("No filters are present in composite series filter")
 
-        actions = action_data.actions
-        for filter in self.filters:
-            actions = filter.Filter(actions)
+        for series_filter in self.filters:
+            action_data = series_filter.filter(action_data)
 
-        return ActionData(actions=actions)
+        return action_data
 
     def is_empty(self):
         return len(self.filters) == 0
@@ -63,4 +62,4 @@ class CompositeActionFilter(AbsActionFilter):
         Returns:
             str
         """
-        return f"Composite action filter. Number of members: {len(self.filter)}"
+        return f"Composite action filter. Number of members: {len(self.filters)}"

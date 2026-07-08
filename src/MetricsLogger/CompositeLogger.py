@@ -36,7 +36,7 @@ class CompositeLogger(AbsMetricsLogger):
         """
 
         for logger in self.loggers:
-            logger.Log(value)
+            logger.log(value)
 
     def log_last_entries_mean(self, N: int, postfix: str = "_epoch") -> None:
         """Calls the log_last_entries_mean with given arguments on all
@@ -48,7 +48,7 @@ class CompositeLogger(AbsMetricsLogger):
         """
 
         for logger in self.loggers:
-            logger.LogLastEntriesMean(N=N, postfix=postfix)
+            logger.log_last_entries_mean(N=N, postfix=postfix)
 
     def __str__(self) -> str:
         """Returns string describing the object

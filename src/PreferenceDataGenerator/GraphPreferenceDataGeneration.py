@@ -1,5 +1,5 @@
 from itertools import combinations, product
-from typing import override
+from typing import Iterable, override
 from dataclasses import dataclass
 
 import networkx as nx
@@ -101,8 +101,8 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
 
     def find_edge_to_ask(
         self,
-        actions_tensor: torch.tensor,
-        edge_list: list,
+        actions_tensor: torch.Tensor,
+        edge_list: Iterable[tuple],
         prefGraph: nx.DiGraph,
         genGraph: nx.Graph,
     ) -> bool:
@@ -112,8 +112,8 @@ class GraphPreferenceDataGeneration(AbsPreferenceDataGenerator):
         preference.
 
         Args:
-            actions_tensor (torch.tensor): list of actions for which to generate preferences
-            edge_list (list): list of node pairs, used as list of action pairs, which are
+            actions_tensor (torch.Tensor): list of actions for which to generate preferences
+            edge_list (Iterable[tuple]): node pairs, used as action pairs, which are
                 candidates to be added to preference graph
             prefG (nx.DiGraph): graph storing preference relationships between nodes
             genG (nx.Graph): graph storing history of all node pairs for which

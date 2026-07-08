@@ -1,4 +1,4 @@
-from torch.utils.tensorboard import SummaryWriter
+from torch.utils.tensorboard.writer import SummaryWriter
 
 from src.Abstract.AbsMetricsLogger import AbsMetricsLogger
 from src.DataStructures.ImageData import ImageData

@@ -2,13 +2,15 @@ from dataclasses import dataclass
 
 from src.Abstract.AbsActionDistribution import AbsActionDistribution
 from src.Abstract.AbsActionFilter import AbsActionFilter
-from src.Abstract.AbsGenModel import AbsGenModel
-from src.Abstract.AbsMemory import AbsMemory
 from src.Abstract.AbsMetricsLogger import AbsMetricsLogger
 from src.Abstract.AbsPreferenceDataGenerator import AbsPreferenceDataGenerator
 from src.Abstract.AbsTrainer import AbsTrainer
 from src.DataStructures.ActionData import ActionData
-from src.DataStructures.ActionPairsPrefPairsContainer import ActionPairsPrefPairsContainer
+from src.DataStructures.ActionPairsPrefPairsContainer import (
+    ActionPairsPrefPairsContainer,
+)
+from src.GenModel.StackGanGenModel import StackGanGenModel
+from src.Memory.RoundsMemory import RoundsMemory
 
 
 class PbRLPipeline:
@@ -40,12 +42,12 @@ class PbRLPipeline:
     def __init__(
         self,
         config: "PbRLPipeline.Configuration",
-        gen_model: AbsGenModel,
+        gen_model: StackGanGenModel,
         action_dist: AbsActionDistribution,
         destination_action: ActionData,
         preference_generator: AbsPreferenceDataGenerator,
         dummy_preference_generator: AbsPreferenceDataGenerator,
-        memory: AbsMemory,
+        memory: RoundsMemory,
         model_trainer: AbsTrainer,
         latent_trainer: AbsTrainer,
         sampling_filter: AbsActionFilter,
@@ -99,7 +101,9 @@ class PbRLPipeline:
 
         dummy_action_data, dummy_pref_data = (
             self.dummy_preference_generator.generate_preference_data(
-                data=self.gen_model.sample_random_actions(self.config.dummy_sample_size),
+                data=self.gen_model.sample_random_actions(
+                    self.config.dummy_sample_size
+                ),
                 limit=self.config.preference_dummy_limit,
             )
         )

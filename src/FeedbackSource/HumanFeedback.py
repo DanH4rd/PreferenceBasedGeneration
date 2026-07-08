@@ -2,9 +2,9 @@ import torch
 from dataclasses import dataclass
 
 from src.Abstract.AbsFeedbackSource import AbsFeedbackSource
-from src.Abstract.AbsGenModel import AbsGenModel
 from src.DataStructures.ActionPairsData import ActionPairsData
 from src.DataStructures.PreferencePairsData import PreferencePairsData
+from src.GenModel.StackGanGenModel import StackGanGenModel
 
 import tkinter as tk
 from PIL import ImageTk
@@ -21,13 +21,13 @@ class HumanFeedback(AbsFeedbackSource):
         """dataclass for grouping constructor parametres"""
 
         window_name: str
-        gen_model: AbsGenModel
+        gen_model: StackGanGenModel
 
     @staticmethod
     def create_from_configuration(conf: Configuration):
         return HumanFeedback(window_name=conf.window_name, gen_model=conf.gen_model)
 
-    def __init__(self, window_name: str, gen_model: AbsGenModel):
+    def __init__(self, window_name: str, gen_model: StackGanGenModel):
         self.window_name = window_name
         self.gen_model = gen_model
 
@@ -72,28 +72,28 @@ class HumanFeedback(AbsFeedbackSource):
         Args:
             image_pair (tuple): A tuple containing two PIL images (left and right)
         """
+        assert self.left_label is not None
+        assert self.right_label is not None
+
         left_image, right_image = image_pair
 
         # Convert PIL images to ImageTk format
         left_image_tk = ImageTk.PhotoImage(left_image)
         right_image_tk = ImageTk.PhotoImage(right_image)
 
+        # Keep references to avoid garbage collection
+        self._current_image_refs = (left_image_tk, right_image_tk)
+
         # Update the labels with the new images
         self.left_label.config(image=left_image_tk, width=384)
-        self.left_label.image = (
-            left_image_tk  # Keep a reference to avoid garbage collection
-        )
-
         self.right_label.config(image=right_image_tk, width=384)
-        self.right_label.image = (
-            right_image_tk  # Keep a reference to avoid garbage collection
-        )
 
-    def accept_user_preference_btn_callback(self, preference: int):
+    def accept_user_preference_btn_callback(self, preference: list[float]):
         """Accepts user preference and stores it in the user_preferences list
 
         Args:
-            preference (int): User preference (0 for left, 1 for right, 2 for equal, 3 for skip)
+            preference (list[float]): User preference pair, e.g. [1, 0] for left,
+                [0, 1] for right, [0.5, 0.5] for equal, [0, 0] for skip
         """
 
         def add_preference():
@@ -151,7 +151,7 @@ class HumanFeedback(AbsFeedbackSource):
         self.btn_equal = tk.Button(
             button_frame,
             text="Equal",
-            command=self.accept_user_preference_btn_callback([1, 1]),
+            command=self.accept_user_preference_btn_callback([0.5, 0.5]),
         )
         self.btn_equal.pack(side=tk.LEFT, padx=5)
 

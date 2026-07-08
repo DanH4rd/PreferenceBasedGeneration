@@ -1,6 +1,7 @@
 import abc
 
-from src.Abstract.AbsData import AbsData
+from src.DataStructures.ActionPairsData import ActionPairsData
+from src.DataStructures.PreferencePairsData import PreferencePairsData
 
 
 class AbsFeedbackSource(object, metaclass=abc.ABCMeta):
@@ -9,17 +10,19 @@ class AbsFeedbackSource(object, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def generate_feedback(self, data: AbsData) -> AbsData:
+    def generate_feedback(
+        self, action_pairs_data: ActionPairsData
+    ) -> PreferencePairsData:
         """Returns feedback for provided data
 
         Args:
-            data (AbsData): data for which we want to get feedback values
+            action_pairs_data (ActionPairsData): action pairs for which we want to get feedback values
 
         Raises:
             NotImplementedError: this method is abstract
 
         Returns:
-            AbsData: feedback data
+            PreferencePairsData: feedback data
         """
         raise NotImplementedError(
             "users must define generate_feedback to use this base class"

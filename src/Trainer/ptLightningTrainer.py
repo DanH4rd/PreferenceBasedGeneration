@@ -47,7 +47,7 @@ class ptLightningTrainer(AbsTrainer):
         self.controller_callback = EarlyStopAtEpochInterval(interval_length=5)
         self.batch_size = batch_size
 
-        callbacks = [self.controller_callback]
+        callbacks: list[L.Callback] = [self.controller_callback]
 
         if isinstance(model.loss_func_obj, LogLossDecorator):
             callbacks += [NotifyLossLoggerOnEpochEnd()]

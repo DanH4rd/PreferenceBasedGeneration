@@ -15,6 +15,10 @@ class UncertaintyActionFilter(AbsActionFilter):
     !!! Returns actions sorted in an ascending way based on their uncertainty score !!!
     """
 
+    rewardModel: AbsRewardModel
+    limit: int | float | None
+    mode: str
+
     def __init__(
         self, mode: str, rewardModel: AbsRewardModel, limit: int | float | None
     ):
@@ -59,7 +63,9 @@ class UncertaintyActionFilter(AbsActionFilter):
         Check the abstract base class for more info.
         """
 
-        modelExtension = self.rewardModel.GetExtension()
+        # GetExtension was part of AbsNetworkExtension, removed from the codebase.
+        # Left unimplemented pending a replacement design for uncertainty estimation.
+        modelExtension = self.rewardModel.GetExtension()  # pyright: ignore[reportAttributeAccessIssue]
 
         uncertainty_scores = modelExtension.CallExtensionMethod(
             "CalculateUncertainty", [action_data.actions]
@@ -87,4 +93,4 @@ class UncertaintyActionFilter(AbsActionFilter):
         return ActionData(actions=actions)
 
     def __str__(self) -> str:
-        return f"Uncertainty Action Filter. Mode: {self.mode}. Limit: {len(self.limit)}"
+        return f"Uncertainty Action Filter. Mode: {self.mode}. Limit: {self.limit}"

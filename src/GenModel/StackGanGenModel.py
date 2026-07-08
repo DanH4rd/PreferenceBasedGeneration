@@ -136,7 +136,9 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
 
         cfg_from_file(self.config_file)
 
-        action_dim = cfg.GAN.Z_DIM
+        # cfg is an EasyDict populated dynamically by the vendored StackGan2
+        # config module; GAN.Z_DIM isn't statically visible.
+        action_dim = cfg.GAN.Z_DIM  # pyright: ignore[reportAttributeAccessIssue]
 
         dist = Normal(
             torch.tensor([0.0] * action_dim),

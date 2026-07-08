@@ -9,12 +9,12 @@ class AbsActionFilter(object, metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def filter(self, data: ActionData) -> ActionData:
+    def filter(self, action_data: ActionData) -> ActionData:
         """Filter actions based on implemented logic and, if set up, return
         limit elements of the result list
 
         Args:
-            data (ActionData): list of actions to filter
+            action_data (ActionData): list of actions to filter
 
         Raises:
             NotImplementedError: this method is abstract

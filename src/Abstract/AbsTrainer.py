@@ -1,5 +1,8 @@
 import abc
 
+from src.DataStructures.ActionPairsData import ActionPairsData
+from src.DataStructures.PreferencePairsData import PreferencePairsData
+
 
 class AbsTrainer(object, metaclass=abc.ABCMeta):
     """Base class incupsulating the required logic for training an ML model"""
@@ -12,10 +15,17 @@ class AbsTrainer(object, metaclass=abc.ABCMeta):
     #     raise NotImplementedError('users must define SetLogger to use this base class')
 
     @abc.abstractmethod
-    def run_training(self, epochs: int) -> None:
+    def run_training(
+        self,
+        action_data: ActionPairsData,
+        preference_data: PreferencePairsData,
+        epochs: int,
+    ) -> None:
         """Run training for the given number of epochs
 
         Args:
+            action_data (ActionPairsData): action pairs used as train input
+            preference_data (PreferencePairsData): preference labels for action_data
             epochs (int): natural number of training epochs to perform
 
         Raises:

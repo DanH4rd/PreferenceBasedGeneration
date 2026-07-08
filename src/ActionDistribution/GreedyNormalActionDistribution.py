@@ -61,13 +61,13 @@ class GreedyNormalActionDistribution(AbsActionDistribution):
 
         return ActionData(actions=torch.stack(actions, dim=0))
 
-    def update(self, data: AbsData) -> None:
+    def update(self, data: AbsData | None) -> None:
         """Empty function since this class
         does not support updating based on
         provided data
 
         Args:
-            data (AbsData): abstract data object
+            data (AbsData | None): abstract data object
         """
 
         self.e *= self.decay_factor

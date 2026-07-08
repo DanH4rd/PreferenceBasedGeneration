@@ -6,11 +6,11 @@ from src.Abstract.AbsData import AbsData
 class ActionData(AbsData):
     """Class for storing actions for loss calc"""
 
-    def __init__(self, actions: torch.tensor):
+    def __init__(self, actions: torch.Tensor):
         """
 
         Args:
-            actions (torch.tensor): [B, D] tensor containing actions,
+            actions (torch.Tensor): [B, D] tensor containing actions,
                                     B - batch size, D - action dim
 
         Raises:
@@ -21,17 +21,17 @@ class ActionData(AbsData):
 
         self._check_tensor_format(self.actions)
 
-    def append(self, actions: torch.tensor):
+    def append(self, actions: torch.Tensor):
         """Appends actions to the existing actions tensor.
 
         Args:
-            actions (torch.tensor): tensor with actions to append
+            actions (torch.Tensor): tensor with actions to append
         """
 
         self._check_tensor_format(actions)
         self.actions = torch.concat([self.actions, actions], dim=0)
 
-    def _check_tensor_format(self, action_tensor: torch.tensor):
+    def _check_tensor_format(self, action_tensor: torch.Tensor):
 
         if len(action_tensor.shape) != 2:
             raise Exception(f"Invalid action tensor shape: {action_tensor.shape}")

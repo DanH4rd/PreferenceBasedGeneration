@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from torch.utils.tensorboard import SummaryWriter
+from torch.utils.tensorboard.writer import SummaryWriter
 from torchvision.transforms.functional import pil_to_tensor
 from torchvision.utils import make_grid
 
@@ -10,6 +10,7 @@ from src.ActionDistribution.GreedyNormalActionDistribution import (
     GreedyNormalActionDistribution,
 )
 from src.DiscModel.StackGanDiscModel import StackGanDiscModel
+from src.FeedbackSource.CosDistFeedback import CosDistFeedback
 from src.FeedbackSource.RandomFeedbackSource import RandomFeedbackSource
 from src.FeedbackSource.HumanFeedback import HumanFeedback
 from src.Filter.ScoreActionFilter import ScoreActionFilter
@@ -88,11 +89,10 @@ if __name__ == "__main__":
         gen_model=gen_model,
     )
 
-    if hasattr(feedback_source, "target_image"):
-        if feedback_source.target_image is not None:
-            tensorboard_writer.add_image(
-                "Image/Target", pil_to_tensor(feedback_source.target_image), 0
-            )
+    if isinstance(feedback_source, CosDistFeedback):
+        tensorboard_writer.add_image(
+            "Image/Target", pil_to_tensor(feedback_source.target_image), 0
+        )
 
     preference_generator = GraphPreferenceDataGeneration(feedbackSource=feedback_source)
     preference_generator = BestActionTracker(prefDataGen=preference_generator)
