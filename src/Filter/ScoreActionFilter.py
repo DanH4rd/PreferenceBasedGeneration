@@ -11,7 +11,7 @@ from src.DataStructures import ActionData
 class ScoreActionFilter(AbsActionFilter):
     """Filter that returns set amount of action based on the provided scoring function
 
-    !!! Returns actions sorted in an descending way based on their scores !!!
+    Returned actions preserve their original relative arrangement (not sorted by score).
     """
 
     class FilterMode(enum.Enum):
@@ -41,9 +41,6 @@ class ScoreActionFilter(AbsActionFilter):
         Raises:
             Exception: if absolute limit value is less than 1
             Exception: if relative limit value is not in range [0,1]
-
-        TODO:
-            preserve original arrangement
         """
 
         self.key = key
@@ -78,31 +75,34 @@ class ScoreActionFilter(AbsActionFilter):
             ActionData: _description_
         """
 
-        scores = self.key(action_data)
+        # flatten in case the score model returns a [B,1] column instead of [B];
+        # squeeze() would instead collapse a batch of exactly 1 action to a 0-d scalar
+        scores = self.key(action_data).flatten()
 
-        sorted_values_desc = torch.argsort(scores, dim=0, descending=True).squeeze()
-
-        actions_desc = action_data.actions[sorted_values_desc]
-
-        int_limit = None
+        ranking_desc = torch.argsort(scores, descending=True)
 
         if self.limit is not None:
             if isinstance(self.limit, int):
                 int_limit = self.limit
             else:
-                int_limit = math.ceil(len(actions_desc) * self.limit)
+                int_limit = math.ceil(ranking_desc.shape[0] * self.limit)
 
             match self.mode:
                 case self.FilterMode.MAX:
-                    actions_desc = actions_desc[:int_limit]
+                    selected_idx = ranking_desc[:int_limit]
                 case self.FilterMode.MIN:
-                    actions_desc = (
-                        actions_desc[-int_limit:] if int_limit > 0 else actions_desc[:0]
+                    selected_idx = (
+                        ranking_desc[-int_limit:] if int_limit > 0 else ranking_desc[:0]
                     )
                 case _:
                     raise Exception(f"Filter mode not implemented: {self.mode}")
+        else:
+            selected_idx = ranking_desc
 
-        return ActionData(actions=actions_desc)
+        # preserve the actions' original relative arrangement in the output
+        selected_idx = torch.sort(selected_idx).values
+
+        return ActionData(actions=action_data.actions[selected_idx])
 
     def __str__(self) -> str:
         """Returns string describing the object

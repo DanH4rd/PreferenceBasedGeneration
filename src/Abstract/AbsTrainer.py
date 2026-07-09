@@ -1,5 +1,7 @@
 import abc
 
+import torch
+
 from src.DataStructures import ActionPairsData, PreferencePairsData
 
 
@@ -19,6 +21,7 @@ class AbsTrainer(object, metaclass=abc.ABCMeta):
         action_data: ActionPairsData,
         preference_data: PreferencePairsData,
         epochs: int,
+        sample_weights: torch.Tensor | None = None,
     ) -> None:
         """Run training for the given number of epochs
 
@@ -26,6 +29,9 @@ class AbsTrainer(object, metaclass=abc.ABCMeta):
             action_data (ActionPairsData): action pairs used as train input
             preference_data (PreferencePairsData): preference labels for action_data
             epochs (int): natural number of training epochs to perform
+            sample_weights (torch.Tensor | None, optional): [B] tensor weighting each
+                pair's contribution to the loss (e.g. RoundsMemory's discount factor).
+                Defaults to every pair weighted equally.
 
         Raises:
             NotImplementedError: this method is abstract

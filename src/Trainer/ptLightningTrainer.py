@@ -56,8 +56,6 @@ class ptLightningTrainer(AbsTrainer):
             enable_checkpointing=False,
             logger=TBLogger(),
             callbacks=callbacks,
-            # TODO: make a workaround to make max epochs dynamically increase
-            max_epochs=9999,
             enable_model_summary=False,
             enable_progress_bar=True,
         )
@@ -69,6 +67,7 @@ class ptLightningTrainer(AbsTrainer):
         action_data: ActionPairsData,
         preference_data: PreferencePairsData,
         epochs: int,
+        sample_weights: torch.Tensor | None = None,
     ) -> None:
         """Runs the training process for a given number of epochs
         using action pairs list as input train data and preference data
@@ -79,6 +78,8 @@ class ptLightningTrainer(AbsTrainer):
             preference_data (PreferencePairsData): preference list used as true labels
                 for action pairs
             epochs (int): number of epochs to train for
+            sample_weights (torch.Tensor | None, optional): [B] tensor weighting each
+                pair's contribution to the loss. Defaults to every pair weighted equally.
 
         Raises:
             Exception: if number of action pairs does not match the preferences count
@@ -92,8 +93,11 @@ class ptLightningTrainer(AbsTrainer):
                 f"Action pairs number and preference pairs number do not match: {action_pair_tensor.shape[0]} and {preference_pair_tensor.shape[0]}"
             )
 
+        if sample_weights is None:
+            sample_weights = torch.ones(action_pair_tensor.shape[0])
+
         train_ds = torch.utils.data.TensorDataset(
-            action_pair_tensor, preference_pair_tensor
+            action_pair_tensor, preference_pair_tensor, sample_weights
         )
         train_dl = torch.utils.data.DataLoader(
             train_ds, batch_size=self.batch_size, shuffle=True
@@ -102,6 +106,10 @@ class ptLightningTrainer(AbsTrainer):
         self.controller_callback.set_epoch_interval(epochs)
         self.controller_callback.reset_epoch_counter()
         self.ptl_trainer.should_stop = False
+        # current_epoch accumulates across every run_training() call on this
+        # trainer, so the cap must grow with it or fit() silently trains 0 epochs
+        # once current_epoch catches up to a fixed max_epochs
+        self.ptl_trainer.fit_loop.max_epochs = self.global_epoch + epochs
 
         self.ptl_trainer.fit(self.ptl_model, train_dataloaders=train_dl)
 

@@ -151,6 +151,7 @@ class PbRLPipeline:
             action_data=train_data.action_pairs_data,
             preference_data=train_data.pref_pairs_data,
             epochs=self.config.training_epochs_reward,
+            sample_weights=train_data.sample_weights,
         )
 
         self.latent_trainer.run_training(

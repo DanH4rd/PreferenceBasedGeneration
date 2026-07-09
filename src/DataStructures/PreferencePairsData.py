@@ -15,15 +15,8 @@ class PreferencePairsData(AbsData):
 
         Raises:
             Exception: if provided tensor is of not expected shape
-            Exception: if provided preferences contain values
-                other than [1., 0.], [0., 1.].[0.5, 0.5] and [0., 0.]
-
-
-        TODO:
-            add check for legal values
-            rename y argument to more descriptful name
-
-            change valid preference data by checking if the pairs sum to 1
+            Exception: if provided preferences are negative, or don't sum to 1
+                (the [0., 0.] pair is a reserved exception meaning "skip")
         """
 
         preference_pairs = preference_pairs.detach()
@@ -31,18 +24,21 @@ class PreferencePairsData(AbsData):
         if len(preference_pairs.shape) != 2 or preference_pairs.shape[1] != 2:
             raise Exception(f"Invalid action tensor shape: {preference_pairs.shape}")
 
-        # Probabilities of a pair must sum to 1, so we check if the sum of each pair is close to 1
         present_pairs = torch.unique(preference_pairs, dim=0)
-        pair_vice_sum = present_pairs.sum(dim=1)
 
-        too_big_total_probability = pair_vice_sum > 1.0 + torch.finfo(torch.float32).eps
+        pair_sum = present_pairs.sum(dim=1)
+        sums_to_one = torch.isclose(pair_sum, torch.ones_like(pair_sum))
+        is_skip = torch.isclose(present_pairs, torch.zeros_like(present_pairs)).all(
+            dim=1
+        )
         negative_values = (present_pairs < 0.0).any(dim=1)
-        illegal_pairs = too_big_total_probability | negative_values
 
-        if illegal_pairs.any():
-            failed_pairs = present_pairs[illegal_pairs]
+        is_legal_pair = (sums_to_one | is_skip) & ~negative_values
+
+        if not is_legal_pair.all():
+            illegal_pairs = present_pairs[~is_legal_pair]
             raise Exception(
-                f"Invalid preference pair values: {str(failed_pairs.cpu())}"
+                f"Invalid preference pair values: {str(illegal_pairs.cpu())}"
             )
 
         self._preference_pairs = preference_pairs

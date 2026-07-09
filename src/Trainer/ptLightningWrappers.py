@@ -103,10 +103,11 @@ class ptLightningModelWrapper(ptlLightningWrapper):
             torch.Tensor: loss valaue for the current batch with grad
         """
 
-        t_pairs, t_prefs = batch
+        t_pairs, t_prefs, t_weights = batch
 
         t_pairs = t_pairs.to(self.device)
         t_prefs = t_prefs.to(self.device)
+        t_weights = t_weights.to(self.device)
 
         x_b = t_pairs
         y_b = t_prefs
@@ -114,6 +115,7 @@ class ptLightningModelWrapper(ptlLightningWrapper):
         data = ActionPairsPrefPairsContainer(
             action_pairs_data=ActionPairsData(action_pairs=x_b),
             pref_pairs_data=PreferencePairsData(preference_pairs=y_b),
+            sample_weights=t_weights,
         )
 
         loss = self.loss_func_obj.calculate_loss(data)

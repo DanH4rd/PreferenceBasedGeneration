@@ -54,26 +54,24 @@ class TestFilter:
         def key(x):
             return reward_model.get_stable_rewards(x)
 
-        rewards = reward_model.get_stable_rewards(actions)
+        rewards = reward_model.get_stable_rewards(actions).flatten()
 
-        rewards_sort = torch.argsort(rewards, dim=0).squeeze()
+        ranking_desc = torch.argsort(rewards, descending=True)
 
-        sorted_actions_tensor = actions.actions[rewards_sort]
-
+        # filtered output preserves the actions' original relative arrangement,
+        # so the expected subset must be re-sorted back into original index order
         score_filter = ScoreActionFilter(mode="max", key=key, limit=0.5)
 
         filter_actions = score_filter.filter(actions)
 
-        assert (
-            (torch.flip(sorted_actions_tensor[-5:], dims=[0]) - filter_actions.actions)
-            < 10e-5
-        ).all()
+        expected_idx = torch.sort(ranking_desc[:5]).values
+
+        assert ((actions.actions[expected_idx] - filter_actions.actions) < 10e-5).all()
 
         score_filter = ScoreActionFilter(mode="min", key=key, limit=0.5)
 
         filter_actions = score_filter.filter(actions)
 
-        assert (
-            (torch.flip(sorted_actions_tensor[:5], dims=[0]) - filter_actions.actions)
-            < 10e-5
-        ).all()
+        expected_idx = torch.sort(ranking_desc[-5:]).values
+
+        assert ((actions.actions[expected_idx] - filter_actions.actions) < 10e-5).all()

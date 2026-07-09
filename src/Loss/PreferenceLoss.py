@@ -70,6 +70,7 @@ class PreferenceLoss(AbsLoss[ActionPairsPrefPairsContainer]):
 
         action_pairs_tensor = data.action_pairs_data.action_pairs
         pref_pairs_tensor = data.pref_pairs_data.preference_pairs
+        sample_weights = data.sample_weights
 
         rewards_left_column = self.rewardModel.get_stable_rewards(
             ActionData(actions=action_pairs_tensor[:, 0, :])
@@ -93,11 +94,11 @@ class PreferenceLoss(AbsLoss[ActionPairsPrefPairsContainer]):
                 preferences_right_column, decimals=self.decimals
             )
 
-        loss = pref_pairs_tensor[..., 0] * torch.log(
+        per_pair_loss = pref_pairs_tensor[..., 0] * torch.log(
             preferences_left_column
         ) + pref_pairs_tensor[..., 1] * torch.log(preferences_right_column)
 
-        loss = -loss.mean()
+        loss = -(per_pair_loss * sample_weights).sum() / sample_weights.sum()
 
         return loss
 

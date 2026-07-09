@@ -71,8 +71,15 @@ class RoundsMemory(object, metaclass=abc.ABCMeta):
         self.memory_list = self.memory_list[-self.limit :]
 
     def get_data_from_memory(self) -> ActionPairsPrefPairsContainer:
-        """Returns the data kept in memory with discount factor multiplier
-        applied if set.
+        """Returns the data kept in memory, with a per-pair sample weight
+        reflecting the discount factor if set (1.0 for every pair otherwise).
+
+        The discount is carried as a sample weight rather than baked into the
+        preference values themselves: multiplying a preference pair (e.g.
+        [1., 0.]) by a decaying factor breaks PreferencePairsData's legal-value
+        invariant (must be non-negative and sum to 1, or be the [0., 0.] skip
+        sentinel), and conflates "how confident is this preference" with "how
+        much should this round count towards the loss".
 
         Returns:
             ActionPairsPrefPairsContainer: data from memory
@@ -80,30 +87,37 @@ class RoundsMemory(object, metaclass=abc.ABCMeta):
 
         action_pairs_list = []
         pref_pairs_list = []
+        weights_list = []
 
         memory_length = len(self.memory_list)
 
         # conbine action pairs lists and preference lists from all
-        # kept container objects into one action pair list and preference list
-        # and apply the discount factor multiplier if set
+        # kept container objects into one action pair list and preference list,
+        # weighting each round's pairs by the discount factor if set
         for i, data in enumerate(self.memory_list):
             action_pairs_list.append(data.action_pairs_data.action_pairs)
             pref_tensor_entry = data.pref_pairs_data.preference_pairs
-
-            if self.discount_factor is not None:
-                pref_tensor_entry *= pow(self.discount_factor, (memory_length - i))
-
             pref_pairs_list.append(pref_tensor_entry)
+
+            entry_weight = (
+                pow(self.discount_factor, (memory_length - i))
+                if self.discount_factor is not None
+                else 1.0
+            )
+            weights_list.append(torch.full((pref_tensor_entry.shape[0],), entry_weight))
 
         action_pairs_tensor = torch.concat(action_pairs_list, dim=0)
         pref_pairs_tensor = torch.concat(pref_pairs_list, dim=0)
+        sample_weights = torch.concat(weights_list, dim=0)
 
         # pack memory data in a corresponding class object
         action_pairs_data = ActionPairsData(action_pairs=action_pairs_tensor)
         pref_pairs_data = PreferencePairsData(preference_pairs=pref_pairs_tensor)
 
         pref_action_container = ActionPairsPrefPairsContainer(
-            action_pairs_data=action_pairs_data, pref_pairs_data=pref_pairs_data
+            action_pairs_data=action_pairs_data,
+            pref_pairs_data=pref_pairs_data,
+            sample_weights=sample_weights,
         )
 
         return pref_action_container
