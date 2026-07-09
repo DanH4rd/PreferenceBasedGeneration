@@ -21,6 +21,12 @@ class AbsActionDistribution(object, metaclass=abc.ABCMeta):
 
         Returns:
             ActionData: a data object
+
+        TODO:
+            add a check (e.g. torch.isclose over sampled action pairs) to detect
+            when the distribution starts returning effectively identical actions,
+            so collapse can be caught instead of silently degrading downstream
+            preference/reward signal
         """
         raise NotImplementedError("users must define sample to use this base class")
 
