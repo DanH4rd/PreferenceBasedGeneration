@@ -80,9 +80,6 @@ class BestActionTracker(AbsPreferenceDataGenerator):
             add an option to ensure in generating additional data stage
             that generated preferences and action pairs are not already present in originally
             generated data
-
-            (ACT-LOSS) (ctr f to find line) the operation to get a list of used actions sometimes
-            loses some actions while converting from action pairs
         """
         all_actions_tensor = data.actions
         action_pairs_idx, preference_data = (
@@ -96,16 +93,27 @@ class BestActionTracker(AbsPreferenceDataGenerator):
         # collect preferred (winning) actions from each decisive pair as best-action candidates
         for i in range(pref_tensor.shape[0]):
             preference = pref_tensor[i]
+            action_pair_idx = action_pairs_idx[i]
 
             if (preference == torch.tensor([0.0, 0.0])).all():
                 pass
             elif (preference == torch.tensor([0.5, 0.5])).all():
-                pass
+                # tied pair: neither action was ruled out, both remain candidates
+                best_action_candidates_idx.append(action_pair_idx[0])
+                best_action_candidates_idx.append(action_pair_idx[1])
             else:
-                action_pair_idx = action_pairs_idx[i]
                 preferable_action_position = torch.argmax(preference)
                 preferable_action = action_pair_idx[preferable_action_position]
                 best_action_candidates_idx.append(preferable_action)
+
+        # actions never asked about this round were never ruled out either;
+        # treat them as untested candidates instead of silently excluding them
+        known_action_idx = action_pairs_idx.flatten().unique()
+        all_action_idx = torch.arange(all_actions_tensor.shape[0])
+        unseen_action_idx = all_action_idx[
+            ~torch.isin(all_action_idx, known_action_idx)
+        ]
+        best_action_candidates_idx.extend(unseen_action_idx)
 
         if best_action_candidates_idx:
             candidate_actions_idx = torch.stack(

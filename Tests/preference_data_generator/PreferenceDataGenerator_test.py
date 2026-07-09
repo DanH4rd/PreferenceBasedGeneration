@@ -49,10 +49,6 @@ class TestPreferenceDataGenerator:
 
     ###########
 
-    @pytest.mark.xfail(
-        reason="action loss while converting action pairs to action list with torch.unique",
-        raises=AssertionError,
-    )
     def test_best_action_tracker(self, facade_gen_model):
 
         feedback_source = RandomFeedbackSource()
@@ -67,8 +63,6 @@ class TestPreferenceDataGenerator:
             data=actions, limit=10
         )
 
-        # Sometimes BestActionTraker may lose some actions in the final stage of additional data
-        # generation, check todo in BestActionTracker implementation
         assert list(action_pairs.action_pairs.shape) == [
             24,
             2,
