@@ -37,9 +37,9 @@ Most tests build a real `StackGanGenModel`/`StackGanDiscModel` (GPU inference ag
 
 This is a **preference-based reinforcement learning system** for image generation. The agent learns to navigate a generative model's noise space using pairwise human (or artificial) preferences to find noise vectors that produce images matching a desired target. The system is implemented around StackGAN v2 and is currently configured for the CelebA dataset.
 
-### The Training Loop (`main.py`)
+### The Training Loop (`src/Pipeline/PbRLPipeline`)
 
-Each round of the pipeline:
+`main.py` only wires components and calls `pipeline.run()`; the loop itself lives in `PbRLPipeline._run_round()`, called once per round from `run()`, followed by `_run_control_logging()` after all rounds. Each round:
 1. **Sample** noise vectors (`ActionData`) from the action distribution
 2. **Filter** candidates using the current reward model
 3. **Generate** image pairs from candidate actions via the generative model
@@ -53,19 +53,22 @@ Each round of the pipeline:
 
 **`src/Abstract/`** — Interfaces most components implement, each with a `Configuration` dataclass + `create_from_configuration` (e.g. `AbsRewardModel`, `AbsFeedbackSource`, `AbsActionFilter`). Exceptions: `AbsGenModel`, `AbsDiscModel`, `AbsMemory` exist but their concrete classes (`StackGanGenModel`, `StackGanDiscModel`, `RoundsMemory`) do **not** inherit them — treat these three as documentation of intended shape, not an enforced contract.
 
+**`src/Pipeline/`** — `PbRLPipeline` encapsulates the round loop and post-loop control logging (see Training Loop above). Caller (`main.py`) is responsible for constructing components with shared live-object dependencies (e.g. `destination_action_trainable`) and passing them in already wired; standalone helpers with no such cross-object dependencies are constructed internally.
+
 **`src/DataStructures/`** — Typed tensor wrappers with shape validation:
 - `ActionData [B, D]` — noise vectors fed to the generator
 - `ActionPairsData [B, 2, D]` — pairs of actions for comparison
 - `PreferencePairsData` — labels: `[1,0]` left, `[0,1]` right, `[0.5,0.5]` equal, `[0,0]` skip
 - `ImageData [N, C, H, W]` — generated images
 - `TrainableActionData` — wraps a live `nn.Parameter` for `ptLightningLatentWrapper`'s latent optimization. `.actions` aliases `.grad_actions` (grad-tracked); `.detached_actions` is the safe non-training read. `clone()`/`append()` intentionally raise — it's a single shared autograd-graph object, not meant to be copied.
+- `ActionPairsPrefPairsContainer` — bundles an `ActionPairsData`/`PreferencePairsData` pair for `RoundsMemory.add_data()`.
 
 **`src/GenModel/`** — Wraps StackGAN v2. `StackGanGenModel` provides `generate()`, `sample_random_actions()`, and `get_input_noise_distribution()`.
 
 **`src/RewardModel/`** — `mlpRewardNetwork`: 3-layer MLP with LeakyReLU/dropout that maps a noise vector to a scalar reward.
 
-**`src/Trainer/`** — PyTorch Lightning wrappers:
-- `ptLightningTrainer` — trains the reward model
+**`src/Trainer/`** — `ptLightningTrainer` is a generic Lightning runner; which model it trains depends on the wrapper (`ptLightningWrappers.py`) it's given:
+- `ptLightningModelWrapper` — trains the reward model
 - `ptLightningLatentWrapper` — treats the destination action as a learnable parameter and optimizes it (reward model is frozen during this step)
 
 **`src/FeedbackSource/`** — `HumanFeedback` (Tkinter GUI), `CosDistFeedback` (cosine similarity to a target image), `RandomFeedbackSource`.
@@ -76,11 +79,11 @@ Each round of the pipeline:
 
 **`src/ActionDistribution/`** — `SimpleActionDistribution` (pure random from generator prior), `GreedyNormalActionDistribution` (epsilon-greedy Gaussian around the current destination action).
 
-**`src/Filter/`** — `ScoreActionFilter` selects top/bottom-N actions by predicted reward; `CompositeSeriesActionFilter` chains multiple filters. `UncertaintyActionFilter` is an intentional non-functional placeholder for a future feature (constructor always raises `NotImplementedError`, references removed `AbsNetworkExtension` API) — leave it, don't remove as dead code.
+**`src/Filter/`** — `ScoreActionFilter` selects top/bottom-N actions by predicted reward; `CompositeActionFilter` (file `CompositeSeriesActionFilter.py` — file/class names differ) chains multiple filters; `EmptyActionFilter` (pass-through) and `RandomActionFilter` (random N) round out the basic filters. `UncertaintyActionFilter` is an intentional non-functional placeholder for a future feature (constructor always raises `NotImplementedError`, references removed `AbsNetworkExtension` API) — leave it, don't remove as dead code.
 
-**`src/Loss/`** — `PreferenceLoss` (cross-entropy on softmax-ed reward pairs), `ActionRewardLoss` (negated reward for maximization), `LogLossDecorator`, `CompositeLoss`.
+**`src/Loss/`** — `PreferenceLoss` (cross-entropy on softmax-ed reward pairs), `ActionRewardLoss` (negated reward for maximization), `LogLossDecorator`, `CompositeLoss`, `RewardValuesRegularisation`, `ActionDiscriminatorLoss`.
 
-**`src/MetricsLogger/`** — `TensorboardImageLogger`, `TensorboardScalarLogger`, `CompositeLogger`.
+**`src/MetricsLogger/`** — `TensorboardImageLogger`, `TensorboardGridImageLogger`, `TensorboardScalarLogger`, `CompositeLogger`.
 
 ### Key Design Conventions
 
