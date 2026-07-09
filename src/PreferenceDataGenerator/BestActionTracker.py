@@ -136,9 +136,7 @@ class BestActionTracker(AbsPreferenceDataGenerator):
         # best_action carried over unchanged from a previous round: resolve its idx
         # in this round's data (if present) so the self-comparison guard below works
         if best_action_idx is None:
-            match_table = ((all_actions_tensor - self.best_action).abs() < 1e-10).all(
-                dim=1
-            )
+            match_table = torch.isclose(all_actions_tensor, self.best_action).all(dim=1)
             match_idx = torch.nonzero(match_table, as_tuple=False)
             if match_idx.shape[0] > 0:
                 best_action_idx = match_idx[0].item()
