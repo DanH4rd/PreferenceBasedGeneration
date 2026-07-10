@@ -63,7 +63,9 @@ This is a **preference-based reinforcement learning system** for image generatio
 - `TrainableActionData` — wraps a live `nn.Parameter` for `ptLightningLatentWrapper`'s latent optimization. `.actions` aliases `.grad_actions` (grad-tracked); `.detached_actions` is the safe non-training read. `clone()`/`append()` intentionally raise — it's a single shared autograd-graph object, not meant to be copied.
 - `ActionPairsPrefPairsContainer` — bundles an `ActionPairsData`/`PreferencePairsData` pair for `RoundsMemory.add_data()`.
 
-**`src/GenModel/`** — Wraps StackGAN v2. `StackGanGenModel` provides `generate()`, `sample_random_actions()`, and `get_input_noise_distribution()`.
+**`src/GenModel/`** — Wraps StackGAN v2. `StackGanGenModel` provides `generate()`, `sample_random_actions()`, `get_input_noise_distribution()`, and `SetDevice()` for CUDA/CPU switching.
+
+**`src/DiscModel/`** — Wraps the StackGAN v2 discriminator. `StackGanDiscModel` mirrors `StackGanGenModel`'s structure (`discriminate()`, `SetDevice()`, same `DataParallel`/`ngpu` device wiring).
 
 **`src/RewardModel/`** — `mlpRewardNetwork`: 3-layer MLP with LeakyReLU/dropout that maps a noise vector to a scalar reward.
 
@@ -98,6 +100,8 @@ Inside `src/DataStructures/`, import sibling classes directly from their submodu
 Use `lightning.pytorch.*` imports everywhere, never `pytorch_lightning.*` — both packages are installed but are different classes at runtime (`Logger`, `Callback`, etc. don't match), breaking Lightning's internal isinstance checks despite looking interchangeable.
 
 Abstract base classes in `src/Abstract/` must declare the exact param names/types every concrete override uses (basedpyright flags LSP-violating narrowing otherwise). `AbsLoss` is `Generic[D]` since different loss subclasses need different input data types — subclass as `AbsLoss[ActionData]`, not bare `AbsLoss`.
+
+`StackGanGenModel`/`StackGanDiscModel` wrap their model in `torch.nn.DataParallel(module, list(range(ngpu)))` at construction — if `ngpu==1`, `DataParallel.__init__` auto-moves the module to `cuda:0` right there (before `load_state_dict`), regardless of the `self.device="cpu"` bookkeeping value set alongside it. `DataParallel.forward()` requires every param to sit on `device_ids[0]` whenever `device_ids` is non-empty, but skips that check entirely (calls the module directly) when `device_ids` is empty — so `SetDevice()` must keep `device_ids`/`src_device_obj` in sync with the target device (cleared for CPU, `range(primary_idx, primary_idx+ngpu)` for CUDA), not just call `.to(device)`.
 
 Every component follows the same pattern:
 1. Inherits from an abstract base class in `src/Abstract/`

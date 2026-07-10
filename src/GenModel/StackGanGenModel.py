@@ -1,5 +1,4 @@
 import abc
-import warnings
 from dataclasses import dataclass
 
 import torch
@@ -46,6 +45,7 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
         self.config_file = config_file
         self.checkpoint_file = checkpoint_file
         self.scale_level = scale_level
+        self.ngpu = ngpu
         self.device = "cpu"
 
         cfg_from_file(self.config_file)
@@ -60,18 +60,39 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
         self.model.eval()
 
     def SetDevice(self, device) -> None:
-        """Sets the device for generator model.
+        """Sets the device for generator model. The model is already wrapped
+        in torch.nn.DataParallel at construction time (see ngpu), but
+        DataParallel's own device_ids only make sense for CUDA devices -
+        forward() requires every parameter to already sit on device_ids[0]
+        when device_ids is non-empty. So device_ids is kept in sync here:
+        cleared for a CPU device (DataParallel then calls the module
+        directly, skipping its device checks) and restored to `ngpu`
+        devices starting at the requested device's index otherwise.
 
         Args:
             device (_type_): device object to set to
-
-        TODO:
-            support parralel
         """
 
-        warnings.warn(
-            "No other devices are supported for StackGan model", RuntimeWarning
-        )
+        self.device = device
+        resolved_device = torch.device(device)
+
+        # self.model is typed as nn.Module, whose __setattr__ stub only
+        # accepts Tensor | Module - but at runtime it's a DataParallel
+        # instance and device_ids/src_device_obj are its own plain attributes.
+        if resolved_device.type == "cpu":
+            self.model.device_ids = []  # pyright: ignore[reportArgumentType]
+        else:
+            primary_idx = (
+                resolved_device.index if resolved_device.index is not None else 0
+            )
+            self.model.device_ids = list(  # pyright: ignore[reportArgumentType]
+                range(primary_idx, primary_idx + self.ngpu)
+            )
+            self.model.src_device_obj = torch.device(  # pyright: ignore[reportArgumentType]
+                resolved_device.type, primary_idx
+            )
+
+        self.model = self.model.to(device)
 
     def generate(self, data: ActionData) -> ImageData:
         """Generates images of set scale based on
@@ -83,7 +104,7 @@ class StackGanGenModel(object, metaclass=abc.ABCMeta):
         Returns:
             ImageData: generated images of said scale
         """
-        images = self.model(data.actions)[0][self.scale_level]
+        images = self.model(data.actions.to(self.device))[0][self.scale_level]
 
         # normalise values of generated images
         images = torch.stack(
