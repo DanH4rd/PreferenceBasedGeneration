@@ -61,11 +61,6 @@ class PreferenceLoss(AbsLoss[ActionPairsPrefPairsContainer]):
 
         Returns:
             torch.Tensor: mean of cross entropy loss with a grad
-
-        TODO:
-            Calculate preference probs only for the first elements, then
-            round it to decimals and then calculate preference probs
-            for 2nd pair elements
         """
 
         action_pairs_tensor = data.action_pairs_data.action_pairs
@@ -82,17 +77,15 @@ class PreferenceLoss(AbsLoss[ActionPairsPrefPairsContainer]):
         preferences_left_column = self.ConvertRewards2Preferences(
             rewards_left_column, rewards_right_column
         )
-        preferences_right_column = self.ConvertRewards2Preferences(
-            rewards_right_column, rewards_left_column
-        )
 
         if self.decimals is not None:
             preferences_left_column = torch.round(
                 preferences_left_column, decimals=self.decimals
             )
-            preferences_right_column = torch.round(
-                preferences_right_column, decimals=self.decimals
-            )
+
+        preferences_right_column = (
+            torch.ones_like(preferences_left_column) - preferences_left_column
+        )
 
         per_pair_loss = pref_pairs_tensor[..., 0] * torch.log(
             preferences_left_column
