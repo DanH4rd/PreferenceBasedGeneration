@@ -24,23 +24,39 @@ class ptLightningTrainer(AbsTrainer):
 
         model: ptlLightningWrapper
         batch_size: int
+        optimizer_cls: type[torch.optim.Optimizer] = torch.optim.Adam
+        optimizer_kwargs: dict[str, object] | None = None
 
     @staticmethod
     def create_from_configuration(conf: Configuration):
-        return ptLightningTrainer(model=conf.model, batch_size=conf.batch_size)
+        return ptLightningTrainer(
+            model=conf.model,
+            batch_size=conf.batch_size,
+            optimizer_cls=conf.optimizer_cls,
+            optimizer_kwargs=conf.optimizer_kwargs,
+        )
 
     def __init__(
         self,
         model: ptlLightningWrapper,
         batch_size: int,
+        optimizer_cls: type[torch.optim.Optimizer] = torch.optim.Adam,
+        optimizer_kwargs: dict[str, object] | None = None,
     ):
         """
         Args:
             model (ptlLightningWrapper): pytorch lightning module to train
             batch_size (int): size of batches into which to slice the train data
-        TODO:
-            add model optimiser parametrisation
+            optimizer_cls (type[torch.optim.Optimizer], optional): optimiser class used
+                to train model's parameters. Defaults to torch.optim.Adam.
+            optimizer_kwargs (dict[str, object] | None, optional): kwargs passed to
+                optimizer_cls's constructor alongside model parameters. Defaults to {"lr": 0.001}.
         """
+
+        model.optimizer_cls = optimizer_cls
+        model.optimizer_kwargs = (
+            optimizer_kwargs if optimizer_kwargs is not None else {"lr": 0.001}
+        )
 
         self.global_epoch = 0
 

@@ -22,6 +22,26 @@ class ptlLightningWrapper(L.LightningModule):
     """Abstract class of a wrapper for base torch models"""
 
     loss_func_obj: AbsLoss
+    optimizer_cls: type[torch.optim.Optimizer]
+    optimizer_kwargs: dict[str, object]
+
+    @override
+    def configure_optimizers(self) -> torch.optim.Optimizer:
+        """Creates a torch optimiser used for training, using
+        optimizer_cls/optimizer_kwargs as set by the owning trainer
+        (see ptLightningTrainer).
+
+        Returns:
+            torch.optim.Optimizer: torch optimiser object
+        """
+        # optimizer_cls is typed as the Optimizer base, whose __init__ takes a
+        # single `defaults: Dict[str, Any]` positional arg - concrete subclasses
+        # (Adam, SGD, ...) accept different named kwargs (lr, betas, ...) that
+        # the base type can't express statically.
+        return self.optimizer_cls(
+            self.parameters(),
+            **self.optimizer_kwargs,  # pyright: ignore[reportArgumentType]
+        )
 
     @staticmethod
     def _wrap_loss_with_logging(
@@ -122,16 +142,6 @@ class ptLightningModelWrapper(ptlLightningWrapper):
 
         return loss
 
-    @override
-    def configure_optimizers(self) -> torch.optim.Optimizer:
-        """Creates a torch optimiser used for training
-
-        Returns:
-            torch.optim: torch optimiser object
-        """
-        optimizer = torch.optim.Adam(self.parameters(), lr=0.001)
-        return optimizer
-
 
 class ptLightningLatentWrapper(ptlLightningWrapper):
     """Pytorch lightning wrapper that treats a TrainableActionData object's
@@ -214,14 +224,3 @@ class ptLightningLatentWrapper(ptlLightningWrapper):
         self.rewardModel.unfreeze()
 
         pass
-
-    @override
-    def configure_optimizers(self):
-        """Creates a torch optimiser used for training
-
-        Returns:
-            torch.optim: torch optimiser object
-        """
-
-        optimizer = torch.optim.Adam(self.parameters(), lr=0.001)
-        return optimizer
