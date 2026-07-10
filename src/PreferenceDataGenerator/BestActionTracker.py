@@ -74,12 +74,6 @@ class BestActionTracker(AbsPreferenceDataGenerator):
 
         Returns:
             tuple[ActionPairsData, PreferencePairsData]: list of action pairs with corresponding preferences
-
-
-        TODO:
-            add an option to ensure in generating additional data stage
-            that generated preferences and action pairs are not already present in originally
-            generated data
         """
         all_actions_tensor = data.actions
         action_pairs_idx, preference_data = (
@@ -161,21 +155,44 @@ class BestActionTracker(AbsPreferenceDataGenerator):
 
         # print(self.best_action)
 
-        # generate new preference data
+        # generate new preference data, skipping any best-vs-action pair whose
+        # actions were already directly compared in this round's originally
+        # generated pairs (no need to ask the same comparison twice)
+        best_action_idx_int = (
+            int(best_action_idx) if best_action_idx is not None else None
+        )
+        existing_pairs = set()
+        if best_action_idx_int is not None:
+            for pair in action_pairs_idx:
+                a_idx, b_idx = int(pair[0]), int(pair[1])
+                existing_pairs.add((a_idx, b_idx))
+                existing_pairs.add((b_idx, a_idx))
 
-        additional_action_pairs_idx = []
-        additional_pref_pairs = []
+        new_pairs_idx_list = []
+        new_prefs_list = []
 
         for action_idx, _ in enumerate(all_actions_tensor):
             # dont compare the best action with itself
-            if best_action_idx is not None and action_idx == best_action_idx:
+            if best_action_idx_int is not None and action_idx == best_action_idx_int:
                 continue
-            action_pair_idx = torch.tensor([-1, action_idx])
-            additional_action_pairs_idx.append(action_pair_idx)
-            additional_pref_pairs.append(torch.tensor([1.0, 0.0]))
+            # already compared against the best action in this round's original data
+            if (
+                best_action_idx_int is not None
+                and (best_action_idx_int, action_idx) in existing_pairs
+            ):
+                continue
+            new_pairs_idx_list.append(torch.tensor([-1, action_idx]))
+            new_prefs_list.append(torch.tensor([1.0, 0.0]))
 
-        additional_action_pairs_idx = torch.stack(additional_action_pairs_idx)
-        additional_pref_pairs = torch.stack(additional_pref_pairs)
+        if new_pairs_idx_list:
+            additional_action_pairs_idx = torch.stack(new_pairs_idx_list)
+            additional_pref_pairs = torch.stack(new_prefs_list)
+        else:
+            additional_action_pairs_idx = torch.empty((0, 2), dtype=torch.long)
+            additional_pref_pairs = torch.empty(
+                (0, 2), dtype=preference_data.preference_pairs.dtype
+            )
+
         action_pairs_idx = torch.concat(
             [action_pairs_idx, additional_action_pairs_idx], dim=0
         )
