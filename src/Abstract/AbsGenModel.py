@@ -53,9 +53,6 @@ class AbsGenModel(object, metaclass=abc.ABCMeta):
 
         Returns:
             Distribution: noise samples torch distribution
-
-        TODO:
-            replace torch.Distribution with ActionDistribution
         """
         raise NotImplementedError(
             "users must define get_input_noise_distribution to use this base class"
