@@ -47,8 +47,10 @@ class PreferenceLoss(AbsLoss[ActionPairsPrefPairsContainer]):
             torch.Tensor: preference probabilities for the first elements in pairs
         """
 
-        answer = torch.exp(r1) / (torch.exp(r1) + torch.exp(r2))
-        return answer
+        # equivalent to exp(r1)/(exp(r1)+exp(r2)) but via sigmoid(r1-r2), which only
+        # depends on the (finite) difference - the raw exp() form overflows to inf
+        # once r1/r2 diverge by ~88 (float32), giving inf/inf = nan
+        return torch.sigmoid(r1 - r2)
 
     def calculate_loss(self, data: ActionPairsPrefPairsContainer) -> torch.Tensor:
         """Calculates Cross Entropy loss on preference probabilities for the given
@@ -82,6 +84,11 @@ class PreferenceLoss(AbsLoss[ActionPairsPrefPairsContainer]):
             preferences_left_column = torch.round(
                 preferences_left_column, decimals=self.decimals
             )
+
+        # clamp away from exact 0/1: a saturated probability times a 0-weight
+        # preference label (e.g. skip pairs labelled [0,0]) computes 0 * log(0)
+        # = 0 * -inf = nan below, poisoning the whole batch loss via .sum()
+        preferences_left_column = preferences_left_column.clamp(1e-7, 1 - 1e-7)
 
         preferences_right_column = (
             torch.ones_like(preferences_left_column) - preferences_left_column
