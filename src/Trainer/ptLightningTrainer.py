@@ -25,6 +25,7 @@ class ptLightningTrainer(AbsTrainer):
         batch_size: int
         optimizer_cls: type[torch.optim.Optimizer] = torch.optim.Adam
         optimizer_kwargs: dict[str, object] | None = None
+        gradient_clip_val: float | None = None
 
     @staticmethod
     def create_from_configuration(conf: Configuration):
@@ -33,6 +34,7 @@ class ptLightningTrainer(AbsTrainer):
             batch_size=conf.batch_size,
             optimizer_cls=conf.optimizer_cls,
             optimizer_kwargs=conf.optimizer_kwargs,
+            gradient_clip_val=conf.gradient_clip_val,
         )
 
     def __init__(
@@ -41,6 +43,7 @@ class ptLightningTrainer(AbsTrainer):
         batch_size: int,
         optimizer_cls: type[torch.optim.Optimizer] = torch.optim.Adam,
         optimizer_kwargs: dict[str, object] | None = None,
+        gradient_clip_val: float | None = None,
     ):
         """
         Args:
@@ -50,6 +53,9 @@ class ptLightningTrainer(AbsTrainer):
                 to train model's parameters. Defaults to torch.optim.Adam.
             optimizer_kwargs (dict[str, object] | None, optional): kwargs passed to
                 optimizer_cls's constructor alongside model parameters. Defaults to {"lr": 0.001}.
+            gradient_clip_val (float | None, optional): caps gradient norm per step to guard
+                against exploding gradients (e.g. unconstrained latent optimisation walking
+                out of the generator's training distribution). Defaults to no clipping.
         """
 
         model.optimizer_cls = optimizer_cls
@@ -73,6 +79,7 @@ class ptLightningTrainer(AbsTrainer):
             callbacks=callbacks,
             enable_model_summary=False,
             enable_progress_bar=True,
+            gradient_clip_val=gradient_clip_val,
         )
 
         self.ptl_model = model
