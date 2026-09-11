@@ -10,7 +10,6 @@ from src.Loss import LogLossDecorator
 from .ptLightningCallbacks import (
     EarlyStopAtEpochInterval,
     NotifyLossLoggerOnEpochEnd,
-    TBLogger,
 )
 from .ptLightningWrappers import ptlLightningWrapper
 
@@ -70,7 +69,7 @@ class ptLightningTrainer(AbsTrainer):
 
         self.ptl_trainer = L.Trainer(
             enable_checkpointing=False,
-            logger=TBLogger(),
+            logger=False,
             callbacks=callbacks,
             enable_model_summary=False,
             enable_progress_bar=True,

@@ -1,57 +1,8 @@
-from argparse import Namespace
-from typing import Any, Dict, Optional, Union
-
 import lightning as L
 from lightning.pytorch.callbacks.callback import Callback
-from lightning.pytorch.loggers.logger import Logger
 from typing_extensions import override
 
 from src.Loss import LogLossDecorator
-
-
-class TBLogger(Logger):
-    """Empty pytorch lightning logger class to replace the default
-    ptl logger in order to  disable automatic logging to tensorboard
-    """
-
-    def __init__(self):
-        pass
-
-    @property
-    @override
-    def name(self) -> Optional[str]:
-        return "Empty Logger"
-
-    @property
-    @override
-    def version(self) -> Optional[Union[int, str]]:
-        return 0
-
-    @override
-    def log_metrics(
-        self, metrics: Dict[str, float], step: Optional[int] = None
-    ) -> None:
-        """Does nothing
-
-        Args:
-            metrics: Dictionary with metric names as keys and measured quantities as values
-            step: Step number at which the metrics should be recorded
-        """
-        pass
-
-    @override
-    def log_hyperparams(
-        self, params: Union[Dict[str, Any], Namespace], *args: Any, **kwargs: Any
-    ) -> None:
-        """Does nothing.
-
-        Args:
-            params: :class:`~argparse.Namespace` or `Dict` containing the hyperparameters
-            args: Optional positional arguments, depends on the specific logger being used
-            kwargs: Optional keyword arguments, depends on the specific logger being used
-
-        """
-        pass
 
 
 class EarlyStopAtEpochInterval(Callback):

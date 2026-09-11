@@ -29,7 +29,7 @@ from src.Trainer import (
 if __name__ == "__main__":
     # infrastructure
     tensorboard_writer = SummaryWriter(
-        log_dir=f"logs\\{datetime.now().strftime('%Y-%m-%d %H-%M-%S')}"
+        log_dir=f"logs\\{datetime.now(tz=datetime.now().astimezone().tzinfo).strftime('%Y-%m-%d %H-%M-%S')}"
     )
 
     # define ML models
