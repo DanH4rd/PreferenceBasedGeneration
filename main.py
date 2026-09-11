@@ -9,7 +9,7 @@ from src.ActionDistribution import (
 )
 from src.DataStructures import TrainableActionData
 from src.DiscModel import StackGanDiscModel
-from src.FeedbackSource import HumanFeedback
+from src.FeedbackSource import CosDistFeedback
 from src.Filter import CompositeActionFilter, ScoreActionFilter
 from src.GenModel import StackGanGenModel
 from src.Loss import ActionRewardLoss, PreferenceLoss
@@ -25,6 +25,7 @@ from src.Trainer import (
     ptLightningModelWrapper,
     ptLightningTrainer,
 )
+from PIL import Image
 
 if __name__ == "__main__":
     # infrastructure
@@ -45,34 +46,33 @@ if __name__ == "__main__":
         scale_level=0,
     )
 
-    # set up feedback and preference generators
+    # destination_action_trainable is shared mutable state: the same
+    # TrainableActionData instance must be passed to GreedyNormalActionDistribution,
+    # ptLightningLatentWrapper, HumanFeedback, and PbRLPipeline. It registers its
+    # actions as an nn.Parameter, so the latent trainer optimises it in place
+    # directly; the distribution reads its detached_actions[0] on update().
+    destination_action_trainable = TrainableActionData.from_action_data(
+        gen_model.sample_random_actions(N=1)
+    )
 
-    # feedback_source = CosDistFeedback(
-    #     target_image=Image.open(
-    #         "GenerativeModelsData\\StackGan2\\target_images\\000387.jpg"
-    #     ),
-    #     th_min=0.01,
-    #     th_max=0.75,
-    #     device="cuda",
+    # feedback_source = HumanFeedback(
+    #     window_name="Provide your preferences",
     #     gen_model=gen_model,
+    #     destination_action_trainable=destination_action_trainable,
     # )
 
-    feedback_source = HumanFeedback(
-        window_name="Provide your preferences",
+    feedback_source = CosDistFeedback(
+        target_image=Image.open(
+            "GenerativeModelsData\\StackGan2\\target_images\\000387.jpg"
+        ),
+        th_min=0.01,
+        th_max=0.75,
+        device="cuda",
         gen_model=gen_model,
     )
 
     preference_generator = BestActionTracker(
         prefDataGen=GraphPreferenceDataGeneration(feedbackSource=feedback_source)
-    )
-
-    # destination_action_trainable is shared mutable state: the same
-    # TrainableActionData instance must be passed to GreedyNormalActionDistribution,
-    # ptLightningLatentWrapper, and PbRLPipeline. It registers its actions as an
-    # nn.Parameter, so the latent trainer optimises it in place directly; the
-    # distribution reads its detached_actions[0] on update().
-    destination_action_trainable = TrainableActionData.from_action_data(
-        gen_model.sample_random_actions(N=1)
     )
 
     # define action distribution
@@ -98,6 +98,10 @@ if __name__ == "__main__":
             loss_log_name="Loss/Preference Loss",
         ),
         batch_size=20,
+        # reward_model has no output activation/weight decay of its own; cap gradient
+        # norm so a bad batch can't blow its weights up (was the actual source of the
+        # NaN reward that later corrupted destination_action_trainable)
+        gradient_clip_val=1.0,
     )
 
     latent_trainer = ptLightningTrainer(
@@ -109,6 +113,12 @@ if __name__ == "__main__":
             loss_log_name="Loss/Action Reward Loss",
         ),
         batch_size=20,
+        # weight_decay pulls the action back toward the generator's N(0,1) prior each
+        # step; gradient_clip_val caps per-step blowup. Both guard against unconstrained
+        # reward-ascent walking the action out of distribution (degenerate/black images)
+        # and eventually to NaN.
+        optimizer_kwargs={"lr": 0.001, "weight_decay": 1e-2},
+        gradient_clip_val=1.0,
     )
 
     # define memory
@@ -127,8 +137,8 @@ if __name__ == "__main__":
             rounds=15,
             samples_per_round=100,
             preference_limit_per_round=15,
-            training_epochs_reward=10,
-            training_epochs_latent=10,
+            training_epochs_reward=50,
+            training_epochs_latent=100,
             control_sample_size=1000,
         ),
         gen_model=gen_model,
