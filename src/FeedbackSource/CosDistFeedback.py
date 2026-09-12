@@ -6,7 +6,7 @@ from transformers import ViTImageProcessor, ViTModel
 
 from src.Abstract.AbsFeedbackSource import AbsFeedbackSource
 from src.DataStructures import ActionData, ActionPairsData, PreferencePairsData
-from src.GenModel import StackGanGenModel
+from src.GenModel import RealDataGenModel, StackGanGenModel
 
 
 class CosDistFeedback(AbsFeedbackSource):
@@ -23,7 +23,7 @@ class CosDistFeedback(AbsFeedbackSource):
         th_min: float
         th_max: float
         device: str | None
-        gen_model: StackGanGenModel
+        gen_model: StackGanGenModel | RealDataGenModel
 
     @staticmethod
     def create_from_configuration(conf: Configuration):
@@ -41,7 +41,7 @@ class CosDistFeedback(AbsFeedbackSource):
         th_min: float,
         th_max: float,
         device: str | None,
-        gen_model: StackGanGenModel,
+        gen_model: StackGanGenModel | RealDataGenModel,
     ):
         self.th_min = th_min
         self.th_max = th_max

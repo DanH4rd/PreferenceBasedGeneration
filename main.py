@@ -11,7 +11,7 @@ from src.DataStructures import TrainableActionData
 from src.DiscModel import StackGanDiscModel
 from src.FeedbackSource import CosDistFeedback
 from src.Filter import CompositeActionFilter, ScoreActionFilter
-from src.GenModel import StackGanGenModel
+from src.GenModel import RealDataGenModel
 from src.Loss import ActionRewardLoss, PreferenceLoss
 from src.Memory import RoundsMemory
 from src.Pipeline.PbRLPipeline import PbRLPipeline
@@ -34,11 +34,19 @@ if __name__ == "__main__":
     )
 
     # define ML models
-    reward_model = mlpRewardNetwork(input_dim=100, hidden_dim=100)
-    gen_model = StackGanGenModel(
-        config_file="GenerativeModelsData\\StackGan2\\config\\facade_3stages_color.yml",
-        checkpoint_file="GenerativeModelsData\\StackGan2\\checkpoints\\Celeba v1.0\\netG_26000.pth",
-        scale_level=0,
+    # gen_model = StackGanGenModel(
+    #     config_file="GenerativeModelsData\\StackGan2\\config\\facade_3stages_color.yml",
+    #     checkpoint_file="GenerativeModelsData\\StackGan2\\checkpoints\\Celeba v1.0\\netG_26000.pth",
+    #     scale_level=0,
+    # )
+    gen_model = RealDataGenModel(
+        image_folder=r"C:\1Projects\DNN\StackGAN-v2-rev\data\imagenet\train\img_align_celeba",
+        # device="cuda",
+    )
+
+    reward_model = mlpRewardNetwork(
+        input_dim=gen_model.get_input_noise_distribution().mean.shape[0],
+        hidden_dim=100,
     )
     disc_model = StackGanDiscModel(
         config_file="GenerativeModelsData\\StackGan2\\config\\facade_3stages_color.yml",

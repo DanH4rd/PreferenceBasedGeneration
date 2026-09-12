@@ -7,10 +7,13 @@ __pycache__/
 /Tests/*/images/
 /logs/
 /GenerativeModelsData/
+/.pbrl_cache/
 /testing.ipynb
 
 *.drawio.bkp
 *.drawio.dtmp
+
+.review-now/
 
 .claude.local.md
 

@@ -16,7 +16,7 @@ from src.DataStructures import (
 )
 from src.FeedbackSource import CosDistFeedback, RandomFeedbackSource
 from src.Filter import ScoreActionFilter
-from src.GenModel import StackGanGenModel
+from src.GenModel import RealDataGenModel, StackGanGenModel
 from src.Memory import RoundsMemory
 from src.MetricsLogger import TensorboardGridImageLogger, TensorboardImageLogger
 from src.PreferenceDataGenerator import RandomPreferenceDataGenerator
@@ -57,7 +57,7 @@ class PbRLPipeline:
     def __init__(
         self,
         config: "PbRLPipeline.Configuration",
-        gen_model: StackGanGenModel,
+        gen_model: StackGanGenModel | RealDataGenModel,
         action_dist: AbsActionDistribution,
         destination_action_trainable: TrainableActionData,
         preference_generator: AbsPreferenceDataGenerator,
